@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ImagePlus, X, MoveUp, MoveDown } from 'lucide-react';
@@ -29,10 +30,10 @@ export const MultipleImageUpload: React.FC<MultipleImageUploadProps> = ({
           return false;
         }
         
-        // Check file size (max 2MB)
-        const isValidSize = file.size <= 2 * 1024 * 1024;
+        // Check file size (max 4MB)
+        const isValidSize = file.size <= 4 * 1024 * 1024;
         if (!isValidSize) {
-          toast.error(`${file.name}: Arquivo muito grande. Máximo 2MB.`);
+          toast.error(`${file.name}: Arquivo muito grande. Máximo 4MB.`);
           return false;
         }
         
@@ -145,7 +146,7 @@ export const MultipleImageUpload: React.FC<MultipleImageUploadProps> = ({
       <div className="border-2 border-dashed rounded-md p-6 text-center bg-gray-50">
         <ImagePlus className="mx-auto h-10 w-10 text-gray-400" />
         <p className="mt-2 text-sm text-gray-500">Clique para adicionar imagens</p>
-        <p className="text-xs text-gray-400 mt-1">JPG, PNG ou WebP (máx. 2MB por imagem)</p>
+        <p className="text-xs text-gray-400 mt-1">JPG, PNG ou WebP (máx. 4MB por imagem)</p>
       </div>
       
       <div>

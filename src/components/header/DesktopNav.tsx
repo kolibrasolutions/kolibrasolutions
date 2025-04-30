@@ -28,17 +28,17 @@ const DesktopNav: React.FC<DesktopNavProps> = ({
   
   return (
     <nav className="hidden md:flex items-center space-x-8">
-      <Link to="/" className={`text-gray-800 hover:text-kolibra-blue ${location.pathname === '/' ? 'font-semibold text-kolibra-blue' : ''}`}>HOME</Link>
-      <Link to="/servicos" className={`text-gray-800 hover:text-kolibra-blue ${location.pathname === '/servicos' ? 'font-semibold text-kolibra-blue' : ''}`}>SOLUÇÕES</Link>
-      <Link to="/portfolio" className={`text-gray-800 hover:text-kolibra-blue ${location.pathname === '/portfolio' ? 'font-semibold text-kolibra-blue' : ''}`}>PORTFOLIO</Link>
-      <Link to="/blog" className={`text-gray-800 hover:text-kolibra-blue ${location.pathname === '/blog' ? 'font-semibold text-kolibra-blue' : ''}`}>BLOG</Link>
+      <Link to="/" className={`text-white hover:text-kolibra-orange ${location.pathname === '/' ? 'font-semibold text-kolibra-orange' : ''}`}>HOME</Link>
+      <Link to="/servicos" className={`text-white hover:text-kolibra-orange ${location.pathname === '/servicos' ? 'font-semibold text-kolibra-orange' : ''}`}>SERVIÇOS</Link>
+      <Link to="/portfolio" className={`text-white hover:text-kolibra-orange ${location.pathname === '/portfolio' ? 'font-semibold text-kolibra-orange' : ''}`}>PORTFOLIO</Link>
+      <Link to="/blog" className={`text-white hover:text-kolibra-orange ${location.pathname === '/blog' ? 'font-semibold text-kolibra-orange' : ''}`}>BLOG</Link>
       
       {isLoading ? (
         <Skeleton className="h-9 w-20" />
       ) : user ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="text-gray-800 hover:text-kolibra-blue flex items-center gap-1">
+            <Button variant="ghost" className="text-white hover:text-kolibra-orange flex items-center gap-1">
               <User size={16} />
               {user.user_metadata?.full_name?.split(' ')[0] || 'CONTA'}
             </Button>
@@ -63,7 +63,7 @@ const DesktopNav: React.FC<DesktopNavProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <Link to="/login" className={`text-gray-800 hover:text-kolibra-blue ${location.pathname === '/login' ? 'font-semibold text-kolibra-blue' : ''}`}>
+        <Link to="/login" className={`text-white hover:text-kolibra-orange ${location.pathname === '/login' ? 'font-semibold text-kolibra-orange' : ''}`}>
           LOGIN
         </Link>
       )}

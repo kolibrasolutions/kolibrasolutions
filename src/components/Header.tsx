@@ -15,10 +15,10 @@ const Header = () => {
   const closeMenu = () => setIsMenuOpen(false);
   
   return (
-    <header className="shadow-sm py-4 px-6 bg-white">
+    <header className="shadow-sm py-4 px-6 bg-kolibra-blue text-white">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="flex items-center">
-          <img src="/lovable-uploads/4d763971-e656-4bc1-9de1-3a0f1ae9f985.png" alt="KOLIBRA SOLUTIONS" className="h-10 object-fill" />
+          <img src="/lovable-uploads/4d763971-e656-4bc1-9de1-3a0f1ae9f985.png" alt="KOLIBRA SOLUTIONS" className="h-14 object-fill" />
         </Link>
         
         {/* Desktop Navigation */}

@@ -38,8 +38,9 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/servicos" element={<Services />} />
-            <Route path="/soluções" element={<Services />} />  {/* Alternative route for Services */}
+            <Route path="/serviços" element={<Services />} />  {/* Alternative route with accent */}
             <Route path="/solucoes" element={<Services />} />  {/* Alternative route without accent */}
+            <Route path="/soluções" element={<Services />} />  {/* Alternative route with accent */}
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/login" element={<Login />} />

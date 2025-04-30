@@ -22,9 +22,9 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ currentImageUrl, onFil
         return;
       }
       
-      // Validate file size (max 2MB)
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error('Imagem muito grande. Máximo 2MB.');
+      // Validate file size (max 4MB)
+      if (file.size > 4 * 1024 * 1024) {
+        toast.error('Imagem muito grande. Máximo 4MB.');
         return;
       }
       
@@ -64,7 +64,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ currentImageUrl, onFil
         <div className="border-2 border-dashed rounded-md p-6 text-center bg-gray-50">
           <ImagePlus className="mx-auto h-10 w-10 text-gray-400" />
           <p className="mt-2 text-sm text-gray-500">Clique para fazer upload</p>
-          <p className="text-xs text-gray-400 mt-1">JPG, PNG ou WebP (máx. 2MB)</p>
+          <p className="text-xs text-gray-400 mt-1">JPG, PNG ou WebP (máx. 4MB)</p>
         </div>
       )}
       

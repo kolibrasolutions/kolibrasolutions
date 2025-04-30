@@ -39,7 +39,7 @@ const MobileNav: React.FC<MobileNavProps> = ({
             </span>
           </Link>
         )}
-        <button onClick={toggleMenu} className="text-gray-800">
+        <button onClick={toggleMenu} className="text-white">
           {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
@@ -48,19 +48,19 @@ const MobileNav: React.FC<MobileNavProps> = ({
       {isMenuOpen && (
         <div className="md:hidden absolute top-16 left-0 right-0 bg-white z-50 shadow-md">
           <div className="container mx-auto py-4 space-y-4">
-            <Link to="/" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/' ? 'bg-gray-100 font-semibold text-kolibra-blue' : ''}`}>HOME</Link>
-            <Link to="/servicos" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/servicos' ? 'bg-gray-100 font-semibold text-kolibra-blue' : ''}`}>SOLUÇÕES</Link>
-            <Link to="/portfolio" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/portfolio' ? 'bg-gray-100 font-semibold text-kolibra-blue' : ''}`}>PORTFOLIO</Link>
-            <Link to="/blog" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/blog' ? 'bg-gray-100 font-semibold text-kolibra-blue' : ''}`}>BLOG</Link>
+            <Link to="/" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/' ? 'bg-gray-100 font-semibold text-kolibra-orange' : 'text-gray-800'}`}>HOME</Link>
+            <Link to="/servicos" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/servicos' ? 'bg-gray-100 font-semibold text-kolibra-orange' : 'text-gray-800'}`}>SERVIÇOS</Link>
+            <Link to="/portfolio" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/portfolio' ? 'bg-gray-100 font-semibold text-kolibra-orange' : 'text-gray-800'}`}>PORTFOLIO</Link>
+            <Link to="/blog" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/blog' ? 'bg-gray-100 font-semibold text-kolibra-orange' : 'text-gray-800'}`}>BLOG</Link>
             
             {isLoading ? (
               <Skeleton className="h-9 w-full" />
             ) : user ? (
               <>
-                <Link to="/profile" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/profile' ? 'bg-gray-100 font-semibold text-kolibra-blue' : ''}`}>MEU PERFIL</Link>
+                <Link to="/profile" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/profile' ? 'bg-gray-100 font-semibold text-kolibra-orange' : 'text-gray-800'}`}>MEU PERFIL</Link>
                 
                 {isAdmin && (
-                  <Link to="/admin" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/admin' ? 'bg-gray-100 font-semibold text-kolibra-blue' : ''}`}>PAINEL ADMIN</Link>
+                  <Link to="/admin" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/admin' ? 'bg-gray-100 font-semibold text-kolibra-orange' : 'text-gray-800'}`}>PAINEL ADMIN</Link>
                 )}
                 
                 <button 
@@ -68,13 +68,13 @@ const MobileNav: React.FC<MobileNavProps> = ({
                     handleLogout();
                     closeMenu();
                   }} 
-                  className="block w-full text-left px-4 py-2 rounded hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-2 rounded hover:bg-gray-100 text-gray-800"
                 >
                   SAIR
                 </button>
               </>
             ) : (
-              <Link to="/login" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/login' ? 'bg-gray-100 font-semibold text-kolibra-blue' : ''}`}>LOGIN</Link>
+              <Link to="/login" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/login' ? 'bg-gray-100 font-semibold text-kolibra-orange' : 'text-gray-800'}`}>LOGIN</Link>
             )}
           </div>
         </div>
