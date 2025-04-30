@@ -64,34 +64,40 @@ const Admin = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewOrderDetails, setViewOrderDetails] = useState<OrderType | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   const navigate = useNavigate();
 
   // Check if user is admin
   useEffect(() => {
     const checkAdmin = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        toast("Acesso restrito", { description: "Faça login para acessar esta página" });
-        navigate('/login?returnUrl=/admin');
-        return;
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          toast("Acesso restrito", { description: "Faça login para acessar esta página" });
+          navigate('/login?returnUrl=/admin');
+          return;
+        }
+        
+        // Check user role
+        const { data: userData, error } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (error || !userData || userData.role !== 'admin') {
+          toast("Acesso negado", { description: "Você não tem permissão para acessar esta página" });
+          navigate('/');
+          return;
+        }
+        
+        setIsAdmin(true);
+        fetchOrders();
+      } finally {
+        setAuthChecked(true);
+        setLoading(false);
       }
-      
-      // Check user role
-      const { data: userData, error } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', session.user.id)
-        .single();
-      
-      if (error || !userData || userData.role !== 'admin') {
-        toast("Acesso negado", { description: "Você não tem permissão para acessar esta página" });
-        navigate('/');
-        return;
-      }
-      
-      setIsAdmin(true);
-      fetchOrders();
     };
     
     checkAdmin();
@@ -208,12 +214,25 @@ const Admin = () => {
     return new Date(dateString).toLocaleString('pt-BR');
   };
 
-  if (!isAdmin) {
+  if (!authChecked) {
     return (
       <Layout>
         <div className="container mx-auto py-12 px-4">
           <div className="flex justify-center items-center h-40">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"></div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <Layout>
+        <div className="container mx-auto py-12 px-4">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold">Acesso Negado</h1>
+            <p className="mt-4">Você não tem permissão para acessar esta página.</p>
           </div>
         </div>
       </Layout>

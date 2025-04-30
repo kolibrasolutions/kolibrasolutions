@@ -119,11 +119,11 @@ const Services = () => {
       // Clear the cart
       clearCart();
       
-      // Navigate to the payment page
-      navigate(`/payment-confirmation?orderId=${order.id}`);
+      // Navigate to the profile page instead of payment page
+      navigate(`/profile`);
       
       toast("Pedido criado com sucesso!", {
-        description: "Você será redirecionado para o pagamento."
+        description: "Seu pedido foi criado e está aguardando aprovação do administrador."
       });
       
     } catch (error) {

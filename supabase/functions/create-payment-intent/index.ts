@@ -120,9 +120,9 @@ serve(async (req) => {
       }
       paymentAmount = order.initial_payment_amount || Math.round(order.total_price * 0.2);
     } else { // final payment
-      if (order.status !== "Em Andamento" && order.status !== "Pagamento Inicial Realizado" && order.status !== "Finalizado") {
+      if (order.status !== "Finalizado") {
         return new Response(
-          JSON.stringify({ error: "Order not ready for final payment" }),
+          JSON.stringify({ error: "Final payment can only be processed when the order is finalized" }),
           { 
             status: 400, 
             headers: { ...corsHeaders, "Content-Type": "application/json" } 

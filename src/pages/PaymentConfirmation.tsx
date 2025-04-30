@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -221,8 +222,8 @@ const PaymentConfirmation = () => {
           </div>
         )}
 
-        {/* Payment section based on status */}
-        {order!.status === 'Pendente' && (
+        {/* Payment section based on status - updated to include proper status checks */}
+        {(order!.status === 'Aceito') && (
           <div className="mt-6">
             <h2 className="text-xl font-semibold mb-3">Pagamento Inicial (20%)</h2>
             <StripePaymentForm 
@@ -232,13 +233,23 @@ const PaymentConfirmation = () => {
           </div>
         )}
 
-        {order!.status === 'Pagamento Inicial Realizado' && (
+        {(order!.status === 'Finalizado' && !order!.final_payment_amount) && (
           <div className="mt-6">
             <h2 className="text-xl font-semibold mb-3">Pagamento Final (80%)</h2>
             <StripePaymentForm 
               orderId={order!.id} 
               paymentType="final" 
             />
+          </div>
+        )}
+
+        {/* Message for pending orders */}
+        {order!.status === 'Pendente' && (
+          <div className="mt-6 bg-yellow-50 p-4 rounded-lg">
+            <h2 className="text-xl font-semibold mb-2">Aguardando Aprovação</h2>
+            <p className="text-yellow-700">
+              Seu pedido está aguardando aprovação do administrador. Após a aprovação, você poderá realizar o pagamento inicial.
+            </p>
           </div>
         )}
 
