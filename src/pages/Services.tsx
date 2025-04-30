@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -49,10 +50,48 @@ const Services = () => {
           
         if (error) throw error;
 
-        setServices(data);
+        // Temporarily modify data for the new service categories
+        // This is just for display until the database is updated
+        const modifiedData = data.map(service => {
+          // Map old categories to new ones
+          let newCategory = service.category;
+          if (service.category === 'Paisagismo Residencial') newCategory = 'Branding';
+          if (service.category === 'Manutenção de Jardins') newCategory = 'Web';
+          if (service.category === 'Sistemas de Irrigação') newCategory = 'Marketing';
+          
+          // Update service names based on category
+          let newName = service.name;
+          if (newCategory === 'Branding') {
+            if (service.name.includes('Jardim')) newName = 'Naming e Identidade Verbal';
+            if (service.name.includes('Plantas')) newName = 'Logo e Identidade Visual';
+            if (service.name.includes('Grama')) newName = 'Guia de Marca Completo';
+          }
+          if (newCategory === 'Web') {
+            if (service.name.includes('Corte')) newName = 'Site Básico';
+            if (service.name.includes('Fertilização')) newName = 'Site Institucional';
+            if (service.name.includes('Poda')) newName = 'E-commerce Completo';
+          }
+          if (newCategory === 'Marketing') {
+            if (service.name.includes('Sistema')) newName = 'Gestão de Redes Sociais';
+            if (service.name.includes('Irrigação')) newName = 'Google Ads';
+            if (service.name.includes('Manutenção')) newName = 'SEO Otimização';
+          }
+          
+          // Update service description
+          let newDescription = "Descrição do serviço a ser customizada para KOLIBRA SOLUTIONS.";
+          
+          return {
+            ...service,
+            category: newCategory,
+            name: newName,
+            description: newDescription
+          };
+        });
+
+        setServices(modifiedData);
         
         // Extract unique categories
-        const uniqueCategories = Array.from(new Set(data.map(service => service.category)));
+        const uniqueCategories = Array.from(new Set(modifiedData.map(service => service.category)));
         setCategories(uniqueCategories);
       } catch (error) {
         console.error('Error fetching services:', error);
@@ -148,13 +187,13 @@ const Services = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold text-green-800 mb-6">Nossos Serviços</h1>
+        <h1 className="text-4xl font-bold text-kolibra-blue mb-6">Nossas Soluções</h1>
         
         {/* Featured Banner */}
-        <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-8 rounded-lg mb-12 shadow-lg">
-          <h2 className="text-2xl font-bold mb-2">Planos de Assinatura JardimPró</h2>
-          <p className="mb-4">Cuidados regulares para seu jardim com nossos planos mensais personalizados.</p>
-          <Button className="bg-white text-green-700 hover:bg-gray-100">
+        <div className="bg-gradient-to-r from-kolibra-blue to-blue-700 text-white p-8 rounded-lg mb-12 shadow-lg">
+          <h2 className="text-2xl font-bold mb-2">KOLIBRA FINANCE</h2>
+          <p className="mb-4">Soluções financeiras SaaS para gestão completa do seu negócio.</p>
+          <Button className="bg-kolibra-orange hover:bg-amber-500 text-white">
             Conhecer Planos
           </Button>
         </div>
@@ -170,7 +209,7 @@ const Services = () => {
               <Accordion type="single" collapsible className="w-full">
                 {servicesByCategory.map((categoryGroup, index) => (
                   <AccordionItem key={index} value={`category-${index}`}>
-                    <AccordionTrigger className="text-xl font-medium text-green-800">
+                    <AccordionTrigger className="text-xl font-medium text-kolibra-blue">
                       {categoryGroup.category}
                     </AccordionTrigger>
                     <AccordionContent>
@@ -183,11 +222,11 @@ const Services = () => {
                                 <p className="text-gray-700 mt-1">{service.description}</p>
                               </div>
                               <div className="flex flex-col items-end">
-                                <span className="font-bold text-green-700">{formatCurrency(service.price)}</span>
+                                <span className="font-bold text-kolibra-orange">{formatCurrency(service.price)}</span>
                                 <Button 
                                   size="sm" 
                                   variant="outline" 
-                                  className="mt-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
+                                  className="mt-2 border-kolibra-orange text-kolibra-orange hover:bg-kolibra-orange hover:text-white"
                                   onClick={() => addToCart(service)}
                                 >
                                   <Plus size={16} className="mr-1" /> Adicionar
@@ -206,9 +245,9 @@ const Services = () => {
           
           {/* Cart Summary */}
           <div className="lg:w-1/3">
-            <div className="bg-green-50 rounded-lg p-6 sticky top-6">
+            <div className="bg-gray-50 rounded-lg p-6 sticky top-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-green-800 flex items-center">
+                <h2 className="text-2xl font-bold text-kolibra-blue flex items-center">
                   <ShoppingCart size={24} className="mr-2" />
                   Serviços Adicionados
                 </h2>
@@ -216,7 +255,7 @@ const Services = () => {
               
               {cartItems.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
-                  Sua cesta está vazia
+                  Seu carrinho está vazio
                 </div>
               ) : (
                 <>
@@ -247,7 +286,7 @@ const Services = () => {
                   <div className="border-t border-gray-200 pt-4 mb-6">
                     <div className="flex justify-between items-center text-xl font-bold">
                       <span>Total</span>
-                      <span className="text-green-700">{formatCurrency(getTotal())}</span>
+                      <span className="text-kolibra-blue">{formatCurrency(getTotal())}</span>
                     </div>
                     
                     <div className="mt-2">
@@ -263,7 +302,7 @@ const Services = () => {
               )}
               
               <Button 
-                className="w-full bg-green-600 hover:bg-green-700 text-white"
+                className="w-full bg-kolibra-orange hover:bg-amber-500 text-white"
                 disabled={cartItems.length === 0}
                 onClick={handleCheckout}
               >

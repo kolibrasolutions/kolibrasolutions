@@ -43,31 +43,38 @@ const Header = () => {
   return (
     <header className="bg-white shadow-sm py-4 px-6">
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold text-green-700">JardimPró</Link>
+        <Link to="/" className="flex items-center">
+          <img 
+            src="/lovable-uploads/4d763971-e656-4bc1-9de1-3a0f1ae9f985.png" 
+            alt="KOLIBRA SOLUTIONS" 
+            className="h-10" 
+          />
+          <span className="ml-2 text-2xl font-bold text-kolibra-blue hidden md:block">KOLIBRA</span>
+        </Link>
         
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
-          <Link to="/" className={`text-gray-800 hover:text-green-600 ${location.pathname === '/' ? 'font-semibold' : ''}`}>HOME</Link>
-          <Link to="/servicos" className={`text-gray-800 hover:text-green-600 ${location.pathname === '/servicos' ? 'font-semibold' : ''}`}>SERVIÇOS</Link>
-          <Link to="/portfolio" className={`text-gray-800 hover:text-green-600 ${location.pathname === '/portfolio' ? 'font-semibold' : ''}`}>PORTFOLIO</Link>
-          <Link to="/blog" className={`text-gray-800 hover:text-green-600 ${location.pathname === '/blog' ? 'font-semibold' : ''}`}>BLOG</Link>
+          <Link to="/" className={`text-gray-800 hover:text-kolibra-blue ${location.pathname === '/' ? 'font-semibold text-kolibra-blue' : ''}`}>HOME</Link>
+          <Link to="/servicos" className={`text-gray-800 hover:text-kolibra-blue ${location.pathname === '/servicos' ? 'font-semibold text-kolibra-blue' : ''}`}>SOLUÇÕES</Link>
+          <Link to="/portfolio" className={`text-gray-800 hover:text-kolibra-blue ${location.pathname === '/portfolio' ? 'font-semibold text-kolibra-blue' : ''}`}>PORTFOLIO</Link>
+          <Link to="/blog" className={`text-gray-800 hover:text-kolibra-blue ${location.pathname === '/blog' ? 'font-semibold text-kolibra-blue' : ''}`}>BLOG</Link>
           
           {user ? (
             <Button 
               variant="ghost" 
-              className="text-gray-800 hover:text-green-600" 
+              className="text-gray-800 hover:text-kolibra-blue" 
               onClick={handleLogout}
             >
               SAIR
             </Button>
           ) : (
-            <Link to="/login" className={`text-gray-800 hover:text-green-600 ${location.pathname === '/login' ? 'font-semibold' : ''}`}>LOGIN</Link>
+            <Link to="/login" className={`text-gray-800 hover:text-kolibra-blue ${location.pathname === '/login' ? 'font-semibold text-kolibra-blue' : ''}`}>LOGIN</Link>
           )}
           
           {cartItems.length > 0 && (
             <Link to="/servicos" className="relative">
-              <ShoppingCart className="text-green-600 h-6 w-6" />
-              <span className="absolute -top-2 -right-2 bg-green-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <ShoppingCart className="text-kolibra-orange h-6 w-6" />
+              <span className="absolute -top-2 -right-2 bg-kolibra-orange text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {cartItems.length}
               </span>
             </Link>
@@ -78,8 +85,8 @@ const Header = () => {
         <div className="md:hidden flex items-center">
           {cartItems.length > 0 && (
             <Link to="/servicos" className="relative mr-4">
-              <ShoppingCart className="text-green-600 h-6 w-6" />
-              <span className="absolute -top-2 -right-2 bg-green-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <ShoppingCart className="text-kolibra-orange h-6 w-6" />
+              <span className="absolute -top-2 -right-2 bg-kolibra-orange text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {cartItems.length}
               </span>
             </Link>
@@ -94,10 +101,10 @@ const Header = () => {
       {isMenuOpen && (
         <div className="md:hidden absolute top-16 left-0 right-0 bg-white z-50 shadow-md">
           <div className="container mx-auto py-4 space-y-4">
-            <Link to="/" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/' ? 'bg-gray-100 font-semibold' : ''}`}>HOME</Link>
-            <Link to="/servicos" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/servicos' ? 'bg-gray-100 font-semibold' : ''}`}>SERVIÇOS</Link>
-            <Link to="/portfolio" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/portfolio' ? 'bg-gray-100 font-semibold' : ''}`}>PORTFOLIO</Link>
-            <Link to="/blog" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/blog' ? 'bg-gray-100 font-semibold' : ''}`}>BLOG</Link>
+            <Link to="/" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/' ? 'bg-gray-100 font-semibold text-kolibra-blue' : ''}`}>HOME</Link>
+            <Link to="/servicos" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/servicos' ? 'bg-gray-100 font-semibold text-kolibra-blue' : ''}`}>SOLUÇÕES</Link>
+            <Link to="/portfolio" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/portfolio' ? 'bg-gray-100 font-semibold text-kolibra-blue' : ''}`}>PORTFOLIO</Link>
+            <Link to="/blog" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/blog' ? 'bg-gray-100 font-semibold text-kolibra-blue' : ''}`}>BLOG</Link>
             
             {user ? (
               <button 
@@ -110,7 +117,7 @@ const Header = () => {
                 SAIR
               </button>
             ) : (
-              <Link to="/login" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/login' ? 'bg-gray-100 font-semibold' : ''}`}>LOGIN</Link>
+              <Link to="/login" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/login' ? 'bg-gray-100 font-semibold text-kolibra-blue' : ''}`}>LOGIN</Link>
             )}
           </div>
         </div>
