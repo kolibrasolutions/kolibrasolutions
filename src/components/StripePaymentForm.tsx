@@ -14,7 +14,7 @@ import { toast } from '@/components/ui/sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Initialize Stripe with your publishable key
-const stripePromise = loadStripe("pk_test_51OvlGMDJBU0mQ1ud1Clz6qb7F5JgjOVPEx3c7OIkb7W519pngt6ZCC5IiFoTfWGsaKUwXXsLtvqwpnPSvAsioXTY00LhXpvVPR");
+const stripePromise = loadStripe("pk_test_51RIrnHKdm53njwNEpwhSRRny1gkaC8C10AGJJZOaJH7VRHsG0Cc1a8m6WeWylithw6ZqcOR1uMIRcQGXg80jPakp00mJOhAtq0");
 
 interface PaymentFormProps {
   orderId: number;

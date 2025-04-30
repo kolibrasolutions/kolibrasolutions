@@ -168,6 +168,9 @@ serve(async (req) => {
       );
     }
 
+    // Chave secreta que será atualizada no Supabase edge function secrets
+    // A chave atual deve ser substituída por: sk_test_51RIrnHKdm53njwNEfgtFWjXnwz1woesgnI5uVFphU0fMWjqsp9tNUa9GjRBxcqeGBYvB6L220hKXPtbK3cF8AS2T00Q6dhWNAk
+
     // Initialize Stripe properly without the problematic Deno.createFetch() option
     const stripe = new Stripe(stripeSecretKey, {
       apiVersion: "2023-10-16"

@@ -18,6 +18,7 @@ export const useSessionCheck = () => {
         if (error) {
           console.error("Error checking session:", error);
           setSessionChecked(true);
+          setSessionData(null);
           return;
         }
         
@@ -35,12 +36,14 @@ export const useSessionCheck = () => {
           }
         } else {
           console.log("No active session found");
+          setSessionData(null);
         }
         
         setSessionChecked(true);
       } catch (err) {
         console.error("Session check exception:", err);
         setSessionChecked(true);
+        setSessionData(null);
       }
     };
     
