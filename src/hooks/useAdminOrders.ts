@@ -1,13 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { OrderType } from '@/types/admin';
 import { 
   fetchOrdersFromDB, 
   updateOrderStatusInDB, 
-  finalizeOrderProcess, 
   deleteOrderFromDB, 
   recordManualPaymentInDB 
-} from '@/services/adminOrdersService';
+} from '@/services/admin';
 import { filterOrders } from '@/utils/adminOrderFilters';
 
 export function useAdminOrders() {
@@ -36,11 +34,6 @@ export function useAdminOrders() {
           ? { ...order, status: newStatus, updated_at: new Date().toISOString() } 
           : order
       ));
-      
-      // If status is "Finalizado", call the finalize order function
-      if (newStatus === 'Finalizado') {
-        await finalizeOrderProcess(orderId);
-      }
     }
   };
 
