@@ -6,6 +6,7 @@ import { Star, StarIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { Order } from '@/types/orders';
+import { useAuth } from '@/hooks/useAuth';
 
 type OrderRatingProps = {
   order: Order;
@@ -16,8 +17,14 @@ const OrderRating: React.FC<OrderRatingProps> = ({ order, onRatingSubmit }) => {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const { user } = useAuth(); // Get the current user
   
   const handleRatingSubmit = async () => {
+    if (!user) {
+      toast.error('Você precisa estar autenticado para avaliar');
+      return;
+    }
+    
     if (!rating) {
       toast.error('Por favor, selecione uma avaliação');
       return;
@@ -30,6 +37,7 @@ const OrderRating: React.FC<OrderRatingProps> = ({ order, onRatingSubmit }) => {
         .from('project_ratings')
         .insert({
           order_id: order.id,
+          user_id: user.id, // Add the user ID from the auth context
           rating,
           comment: comment.trim() || null,
         });

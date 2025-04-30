@@ -82,9 +82,9 @@ const Home = () => {
           <div className="flex flex-col md:flex-row items-center gap-12">
             <div className="md:w-1/2">
               <img 
-                src="/lovable-uploads/6ca9d1cf-b4ee-4e5c-9da8-212d3d5198c8.png"
+                src="/lovable-uploads/210b6771-d8f7-47af-b4dd-7dbbeddc1f0f.png"
                 alt="KOLIBRA Beija-flor"
-                className="rounded-lg shadow-md w-full h-auto"
+                className="rounded-lg shadow-md w-full h-auto object-contain"
               />
             </div>
             
