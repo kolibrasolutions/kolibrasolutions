@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -40,7 +39,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import StripePaymentForm from '@/components/StripePaymentForm';
+import { StripePaymentForm } from '@/components/StripePaymentForm';
 
 type OrderType = {
   id: number;
