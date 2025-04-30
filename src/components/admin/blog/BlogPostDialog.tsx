@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { ImageUpload } from '@/components/admin/shared/ImageUpload';
 import { v4 as uuidv4 } from 'uuid';
 import { Loader2 } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 type BlogPost = {
   id: string;
@@ -162,45 +163,47 @@ export const BlogPostDialog = ({ open, onOpenChange, post, onSuccess }: BlogPost
           <DialogTitle>{post ? 'Editar Postagem' : 'Nova Postagem'}</DialogTitle>
         </DialogHeader>
         
-        <div className="grid gap-6 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="title">Título</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Digite o título da postagem"
-            />
+        <ScrollArea className="max-h-[60vh] pr-4">
+          <div className="grid gap-6 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="title">Título</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Digite o título da postagem"
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="content">Conteúdo</Label>
+              <Textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Digite o conteúdo da postagem"
+                className="min-h-[200px]"
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label>Imagem de Destaque</Label>
+              <ImageUpload 
+                currentImageUrl={imageUrl} 
+                onFileChange={handleImageChange} 
+              />
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="published"
+                checked={published}
+                onCheckedChange={setPublished}
+              />
+              <Label htmlFor="published">Publicar imediatamente</Label>
+            </div>
           </div>
-          
-          <div className="grid gap-2">
-            <Label htmlFor="content">Conteúdo</Label>
-            <Textarea
-              id="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Digite o conteúdo da postagem"
-              className="min-h-[200px]"
-            />
-          </div>
-          
-          <div className="grid gap-2">
-            <Label>Imagem de Destaque</Label>
-            <ImageUpload 
-              currentImageUrl={imageUrl} 
-              onFileChange={handleImageChange} 
-            />
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="published"
-              checked={published}
-              onCheckedChange={setPublished}
-            />
-            <Label htmlFor="published">Publicar imediatamente</Label>
-          </div>
-        </div>
+        </ScrollArea>
         
         <DialogFooter>
           <Button 

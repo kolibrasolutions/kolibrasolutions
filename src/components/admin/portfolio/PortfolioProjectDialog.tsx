@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { MultipleImageUpload } from '@/components/admin/shared/MultipleImageUpload';
 import { v4 as uuidv4 } from 'uuid';
 import { Loader2 } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 type PortfolioProject = {
   id: string;
@@ -158,46 +159,48 @@ export const PortfolioProjectDialog = ({ open, onOpenChange, project, onSuccess 
           <DialogTitle>{project ? 'Editar Projeto' : 'Novo Projeto'}</DialogTitle>
         </DialogHeader>
         
-        <div className="grid gap-6 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="title">Título</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Digite o título do projeto"
-            />
+        <ScrollArea className="max-h-[60vh] pr-4">
+          <div className="grid gap-6 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="title">Título</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Digite o título do projeto"
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="description">Descrição</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Digite a descrição do projeto"
+                className="min-h-[150px]"
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label>Imagens do Projeto</Label>
+              <MultipleImageUpload 
+                currentImages={currentImages}
+                onFilesChange={handleImagesChange}
+                onRemoveImage={removeImage}
+              />
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="published"
+                checked={published}
+                onCheckedChange={setPublished}
+              />
+              <Label htmlFor="published">Publicar imediatamente</Label>
+            </div>
           </div>
-          
-          <div className="grid gap-2">
-            <Label htmlFor="description">Descrição</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Digite a descrição do projeto"
-              className="min-h-[150px]"
-            />
-          </div>
-          
-          <div className="grid gap-2">
-            <Label>Imagens do Projeto</Label>
-            <MultipleImageUpload 
-              currentImages={currentImages}
-              onFilesChange={handleImagesChange}
-              onRemoveImage={removeImage}
-            />
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="published"
-              checked={published}
-              onCheckedChange={setPublished}
-            />
-            <Label htmlFor="published">Publicar imediatamente</Label>
-          </div>
-        </div>
+        </ScrollArea>
         
         <DialogFooter>
           <Button 
