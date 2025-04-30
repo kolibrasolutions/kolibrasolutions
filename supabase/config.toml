@@ -7,6 +7,12 @@ verify_jwt = true
 [functions.stripe-webhook]
 verify_jwt = false
 
+[functions.handle-order-finalized]
+verify_jwt = false
+
+[functions.get-delivery-files]
+verify_jwt = true
+
 [api]
 enabled = true
 port = 54321

@@ -35,8 +35,7 @@ const Header = () => {
   
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    toast({
-      title: "Logout realizado com sucesso",
+    toast("Logout realizado com sucesso", {
       description: "Você foi desconectado da sua conta."
     });
   };

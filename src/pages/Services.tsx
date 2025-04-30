@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -68,10 +67,8 @@ const Services = () => {
 
   const handleCheckout = async () => {
     if (cartItems.length === 0) {
-      toast({
-        title: "Carrinho vazio",
-        description: "Adicione algum serviço ao carrinho antes de finalizar o pedido.",
-        variant: "destructive"
+      toast("Carrinho vazio", {
+        description: "Adicione algum serviço ao carrinho antes de finalizar o pedido."
       });
       return;
     }
@@ -130,21 +127,14 @@ const Services = () => {
       // Navigate to the payment page
       navigate(`/payment-confirmation?orderId=${order.id}`);
       
-      toast({
-        title: "Pedido criado com sucesso!",
-        description: "Você será redirecionado para o pagamento.",
+      toast("Pedido criado com sucesso!", {
+        description: "Você será redirecionado para o pagamento."
       });
-      
-      // For demo purposes, redirect to payment confirmation directly
-      // In a real app, you'd use the StripePaymentForm component here
-      // navigate(`/payment/${order.id}/initial`);
       
     } catch (error) {
       console.error('Error creating order:', error);
-      toast({
-        title: "Erro ao criar pedido",
-        description: error.message || "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
-        variant: "destructive"
+      toast("Erro ao criar pedido", {
+        description: error.message || "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente."
       });
     }
   };

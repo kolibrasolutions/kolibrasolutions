@@ -45,10 +45,8 @@ const CheckoutForm = ({ onSuccess }: { onSuccess?: () => void }) => {
       });
 
       if (error) {
-        toast({
-          title: "Erro no pagamento",
-          description: error.message || "Ocorreu um erro ao processar o pagamento.",
-          variant: "destructive"
+        toast("Erro no pagamento", {
+          description: error.message || "Ocorreu um erro ao processar o pagamento."
         });
       } else {
         // Stripe will redirect to return_url if successful
@@ -57,10 +55,8 @@ const CheckoutForm = ({ onSuccess }: { onSuccess?: () => void }) => {
       }
     } catch (error) {
       console.error('Payment submission error:', error);
-      toast({
-        title: "Erro no pagamento",
-        description: "Ocorreu um erro inesperado ao processar o pagamento.",
-        variant: "destructive"
+      toast("Erro no pagamento", {
+        description: "Ocorreu um erro inesperado ao processar o pagamento."
       });
     } finally {
       setIsLoading(false);
@@ -95,10 +91,8 @@ export const StripePaymentForm = ({ orderId, paymentType, onSuccess }: PaymentFo
         if (error) {
           console.error('Error creating payment intent:', error);
           setError('Não foi possível iniciar o processo de pagamento. Por favor, tente novamente mais tarde.');
-          toast({
-            title: "Erro",
-            description: "Não foi possível iniciar o pagamento",
-            variant: "destructive"
+          toast("Erro", {
+            description: "Não foi possível iniciar o pagamento"
           });
           return;
         }
@@ -111,10 +105,8 @@ export const StripePaymentForm = ({ orderId, paymentType, onSuccess }: PaymentFo
       } catch (err) {
         console.error('Unexpected error:', err);
         setError('Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.');
-        toast({
-          title: "Erro",
-          description: "Ocorreu um erro inesperado",
-          variant: "destructive"
+        toast("Erro", {
+          description: "Ocorreu um erro inesperado"
         });
       }
     };
@@ -147,7 +139,7 @@ export const StripePaymentForm = ({ orderId, paymentType, onSuccess }: PaymentFo
         colorPrimary: '#10b981',
       },
     },
-  };
+  } as any; // Type assertion to resolve the TS error
 
   return (
     <div className="p-4 border rounded-lg shadow-sm">
