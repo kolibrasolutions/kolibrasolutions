@@ -79,6 +79,7 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
     }
     
     setSaving(true);
+    
     try {
       let finalImageUrl = imageUrl;
       
@@ -95,6 +96,7 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
       
       if (!session) {
         toast.error('Você precisa estar logado para salvar uma postagem');
+        setSaving(false);
         return;
       }
       
@@ -155,3 +157,4 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
     handleSave
   };
 };
+

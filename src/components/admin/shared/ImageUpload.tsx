@@ -7,9 +7,10 @@ import { toast } from '@/components/ui/sonner';
 interface ImageUploadProps {
   currentImageUrl: string | null;
   onFileChange: (file: File | null) => void;
+  disabled?: boolean;
 }
 
-export const ImageUpload: React.FC<ImageUploadProps> = ({ currentImageUrl, onFileChange }) => {
+export const ImageUpload: React.FC<ImageUploadProps> = ({ currentImageUrl, onFileChange, disabled = false }) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl);
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +57,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ currentImageUrl, onFil
             size="icon"
             className="absolute top-2 right-2 h-6 w-6"
             onClick={clearImage}
+            disabled={disabled}
+            type="button"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -75,13 +78,15 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ currentImageUrl, onFil
           className="sr-only"
           accept="image/jpeg, image/png, image/webp"
           onChange={handleFileChange}
+          disabled={disabled}
         />
         <label htmlFor="image-upload">
           <Button 
             type="button" 
             variant="outline" 
             className="w-full"
-            onClick={() => document.getElementById('image-upload')?.click()}
+            disabled={disabled}
+            onClick={() => !disabled && document.getElementById('image-upload')?.click()}
           >
             {previewUrl ? 'Trocar Imagem' : 'Selecionar Imagem'}
           </Button>

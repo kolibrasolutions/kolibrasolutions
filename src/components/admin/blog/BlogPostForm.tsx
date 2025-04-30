@@ -15,6 +15,7 @@ type BlogPostFormProps = {
   setPublished: (published: boolean) => void;
   imageUrl: string | null;
   handleImageChange: (file: File | null) => void;
+  disabled?: boolean;
 };
 
 export const BlogPostForm = ({
@@ -26,6 +27,7 @@ export const BlogPostForm = ({
   setPublished,
   imageUrl,
   handleImageChange,
+  disabled = false,
 }: BlogPostFormProps) => {
   return (
     <div className="grid gap-6 py-4">
@@ -36,6 +38,7 @@ export const BlogPostForm = ({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Digite o título da postagem"
+          disabled={disabled}
         />
       </div>
       
@@ -47,6 +50,7 @@ export const BlogPostForm = ({
           onChange={(e) => setContent(e.target.value)}
           placeholder="Digite o conteúdo da postagem"
           className="min-h-[200px]"
+          disabled={disabled}
         />
       </div>
       
@@ -54,7 +58,8 @@ export const BlogPostForm = ({
         <Label>Imagem de Destaque</Label>
         <ImageUpload 
           currentImageUrl={imageUrl} 
-          onFileChange={handleImageChange} 
+          onFileChange={handleImageChange}
+          disabled={disabled}
         />
       </div>
       
@@ -63,6 +68,7 @@ export const BlogPostForm = ({
           id="published"
           checked={published}
           onCheckedChange={setPublished}
+          disabled={disabled}
         />
         <Label htmlFor="published">Publicar imediatamente</Label>
       </div>

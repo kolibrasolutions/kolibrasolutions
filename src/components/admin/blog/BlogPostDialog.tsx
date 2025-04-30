@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -38,13 +38,30 @@ export const BlogPostDialog = ({ open, onOpenChange, post, onSuccess }: BlogPost
     uploading,
     handleImageChange,
     handleSave
-  } = usePostForm(post, onSuccess);
+  } = usePostForm(post, () => {
+    // Wrap onSuccess in a setTimeout to let React update the UI before closing
+    setTimeout(() => {
+      onSuccess();
+      onOpenChange(false);
+    }, 100);
+  });
+  
+  // Handle dialog close when saving/uploading to prevent closing during operations
+  const handleOpenChange = (newOpen: boolean) => {
+    if (saving || uploading) {
+      return; // Prevent closing while operations are in progress
+    }
+    onOpenChange(newOpen);
+  };
   
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>{post ? 'Editar Postagem' : 'Nova Postagem'}</DialogTitle>
+          <DialogDescription>
+            Preencha os campos abaixo para {post ? 'editar a' : 'criar uma nova'} postagem.
+          </DialogDescription>
         </DialogHeader>
         
         <ScrollArea className="max-h-[60vh] pr-4">
@@ -57,6 +74,7 @@ export const BlogPostDialog = ({ open, onOpenChange, post, onSuccess }: BlogPost
             setPublished={setPublished}
             imageUrl={imageUrl}
             handleImageChange={handleImageChange}
+            disabled={saving || uploading}
           />
         </ScrollArea>
         
