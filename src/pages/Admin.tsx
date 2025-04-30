@@ -24,7 +24,8 @@ const Admin = () => {
     viewOrderDetails,
     setViewOrderDetails,
     fetchOrders,
-    updateOrderStatus
+    updateOrderStatus,
+    recordManualPayment
   } = useAdminOrders();
 
   // Check if user is admin
@@ -116,6 +117,7 @@ const Admin = () => {
             if (!open) setViewOrderDetails(null);
           }}
           updateOrderStatus={updateOrderStatus}
+          recordManualPayment={recordManualPayment}
         />
       </div>
     </Layout>

@@ -104,6 +104,81 @@ export function useAdminOrders() {
     }
   };
 
+  // Record manual payment
+  const recordManualPayment = async (orderId: number, paymentType: 'initial' | 'final', paymentMethod: string) => {
+    try {
+      const orderToUpdate = orders.find(order => order.id === orderId);
+      
+      if (!orderToUpdate) {
+        throw new Error("Pedido não encontrado");
+      }
+      
+      // Calculate payment amount
+      const amount = paymentType === 'initial' 
+        ? orderToUpdate.total_price * 0.2  // 20% for initial payment
+        : orderToUpdate.total_price * 0.8; // 80% for final payment
+      
+      // Create payment record
+      const { error: paymentError } = await supabase
+        .from('payments')
+        .insert({
+          order_id: orderId,
+          amount,
+          payment_type: paymentType,
+          status: 'succeeded',
+          stripe_payment_intent_id: `manual_${Date.now()}`,
+          currency: 'brl'
+        });
+        
+      if (paymentError) throw paymentError;
+      
+      // Update order with payment info
+      const updateData = paymentType === 'initial'
+        ? { 
+            initial_payment_amount: amount,
+            status: 'Pagamento Inicial Realizado',
+            updated_at: new Date().toISOString()
+          }
+        : { 
+            final_payment_amount: amount,
+            updated_at: new Date().toISOString()
+          };
+        
+      const { error: orderError } = await supabase
+        .from('orders')
+        .update(updateData)
+        .eq('id', orderId);
+        
+      if (orderError) throw orderError;
+      
+      // Update local state
+      setOrders(orders.map(order => 
+        order.id === orderId 
+          ? { ...order, ...updateData } 
+          : order
+      ));
+      
+      // If it's an initial payment, update the status too
+      if (paymentType === 'initial') {
+        // After initial payment, order can move to "Em Andamento"
+        await updateOrderStatus(orderId, 'Em Andamento');
+      }
+      
+      toast("Pagamento registrado", { 
+        description: `${paymentType === 'initial' ? 'Pagamento inicial' : 'Pagamento final'} registrado como "${paymentMethod}"` 
+      });
+      
+      // Refresh orders to get the latest state
+      await fetchOrders();
+      
+      // Close the dialog if it's open
+      setViewOrderDetails(null);
+    } catch (error) {
+      console.error('Error recording manual payment:', error);
+      toast("Erro", { description: "Não foi possível registrar o pagamento manual" });
+    }
+  };
+
   // Filter orders based on search term
   const filteredOrders = orders.filter(order => {
     const searchString = searchTerm.toLowerCase();
@@ -130,6 +205,7 @@ export function useAdminOrders() {
     viewOrderDetails,
     setViewOrderDetails,
     fetchOrders,
-    updateOrderStatus
+    updateOrderStatus,
+    recordManualPayment
   };
 }
