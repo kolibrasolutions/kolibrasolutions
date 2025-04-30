@@ -8,18 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { PortfolioProjectDialog } from './PortfolioProjectDialog';
-import { PortfolioProject } from '@/types/orders';
+import { PortfolioProject, convertPortfolioProjectImages } from '@/types/orders';
 import { Json } from '@/integrations/supabase/types';
-
-type PortfolioProject = {
-  id: string;
-  title: string;
-  description: string;
-  images: string[];
-  published: boolean;
-  created_at: string;
-  updated_at: string;
-};
 
 export const PortfolioProjectsList = () => {
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
@@ -38,10 +28,10 @@ export const PortfolioProjectsList = () => {
       if (error) throw error;
       
       // Convert the Supabase data to match our PortfolioProject type
-      const formattedProjects: PortfolioProject[] = data?.map(project => ({
+      const formattedProjects = data?.map(project => ({
         ...project,
-        // Ensure images is always treated as string[]
-        images: Array.isArray(project.images) ? project.images : []
+        // Use the helper function to ensure images is always a string array
+        images: convertPortfolioProjectImages(project.images)
       })) || [];
       
       setProjects(formattedProjects);

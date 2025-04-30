@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { PortfolioProject } from '@/types/orders';
+import { PortfolioProject, convertPortfolioProjectImages } from '@/types/orders';
 import { Json } from '@/integrations/supabase/types';
 
 const Portfolio = () => {
@@ -25,10 +25,10 @@ const Portfolio = () => {
         if (error) throw error;
         
         // Convert the Supabase data to match our PortfolioProject type
-        const formattedProjects: PortfolioProject[] = data?.map(project => ({
+        const formattedProjects = data?.map(project => ({
           ...project,
-          // Ensure images is always treated as string[]
-          images: Array.isArray(project.images) ? project.images : []
+          // Use the helper function to ensure images is always a string array
+          images: convertPortfolioProjectImages(project.images)
         })) || [];
         
         setProjects(formattedProjects);
