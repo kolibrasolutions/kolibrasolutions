@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { BlogPostForm } from './BlogPostForm';
 import { usePostForm } from './usePostForm';
+import { Progress } from '@/components/ui/progress';
 
 type BlogPost = {
   id: string;
@@ -54,6 +55,10 @@ export const BlogPostDialog = ({ open, onOpenChange, post, onSuccess }: BlogPost
     onOpenChange(newOpen);
   };
   
+  // Calcular tamanho do conteúdo aproximadamente
+  const contentSize = content ? Math.min((content.length / 2000000) * 100, 100) : 0;
+  const isLargeContent = contentSize > 50;
+  
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-3xl">
@@ -61,6 +66,11 @@ export const BlogPostDialog = ({ open, onOpenChange, post, onSuccess }: BlogPost
           <DialogTitle>{post ? 'Editar Postagem' : 'Nova Postagem'}</DialogTitle>
           <DialogDescription>
             Preencha os campos abaixo para {post ? 'editar a' : 'criar uma nova'} postagem.
+            {isLargeContent && (
+              <span className="block text-amber-600 mt-1">
+                Atenção: Seu texto é extenso. Postagens grandes podem levar mais tempo para serem salvas.
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
         
@@ -77,6 +87,18 @@ export const BlogPostDialog = ({ open, onOpenChange, post, onSuccess }: BlogPost
             disabled={saving || uploading}
           />
         </ScrollArea>
+        
+        {(saving || uploading) && (
+          <div className="py-2">
+            <Progress value={saving ? 75 : 30} className="h-2 mb-2" />
+            <p className="text-sm text-center text-muted-foreground">
+              {uploading ? 'Enviando imagem...' : 'Salvando postagem...'}
+            </p>
+            <p className="text-xs text-center text-muted-foreground">
+              Isso pode levar até 2 minutos para conteúdos grandes
+            </p>
+          </div>
+        )}
         
         <DialogFooter>
           <Button 

@@ -70,6 +70,10 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
       const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = `${fileName}`;
       
+      toast.info('Fazendo upload da imagem...', {
+        description: 'Por favor, aguarde enquanto enviamos sua imagem.'
+      });
+      
       const { error: uploadError } = await supabase.storage
         .from('blog_images')
         .upload(filePath, imageFile);
@@ -96,8 +100,8 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
       return;
     }
     
-    // Content size check
-    if (content && content.length > 500000) { // Approx 500KB limit for text
+    // Content size check - increased to 2MB (approx 2 million characters)
+    if (content && content.length > 2000000) {
       toast.error('Conteúdo muito grande', {
         description: 'O conteúdo do post é muito grande. Por favor, reduza o tamanho.'
       });
@@ -112,13 +116,17 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
     setSaving(true);
     
     try {
-      // Set a timeout to prevent infinite loading - increased to 60 seconds
+      // Set a timeout to prevent infinite loading - increased to 120 seconds
       const timeout = setTimeout(() => {
         setSaving(false);
         toast.error('Tempo limite excedido. Por favor, tente novamente.');
-      }, 60000); // 60 second timeout
+      }, 120000); // 120 second timeout
       
       setSaveTimeout(timeout);
+      
+      toast.info('Salvando postagem...', {
+        description: 'Estamos processando seu conteúdo. Isso pode levar até 2 minutos para artigos grandes.'
+      });
       
       let finalImageUrl = imageUrl;
       

@@ -74,22 +74,23 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center gap-12">
             <div className="md:w-1/2">
-              <div className="rounded-lg bg-gradient-to-br from-kolibra-orange to-amber-300 h-[400px] flex items-center justify-center">
-                <img 
-                  src="/lovable-uploads/210b6771-d8f7-47af-b4dd-7dbbeddc1f0f.png"
-                  alt="KOLIBRA Logo"
-                  className="w-1/2"
-                />
-              </div>
+              <img 
+                src="/lovable-uploads/6ca9d1cf-b4ee-4e5c-9da8-212d3d5198c8.png"
+                alt="KOLIBRA Beija-flor"
+                className="rounded-lg shadow-md w-full h-auto"
+              />
             </div>
             
             <div className="md:w-1/2">
               <h2 className="text-3xl font-bold text-kolibra-blue mb-6">Sobre Nós</h2>
               <p className="text-gray-700 mb-6">
-                A KOLIBRA SOLUTIONS nasceu da paixão por criar soluções digitais que impulsionam negócios e transformam marcas. Com anos de experiência no mercado, nossa equipe de designers, desenvolvedores e especialistas em marketing trabalha para oferecer soluções personalizadas que atendem às necessidades específicas de cada cliente.
+                O fundador da KOLIBRA SOLUTIONS desenhou seu primeiro logotipo em 2009, mas esbarrou na escassez de recursos tecnológicos da época. Ao longo dos anos, acumulou know-how em design e gestão de negócios — e percebeu que muitos empreendedores enfrentam o mesmo impasse: ideias promissoras ficam estagnadas por falta de ferramentas adequadas.
               </p>
               <p className="text-gray-700 mb-6">
-                Nossa missão é transformar a presença digital dos nossos clientes, criando identidades visuais marcantes, websites funcionais e estratégias de marketing eficazes que geram resultados reais e mensuráveis.
+                Com a missão de transformar essa realidade, nasceu a KOLIBRA SOLUTIONS: uma ponte entre a criatividade de pequenos e médios negócios e as soluções digitais de ponta que eles merecem. Aqui, ninguém mais precisa frear seu crescimento por falta de branding ou tecnologia. Proporcionamos identidade visual profissional, sites, e-commerce e automação sob medida, de forma acessível e humanizada, para que cada empreendedor possa levar sua ideia do papel para o mercado sem obstáculos.
+              </p>
+              <p className="text-gray-700 mb-6 font-semibold">
+                Somos a KOLIBRA SOLUTIONS — A solução certa para crescer
               </p>
               <Button variant="outline" className="border-kolibra-orange text-kolibra-orange hover:bg-kolibra-orange hover:text-white">
                 Conheça Nossa História
