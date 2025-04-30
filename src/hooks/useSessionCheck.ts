@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const useSessionCheck = () => {
   const [sessionChecked, setSessionChecked] = useState(false);
+  const [sessionData, setSessionData] = useState<any>(null);
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -21,11 +22,17 @@ export const useSessionCheck = () => {
         }
         
         console.log("Session data:", data);
+        setSessionData(data);
         
         if (data.session) {
-          const returnUrl = new URLSearchParams(location.search).get('returnUrl') || '/';
-          console.log("User is logged in, redirecting to:", returnUrl);
-          navigate(returnUrl);
+          const returnUrl = new URLSearchParams(location.search).get('returnUrl');
+          // Only redirect if there's a returnUrl parameter
+          if (returnUrl) {
+            console.log("User is logged in, redirecting to:", returnUrl);
+            navigate(returnUrl);
+          } else {
+            console.log("User is logged in, but no returnUrl specified. Staying on current page.");
+          }
         } else {
           console.log("No active session found");
         }
@@ -40,5 +47,9 @@ export const useSessionCheck = () => {
     checkSession();
   }, [navigate, location]);
 
-  return { sessionChecked };
+  return { 
+    sessionChecked,
+    isAuthenticated: !!sessionData?.session,
+    userSession: sessionData?.session 
+  };
 };

@@ -19,8 +19,8 @@ const stripePromise = loadStripe("pk_test_51OvlGMDJBU0mQ1ud1Clz6qb7F5JgjOVPEx3c7
 interface PaymentFormProps {
   orderId: number;
   paymentType: 'initial' | 'final';
-  amount?: number; // Add the optional amount prop
-  priceId?: string; // Add an optional priceId prop for Stripe Checkout
+  amount?: number;
+  priceId?: string;
   onSuccess?: () => void;
 }
 
@@ -58,7 +58,6 @@ const CheckoutForm = ({ onSuccess }: { onSuccess?: () => void }) => {
         });
       } else {
         // Stripe will redirect to return_url if successful
-        // We'll handle redirect in onSuccess
         if (onSuccess) onSuccess();
       }
     } catch (error) {
@@ -98,28 +97,34 @@ export const StripePaymentForm = ({ orderId, paymentType, amount, priceId, onSuc
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
+  const [apiResponse, setApiResponse] = useState<any>(null); // Store full API response for debugging
 
   const createPaymentIntent = async () => {
     try {
       setIsLoading(true);
       console.log(`Creating payment intent for order #${orderId}, type: ${paymentType}, priceId: ${priceId || 'N/A'}, amount: ${amount || 'N/A'}`);
       
-      const { data, error } = await supabase.functions.invoke('create-payment-intent', {
-        body: { 
-          order_id: orderId, 
-          payment_type: paymentType,
-          amount: amount, // Pass the amount if provided
-          price_id: priceId // Pass the price ID if provided
-        }
+      const requestData = { 
+        order_id: orderId, 
+        payment_type: paymentType,
+        price_id: priceId,
+        amount: amount
+      };
+      
+      console.log("Sending request data:", JSON.stringify(requestData));
+      
+      const { data, error: invokeError } = await supabase.functions.invoke('create-payment-intent', {
+        body: requestData
       });
 
-      console.log("Payment intent response:", data, error);
+      console.log("Payment intent response:", data, invokeError);
+      setApiResponse(data); // Store the full response for debugging
 
-      if (error) {
-        console.error('Error invoking edge function:', error);
-        setError(`Não foi possível iniciar o processo de pagamento: ${error.message || 'Erro de conexão'}`);
+      if (invokeError) {
+        console.error('Error invoking edge function:', invokeError);
+        setError(`Não foi possível iniciar o processo de pagamento: ${invokeError.message || 'Erro de conexão'}`);
         toast.error("Erro", {
-          description: `Não foi possível iniciar o pagamento: ${error.message || 'Erro de conexão'}`
+          description: `Não foi possível iniciar o pagamento: ${invokeError.message || 'Erro de conexão'}`
         });
         return;
       }
@@ -173,6 +178,7 @@ export const StripePaymentForm = ({ orderId, paymentType, amount, priceId, onSuc
 
   const handleRetry = () => {
     setError(null);
+    setApiResponse(null);
     setRetryCount(prev => prev + 1);
   };
 
@@ -194,6 +200,17 @@ export const StripePaymentForm = ({ orderId, paymentType, amount, priceId, onSuc
             Detalhes técnicos: Pedido #{orderId}, Tipo: {paymentType}, 
             Price ID: {priceId || 'N/A'}
           </p>
+          
+          {/* Debug information section */}
+          {apiResponse && (
+            <div className="mt-2 p-2 bg-gray-100 rounded text-xs">
+              <p className="font-semibold">Resposta da API (para depuração):</p>
+              <pre className="whitespace-pre-wrap overflow-auto max-h-40">
+                {JSON.stringify(apiResponse, null, 2)}
+              </pre>
+            </div>
+          )}
+          
           <Button 
             onClick={handleRetry}
             className="mt-4 bg-red-600 hover:bg-red-700"
@@ -210,6 +227,17 @@ export const StripePaymentForm = ({ orderId, paymentType, amount, priceId, onSuc
       <div className="p-4 border border-yellow-300 bg-yellow-50 rounded text-yellow-700">
         <h3 className="font-semibold">Aguardando configuração de pagamento</h3>
         <p>Não foi possível obter as informações de pagamento necessárias.</p>
+        
+        {/* Debug information section */}
+        {apiResponse && (
+          <div className="mt-2 p-2 bg-gray-100 rounded text-xs">
+            <p className="font-semibold">Resposta da API (para depuração):</p>
+            <pre className="whitespace-pre-wrap overflow-auto max-h-40">
+              {JSON.stringify(apiResponse, null, 2)}
+            </pre>
+          </div>
+        )}
+        
         <Button 
           onClick={handleRetry}
           className="mt-4 bg-yellow-600 hover:bg-yellow-700"

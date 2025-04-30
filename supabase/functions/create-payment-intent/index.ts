@@ -157,7 +157,10 @@ serve(async (req) => {
     if (!stripeSecretKey.startsWith("sk_")) {
       console.error("Invalid STRIPE_SECRET_KEY format - must use secret key, not publishable key");
       return new Response(
-        JSON.stringify({ error: "Server configuration error: Invalid Stripe key format (must use secret key)" }),
+        JSON.stringify({ 
+          error: "Server configuration error: Invalid Stripe key format (must use secret key)", 
+          details: "The STRIPE_SECRET_KEY environment variable must start with 'sk_', not 'pk_'. Please update your Supabase edge function secrets."
+        }),
         { 
           status: 500, 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 
@@ -229,7 +232,9 @@ serve(async (req) => {
         JSON.stringify({ 
           error: errorMessage, 
           details: stripeError.message,
-          code: stripeError.code || "unknown"
+          code: stripeError.code || "unknown",
+          type: stripeError.type,
+          requestData: paymentIntentData // Include request data for debugging
         }),
         { 
           status: statusCode, 
@@ -241,7 +246,11 @@ serve(async (req) => {
   } catch (error) {
     console.error("Unexpected error:", error);
     return new Response(
-      JSON.stringify({ error: "Internal server error", details: error.message }),
+      JSON.stringify({ 
+        error: "Internal server error", 
+        details: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      }),
       { 
         status: 500, 
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
