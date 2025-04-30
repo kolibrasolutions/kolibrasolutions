@@ -39,9 +39,8 @@ export const useServices = () => {
         
         if (isMounted) {
           setError('Não foi possível carregar os serviços. Por favor, tente novamente mais tarde.');
-          toast("Erro ao carregar serviços", {
-            description: "Houve um problema ao conectar com o servidor. Tente novamente mais tarde.",
-            variant: "destructive"
+          toast.error("Erro ao carregar serviços", {
+            description: "Houve um problema ao conectar com o servidor. Tente novamente mais tarde."
           });
           // Set empty arrays to prevent undefined errors
           setServices([]);

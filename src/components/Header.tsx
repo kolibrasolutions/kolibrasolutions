@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ShoppingCart, User } from 'lucide-react';
@@ -118,22 +117,20 @@ const Header = () => {
       
       if (error) {
         console.error("Logout error:", error);
-        toast("Erro ao sair", {
-          description: "Houve um problema ao desconectar sua conta.",
-          variant: "destructive"
+        toast.error("Erro ao sair", {
+          description: "Houve um problema ao desconectar sua conta."
         });
         return;
       }
       
-      toast("Logout realizado com sucesso", {
+      toast.success("Logout realizado com sucesso", {
         description: "Você foi desconectado da sua conta."
       });
       navigate('/');
     } catch (err) {
       console.error("Logout exception:", err);
-      toast("Erro ao sair", {
-        description: "Houve um problema ao desconectar sua conta.",
-        variant: "destructive"
+      toast.error("Erro ao sair", {
+        description: "Houve um problema ao desconectar sua conta."
       });
     }
   };
