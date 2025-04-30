@@ -29,6 +29,8 @@ interface OrderData {
   initial_payment_amount: number | null;
   final_payment_amount: number | null;
   created_at: string | null;
+  updated_at: string | null;
+  user_id: string;
   order_items?: OrderItem[];
   delivery_files?: DeliveryFile[];
 }
@@ -91,7 +93,7 @@ const PaymentConfirmation = () => {
           }));
           
           // Add order_items to the order data object
-          const orderWithItems = {
+          const orderWithItems: OrderData = {
             ...orderData,
             order_items: items
           };
@@ -112,7 +114,7 @@ const PaymentConfirmation = () => {
           setOrder(orderWithItems);
         } else {
           // Even without items, we still set the order data
-          setOrder(orderData);
+          setOrder(orderData as OrderData);
         }
         
         // Set status based on order status or redirect_status
@@ -181,29 +183,29 @@ const PaymentConfirmation = () => {
     return (
       <div className="space-y-6">
         <div className="border-b pb-4">
-          <h1 className="text-2xl font-bold mb-2">Pedido #{order.id}</h1>
+          <h1 className="text-2xl font-bold mb-2">Pedido #{order!.id}</h1>
           <div className="flex items-center gap-2">
             <span className="font-medium">Status:</span>
             <span 
               className={`px-2 py-0.5 rounded-full text-sm ${
-                order.status === 'Finalizado' 
+                order!.status === 'Finalizado' 
                   ? 'bg-green-100 text-green-800' 
-                  : order.status === 'Pagamento Inicial Realizado' 
+                  : order!.status === 'Pagamento Inicial Realizado' 
                   ? 'bg-blue-100 text-blue-800'
                   : 'bg-yellow-100 text-yellow-800'
               }`}
             >
-              {order.status}
+              {order!.status}
             </span>
           </div>
         </div>
 
         {/* Order items */}
-        {order.order_items && order.order_items.length > 0 && (
+        {order!.order_items && order!.order_items.length > 0 && (
           <div>
             <h2 className="text-xl font-semibold mb-3">Serviços</h2>
             <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-              {order.order_items.map((item) => (
+              {order!.order_items.map((item) => (
                 <div key={item.id} className="flex justify-between">
                   <div>
                     <p className="font-medium">{item.service_name}</p>
@@ -214,35 +216,35 @@ const PaymentConfirmation = () => {
               ))}
               <div className="border-t pt-3 mt-3 flex justify-between">
                 <p className="font-semibold">Total</p>
-                <p className="font-semibold text-green-700">{formatCurrency(order.total_price)}</p>
+                <p className="font-semibold text-green-700">{formatCurrency(order!.total_price)}</p>
               </div>
             </div>
           </div>
         )}
 
         {/* Payment section based on status */}
-        {order.status === 'Pendente' && (
+        {order!.status === 'Pendente' && (
           <div className="mt-6">
             <h2 className="text-xl font-semibold mb-3">Pagamento Inicial</h2>
             <StripePaymentForm 
-              orderId={order.id} 
+              orderId={order!.id} 
               paymentType="initial" 
             />
           </div>
         )}
 
-        {order.status === 'Pagamento Inicial Realizado' && (
+        {order!.status === 'Pagamento Inicial Realizado' && (
           <div className="mt-6">
             <h2 className="text-xl font-semibold mb-3">Pagamento Final</h2>
             <StripePaymentForm 
-              orderId={order.id} 
+              orderId={order!.id} 
               paymentType="final" 
             />
           </div>
         )}
 
         {/* Delivery files section for completed orders */}
-        {order.status === 'Finalizado' && order.delivery_files && order.delivery_files.length > 0 && (
+        {order!.status === 'Finalizado' && order!.delivery_files && order!.delivery_files.length > 0 && (
           <div className="mt-6">
             <h2 className="text-xl font-semibold mb-3">Arquivos Entregues</h2>
             <div className="bg-green-50 rounded-lg p-4">
@@ -250,7 +252,7 @@ const PaymentConfirmation = () => {
                 Seu projeto foi concluído! Você pode baixar os arquivos abaixo:
               </p>
               <div className="space-y-3">
-                {order.delivery_files.map((file, index) => (
+                {order!.delivery_files.map((file, index) => (
                   <div key={index} className="flex items-center justify-between bg-white p-3 rounded border">
                     <span>{file.name}</span>
                     <a 
@@ -272,7 +274,7 @@ const PaymentConfirmation = () => {
         )}
 
         {/* Delivery message for completed orders without files */}
-        {order.status === 'Finalizado' && (!order.delivery_files || order.delivery_files.length === 0) && (
+        {order!.status === 'Finalizado' && (!order!.delivery_files || order!.delivery_files.length === 0) && (
           <div className="mt-6">
             <div className="bg-green-50 rounded-lg p-4">
               <h2 className="text-xl font-semibold mb-2">Projeto Concluído</h2>
