@@ -41,7 +41,13 @@ const Home = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-gray-50 rounded-lg overflow-hidden shadow-md">
-              <div className="h-48 bg-gradient-to-br from-kolibra-blue to-blue-400"></div>
+              <div className="h-48 flex items-center justify-center bg-gray-100">
+                <img 
+                  src="/lovable-uploads/pencil.png" 
+                  alt="Branding Profissional" 
+                  className="h-32 w-auto object-contain"
+                />
+              </div>
               <div className="p-6">
                 <h3 className="font-bold text-xl mb-2">Branding Profissional</h3>
                 <p className="text-gray-700 mb-4">Crie uma identidade visual única e memorável que comunica a essência da sua marca.</p>
@@ -52,7 +58,13 @@ const Home = () => {
             </div>
             
             <div className="bg-gray-50 rounded-lg overflow-hidden shadow-md">
-              <div className="h-48 bg-gradient-to-br from-kolibra-blue to-blue-400"></div>
+              <div className="h-48 flex items-center justify-center bg-gray-100">
+                <img 
+                  src="/lovable-uploads/computer.png" 
+                  alt="Web Design Responsivo" 
+                  className="h-32 w-auto object-contain"
+                />
+              </div>
               <div className="p-6">
                 <h3 className="font-bold text-xl mb-2">Web Design Responsivo</h3>
                 <p className="text-gray-700 mb-4">Sites modernos e funcionais que proporcionam a melhor experiência em qualquer dispositivo.</p>
@@ -63,7 +75,13 @@ const Home = () => {
             </div>
             
             <div className="bg-gray-50 rounded-lg overflow-hidden shadow-md">
-              <div className="h-48 bg-gradient-to-br from-kolibra-blue to-blue-400"></div>
+              <div className="h-48 flex items-center justify-center bg-gray-100">
+                <img 
+                  src="/lovable-uploads/megaphone.png" 
+                  alt="Marketing Digital" 
+                  className="h-32 w-auto object-contain"
+                />
+              </div>
               <div className="p-6">
                 <h3 className="font-bold text-xl mb-2">Marketing Digital</h3>
                 <p className="text-gray-700 mb-4">Estratégias personalizadas para alcançar seu público-alvo e converter visitantes em clientes.</p>

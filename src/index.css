@@ -101,3 +101,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide Lovable watermark */
+.gptengineerbadge {
+  display: none !important;
+}
+
+.gptengineerbadgeiframe {
+  display: none !important;
+}
+
+#gptengineer-badge-container {
+  display: none !important;
+}
