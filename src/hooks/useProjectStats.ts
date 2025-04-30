@@ -21,7 +21,7 @@ export const useProjectStats = () => {
   const fetchStats = async () => {
     setLoading(true);
     try {
-      // Buscar total de projetos finalizados
+      // Fetch total number of completed projects (status = 'Finalizado')
       const { count: projectsCount, error: projectsError } = await supabase
         .from('orders')
         .select('*', { count: 'exact', head: true })
@@ -29,7 +29,7 @@ export const useProjectStats = () => {
 
       if (projectsError) throw projectsError;
 
-      // Buscar média de avaliações
+      // Fetch all ratings data for satisfaction rate and average calculation
       const { data: ratingsData, error: ratingsError } = await supabase
         .from('project_ratings')
         .select('rating');
@@ -44,15 +44,17 @@ export const useProjectStats = () => {
       if (ratingsData && ratingsData.length > 0) {
         hasRatings = true;
         
-        // Calcular média de avaliações
+        // Calculate average rating
         const sum = ratingsData.reduce((acc, item) => acc + item.rating, 0);
         averageRating = parseFloat((sum / ratingsData.length).toFixed(1));
         
-        // Calcular taxa de satisfação (% de avaliações 4 ou 5 estrelas)
+        // Calculate satisfaction rate (% of ratings that are 4 or 5 stars)
         const highRatings = ratingsData.filter(item => item.rating >= 4).length;
         satisfactionRate = Math.round((highRatings / ratingsData.length) * 100);
       }
 
+      console.log("Stats loaded:", { totalProjects, satisfactionRate, averageRating });
+      
       setStats({
         totalProjects,
         satisfactionRate,

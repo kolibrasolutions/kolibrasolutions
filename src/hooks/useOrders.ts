@@ -11,6 +11,7 @@ export const useOrders = (userId: string | undefined) => {
   const fetchOrders = async (userId: string) => {
     setLoading(true);
     try {
+      console.log("Fetching orders for user:", userId);
       const { data, error } = await supabase
         .from('orders')
         .select(`
@@ -45,5 +46,14 @@ export const useOrders = (userId: string | undefined) => {
     }
   }, [userId]);
 
-  return { orders, loading, refreshOrders: () => userId && fetchOrders(userId) };
+  return { 
+    orders, 
+    loading, 
+    refreshOrders: () => {
+      console.log("Refreshing orders for user:", userId);
+      if (userId) {
+        fetchOrders(userId);
+      }
+    } 
+  };
 };

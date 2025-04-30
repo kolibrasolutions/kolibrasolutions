@@ -39,23 +39,43 @@ const OrderActionButtons: React.FC<OrderActionButtonsProps> = ({
     
     setIsDeleting(true);
     try {
+      console.log("Starting order deletion for order ID:", order.id);
+      
       // Delete order items first due to foreign key constraints
-      await supabase
+      const { error: itemsError } = await supabase
         .from('order_items')
         .delete()
         .eq('order_id', order.id);
       
+      if (itemsError) {
+        console.error("Error deleting order items:", itemsError);
+        throw itemsError;
+      }
+      console.log("Order items deleted successfully");
+      
       // Delete any ratings related to this order
-      await supabase
+      const { error: ratingsError } = await supabase
         .from('project_ratings')
         .delete()
         .eq('order_id', order.id);
+      
+      if (ratingsError) {
+        console.error("Error deleting ratings:", ratingsError);
+        throw ratingsError;
+      }
+      console.log("Ratings deleted successfully");
         
       // Delete any payments related to this order
-      await supabase
+      const { error: paymentsError } = await supabase
         .from('payments')
         .delete()
         .eq('order_id', order.id);
+      
+      if (paymentsError) {
+        console.error("Error deleting payments:", paymentsError);
+        throw paymentsError;
+      }
+      console.log("Payments deleted successfully");
       
       // Finally delete the order
       const { error } = await supabase
@@ -63,7 +83,11 @@ const OrderActionButtons: React.FC<OrderActionButtonsProps> = ({
         .delete()
         .eq('id', order.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error deleting order:", error);
+        throw error;
+      }
+      console.log("Order deleted successfully");
       
       toast.success("Pedido excluído com sucesso!");
       
