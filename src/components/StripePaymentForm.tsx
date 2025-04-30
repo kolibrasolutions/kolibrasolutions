@@ -5,6 +5,7 @@ import { stripePromise } from '@/integrations/stripe/stripe-client';
 import { CheckoutForm } from '@/components/stripe/CheckoutForm';
 import { PaymentStateManager } from '@/components/stripe/PaymentStateManager';
 import { usePaymentIntent } from '@/hooks/usePaymentIntent';
+import { StripeElementsOptions } from '@stripe/stripe-js';
 
 interface PaymentFormProps {
   orderId: number;
@@ -23,7 +24,7 @@ export const StripePaymentForm = ({ orderId, paymentType, amount, priceId, onSuc
     handleRetry
   } = usePaymentIntent({ orderId, paymentType, amount, priceId });
 
-  const options = clientSecret ? {
+  const options: StripeElementsOptions = clientSecret ? {
     clientSecret,
     appearance: {
       theme: 'stripe',
@@ -31,7 +32,7 @@ export const StripePaymentForm = ({ orderId, paymentType, amount, priceId, onSuc
         colorPrimary: '#10b981',
       },
     },
-  } : undefined;
+  } : {};
 
   return (
     <div className="p-4 border rounded-lg shadow-sm">
