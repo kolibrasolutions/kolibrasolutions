@@ -3,10 +3,12 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { v4 as uuidv4 } from 'uuid';
+import { useAuth } from '@/hooks/useAuth';
 
 type BlogPost = {
   id: string;
   title: string;
+  subtitle: string | null;
   content: string;
   image_url: string | null;
   published: boolean;
@@ -17,37 +19,31 @@ type BlogPost = {
 
 export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
   const [title, setTitle] = useState('');
+  const [subtitle, setSubtitle] = useState('');
   const [content, setContent] = useState('');
   const [published, setPublished] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [saveTimeout, setSaveTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const { user } = useAuth();
   
   useEffect(() => {
     if (post) {
       setTitle(post.title);
+      setSubtitle(post.subtitle || '');
       setContent(post.content);
       setPublished(post.published);
       setImageUrl(post.image_url);
     } else {
       setTitle('');
+      setSubtitle('');
       setContent('');
       setPublished(false);
       setImageUrl(null);
     }
     setImageFile(null);
   }, [post]);
-  
-  // Cleanup function to clear timeout
-  useEffect(() => {
-    return () => {
-      if (saveTimeout) {
-        clearTimeout(saveTimeout);
-      }
-    };
-  }, [saveTimeout]);
   
   const handleImageChange = (file: File | null) => {
     setImageFile(file);
@@ -56,23 +52,11 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
   const uploadImage = async (): Promise<string | null> => {
     if (!imageFile) return imageUrl;
     
-    // Check file size (4MB limit)
-    if (imageFile.size > 4 * 1024 * 1024) {
-      toast.error('Erro: O arquivo é muito grande', {
-        description: 'O tamanho máximo permitido é de 4MB'
-      });
-      return null;
-    }
-    
     setUploading(true);
     try {
       const fileExt = imageFile.name.split('.').pop();
       const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = `${fileName}`;
-      
-      toast.info('Fazendo upload da imagem...', {
-        description: 'Por favor, aguarde enquanto enviamos sua imagem.'
-      });
       
       const { error: uploadError } = await supabase.storage
         .from('blog_images')
@@ -95,60 +79,22 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
   };
   
   const handleSave = async () => {
-    if (!title.trim()) {
-      toast.error('Por favor, preencha o título');
+    if (!title.trim() || !content.trim()) {
+      toast.error('Por favor, preencha todos os campos obrigatórios');
       return;
     }
     
-    // Content size check - increased to 2MB (approx 2 million characters)
-    if (content && content.length > 2000000) {
-      toast.error('Conteúdo muito grande', {
-        description: 'O conteúdo do post é muito grande. Por favor, reduza o tamanho.'
-      });
+    if (!user) {
+      toast.error('Você precisa estar autenticado para criar ou editar postagens');
       return;
-    }
-    
-    // Content validation but not blocking
-    if (!content.trim()) {
-      toast.warning('O conteúdo está vazio');
     }
     
     setSaving(true);
-    
     try {
-      // Set a timeout to prevent infinite loading - increased to 120 seconds
-      const timeout = setTimeout(() => {
-        setSaving(false);
-        toast.error('Tempo limite excedido. Por favor, tente novamente.');
-      }, 120000); // 120 second timeout
-      
-      setSaveTimeout(timeout);
-      
-      toast.info('Salvando postagem...', {
-        description: 'Estamos processando seu conteúdo. Isso pode levar até 2 minutos para artigos grandes.'
-      });
-      
       let finalImageUrl = imageUrl;
       
       if (imageFile) {
         finalImageUrl = await uploadImage();
-        if (!finalImageUrl && imageFile) {
-          toast.error('Erro ao fazer upload da imagem');
-          setSaving(false);
-          clearTimeout(timeout);
-          setSaveTimeout(null);
-          return;
-        }
-      }
-      
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        toast.error('Você precisa estar logado para salvar uma postagem');
-        setSaving(false);
-        clearTimeout(timeout);
-        setSaveTimeout(null);
-        return;
       }
       
       if (post) {
@@ -157,6 +103,7 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
           .from('blog_posts')
           .update({
             title,
+            subtitle: subtitle || null,
             content,
             image_url: finalImageUrl,
             published,
@@ -173,10 +120,11 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
           .from('blog_posts')
           .insert({
             title,
+            subtitle: subtitle || null,
             content,
             image_url: finalImageUrl,
             published,
-            author_id: session.user.id,
+            author_id: user.id,
           });
         
         if (error) throw error;
@@ -184,17 +132,11 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
         toast.success('Postagem criada com sucesso');
       }
       
-      clearTimeout(timeout);
-      setSaveTimeout(null);
       onSuccess();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving blog post:', error);
-      toast.error(`Erro ao salvar postagem: ${error.message || 'Tente novamente'}`);
+      toast.error('Erro ao salvar postagem');
     } finally {
-      if (saveTimeout) {
-        clearTimeout(saveTimeout);
-        setSaveTimeout(null);
-      }
       setSaving(false);
     }
   };
@@ -202,6 +144,8 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
   return {
     title,
     setTitle,
+    subtitle,
+    setSubtitle,
     content,
     setContent,
     published,

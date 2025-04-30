@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { PortfolioProject, convertPortfolioProjectImages } from '@/types/orders';
 import { Json } from '@/integrations/supabase/types';
+import { RichTextContent } from '@/components/common/RichTextContent';
 
 const Portfolio = () => {
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
@@ -72,6 +73,7 @@ const Portfolio = () => {
 
 const ProjectCard = ({ project }: { project: PortfolioProject }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showFullDescription, setShowFullDescription] = useState(false);
   
   const nextImage = () => {
     setCurrentImageIndex((prevIndex) => 
@@ -133,7 +135,23 @@ const ProjectCard = ({ project }: { project: PortfolioProject }) => {
       </div>
       <CardContent className="p-6">
         <h2 className="text-xl font-semibold mb-3">{project.title}</h2>
-        <p className="text-gray-700">{project.description}</p>
+        
+        <div className={showFullDescription ? '' : 'max-h-32 overflow-hidden relative'}>
+          <RichTextContent content={project.description} />
+          
+          {!showFullDescription && project.description.length > 200 && (
+            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
+          )}
+        </div>
+        
+        {project.description.length > 200 && (
+          <button
+            onClick={() => setShowFullDescription(!showFullDescription)}
+            className="text-blue-600 text-sm mt-2 hover:underline"
+          >
+            {showFullDescription ? 'Mostrar menos' : 'Mostrar mais'}
+          </button>
+        )}
       </CardContent>
     </Card>
   );

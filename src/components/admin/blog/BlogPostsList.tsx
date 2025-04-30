@@ -13,6 +13,7 @@ import { BlogPostDialog } from './BlogPostDialog';
 type BlogPost = {
   id: string;
   title: string;
+  subtitle: string | null;
   content: string;
   image_url: string | null;
   published: boolean;
@@ -88,6 +89,19 @@ export const BlogPostsList = () => {
     }
   };
 
+  // Helper function to strip formatting tags for preview
+  const stripFormatting = (text: string) => {
+    return text
+      .replace(/:::\s*\w+\s*\n|:::/g, '') // Remove section markers
+      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markers
+      .replace(/_(.*?)_/g, '$1') // Remove italic markers
+      .replace(/__(.*?)__/g, '$1') // Remove underline markers
+      .replace(/##|###/g, '') // Remove heading markers
+      .replace(/\n- /g, '\n') // Remove list markers
+      .replace(/\n\d+\. /g, '\n') // Remove ordered list markers
+      .replace(/\[(.*?)\]\(.*?\)/g, '$1'); // Keep link text only
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -133,9 +147,21 @@ export const BlogPostsList = () => {
               </div>
               <CardContent className="p-4">
                 <h3 className="text-lg font-semibold line-clamp-1">{post.title}</h3>
+                
+                {post.subtitle && (
+                  <p className="text-gray-600 text-sm italic mb-1 line-clamp-1">{post.subtitle}</p>
+                )}
+                
                 <p className="text-sm text-gray-500 mt-1">
                   Criado há {formatDistanceToNow(new Date(post.created_at), { locale: ptBR, addSuffix: false })}
                 </p>
+                
+                <div className="mt-2 mb-4">
+                  <p className="text-gray-700 line-clamp-2 text-sm">
+                    {stripFormatting(post.content)}
+                  </p>
+                </div>
+                
                 <div className="flex justify-between items-center mt-4">
                   <Button 
                     variant={post.published ? "outline" : "default"}

@@ -13,6 +13,7 @@ import { ChevronRight } from 'lucide-react';
 type BlogPost = {
   id: string;
   title: string;
+  subtitle: string | null;
   content: string;
   image_url: string | null;
   created_at: string;
@@ -81,13 +82,18 @@ const Blog = () => {
                   )}
                 </div>
                 <CardContent className="p-6 flex-grow flex flex-col">
-                  <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
+                  <h2 className="text-xl font-semibold mb-1">{post.title}</h2>
+                  
+                  {post.subtitle && (
+                    <p className="text-gray-600 mb-2 italic">{post.subtitle}</p>
+                  )}
+                  
                   <p className="text-sm text-gray-500 mb-4">
                     Publicado há {formatDistanceToNow(new Date(post.created_at), { locale: ptBR, addSuffix: false })}
                   </p>
                   
                   <div className="text-gray-700 mb-4">
-                    <p className="line-clamp-4">{post.content}</p>
+                    <p className="line-clamp-4">{post.content.replace(/:::\s*\w+\s*\n|:::/g, '').replace(/[*_#>\[\]]/g, '')}</p>
                   </div>
                   
                   <div className="mt-auto pt-4 border-t">

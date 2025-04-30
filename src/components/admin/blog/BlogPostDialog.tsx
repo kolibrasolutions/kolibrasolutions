@@ -11,6 +11,7 @@ import { Progress } from '@/components/ui/progress';
 type BlogPost = {
   id: string;
   title: string;
+  subtitle: string | null;
   content: string;
   image_url: string | null;
   published: boolean;
@@ -30,6 +31,8 @@ export const BlogPostDialog = ({ open, onOpenChange, post, onSuccess }: BlogPost
   const {
     title,
     setTitle,
+    subtitle,
+    setSubtitle,
     content,
     setContent,
     published,
@@ -78,6 +81,8 @@ export const BlogPostDialog = ({ open, onOpenChange, post, onSuccess }: BlogPost
           <BlogPostForm
             title={title}
             setTitle={setTitle}
+            subtitle={subtitle || ''}
+            setSubtitle={setSubtitle}
             content={content}
             setContent={setContent}
             published={published}

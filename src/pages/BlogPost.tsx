@@ -9,10 +9,12 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { RichTextContent } from '@/components/common/RichTextContent';
 
 type BlogPost = {
   id: string;
   title: string;
+  subtitle: string | null;
   content: string;
   image_url: string | null;
   created_at: string;
@@ -74,7 +76,12 @@ const BlogPost = () => {
           </div>
         ) : (
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl font-bold text-green-800 mb-4">{post.title}</h1>
+            <h1 className="text-4xl font-bold text-green-800 mb-2">{post.title}</h1>
+            
+            {post.subtitle && (
+              <h2 className="text-2xl text-gray-600 mb-4">{post.subtitle}</h2>
+            )}
+            
             <p className="text-gray-500 mb-6">
               Publicado em {format(new Date(post.created_at), 'dd MMMM yyyy', { locale: ptBR })}
             </p>
@@ -89,11 +96,7 @@ const BlogPost = () => {
               </div>
             )}
             
-            <div className="prose prose-green max-w-none">
-              {post.content.split('\n').map((paragraph, index) => (
-                <p key={index} className="mb-4">{paragraph}</p>
-              ))}
-            </div>
+            <RichTextContent content={post.content} className="prose-green" />
           </div>
         )}
       </div>
