@@ -138,9 +138,10 @@ serve(async (req) => {
 
     console.log(`Payment amount: ${paymentAmount}, Price ID: ${price_id || 'not provided'}`);
 
-    // Initialize Stripe - Remove the problematic httpClient config
+    // Initialize Stripe
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeSecretKey) {
+      console.error("Missing STRIPE_SECRET_KEY environment variable");
       return new Response(
         JSON.stringify({ error: "Server configuration error: Missing Stripe secret key" }),
         { 
@@ -149,6 +150,19 @@ serve(async (req) => {
         }
       );
     }
+
+    // Validate that the stripe key is a secret key (should start with "sk_")
+    if (!stripeSecretKey.startsWith("sk_")) {
+      console.error("Invalid STRIPE_SECRET_KEY format - must use secret key, not publishable key");
+      return new Response(
+        JSON.stringify({ error: "Server configuration error: Invalid Stripe key format (must use secret key)" }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+
     const stripe = new Stripe(stripeSecretKey, {
       apiVersion: "2023-10-16"
     });
@@ -166,40 +180,60 @@ serve(async (req) => {
 
     console.log("Creating payment intent with data:", JSON.stringify(paymentIntentData));
     
-    // Create the payment intent
-    const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
-    console.log("Payment intent created:", paymentIntent.id);
+    try {
+      // Create the payment intent
+      const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
+      console.log("Payment intent created:", paymentIntent.id);
+      
+      // Record the payment intent in the database
+      const { error: paymentInsertError } = await supabaseServiceRole
+        .from("payments")
+        .insert({
+          order_id: order.id,
+          amount: paymentAmount,
+          stripe_payment_intent_id: paymentIntent.id,
+          payment_type,
+          status: paymentIntent.status,
+        });
 
-    // Record the payment intent in the database
-    const { error: paymentInsertError } = await supabaseServiceRole
-      .from("payments")
-      .insert({
-        order_id: order.id,
-        amount: paymentAmount,
-        stripe_payment_intent_id: paymentIntent.id,
-        payment_type,
-        status: paymentIntent.status,
-      });
+      if (paymentInsertError) {
+        console.error("Payment insert error:", paymentInsertError);
+        // We'll continue even if recording fails, as the payment intent was created successfully
+      }
 
-    if (paymentInsertError) {
-      console.error("Payment insert error:", paymentInsertError);
+      // Return the client secret for the frontend
       return new Response(
-        JSON.stringify({ error: "Failed to record payment", details: paymentInsertError.message }),
+        JSON.stringify({ clientSecret: paymentIntent.client_secret }),
         { 
-          status: 500, 
+          status: 200, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    } catch (stripeError) {
+      console.error("Stripe error:", stripeError);
+      let errorMessage = "Failed to create payment intent";
+      let statusCode = 500;
+
+      // Handle specific Stripe errors
+      if (stripeError.type === "StripeAuthenticationError") {
+        errorMessage = "Authentication with payment provider failed. Please contact support.";
+      } else if (stripeError.type === "StripeInvalidRequestError") {
+        errorMessage = "Invalid payment request. Please check your payment details.";
+        statusCode = 400;
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          error: errorMessage, 
+          details: stripeError.message,
+          code: stripeError.code || "unknown"
+        }),
+        { 
+          status: statusCode, 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 
         }
       );
     }
-
-    // Return the client secret for the frontend
-    return new Response(
-      JSON.stringify({ clientSecret: paymentIntent.client_secret }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
-      }
-    );
     
   } catch (error) {
     console.error("Unexpected error:", error);

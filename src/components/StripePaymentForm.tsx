@@ -97,62 +97,84 @@ export const StripePaymentForm = ({ orderId, paymentType, amount, priceId, onSuc
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
+
+  const createPaymentIntent = async () => {
+    try {
+      setIsLoading(true);
+      console.log(`Creating payment intent for order #${orderId}, type: ${paymentType}, priceId: ${priceId || 'N/A'}, amount: ${amount || 'N/A'}`);
+      
+      const { data, error } = await supabase.functions.invoke('create-payment-intent', {
+        body: { 
+          order_id: orderId, 
+          payment_type: paymentType,
+          amount: amount, // Pass the amount if provided
+          price_id: priceId // Pass the price ID if provided
+        }
+      });
+
+      console.log("Payment intent response:", data, error);
+
+      if (error) {
+        console.error('Error invoking edge function:', error);
+        setError(`Não foi possível iniciar o processo de pagamento: ${error.message || 'Erro de conexão'}`);
+        toast.error("Erro", {
+          description: `Não foi possível iniciar o pagamento: ${error.message || 'Erro de conexão'}`
+        });
+        return;
+      }
+
+      if (data.error) {
+        console.error('Server error creating payment intent:', data.error);
+        let errorMessage = `Erro do servidor: ${data.error}`;
+        
+        if (data.details) {
+          console.error('Error details:', data.details);
+          errorMessage += ` - ${data.details}`;
+          
+          // Specific error handling for common issues
+          if (data.details.includes('secret key')) {
+            errorMessage += " - Erro de configuração do Stripe. Por favor, contate o suporte.";
+          }
+        }
+        
+        if (data.code) {
+          errorMessage += ` (Código: ${data.code})`;
+        }
+        
+        setError(errorMessage);
+        toast.error("Erro do servidor", {
+          description: data.error
+        });
+        return;
+      }
+
+      if (data.clientSecret) {
+        console.log("Client secret obtained successfully");
+        setClientSecret(data.clientSecret);
+      } else {
+        setError('A resposta do servidor não contém o client secret necessário.');
+        console.error('Missing client secret in response', data);
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setError('Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.');
+      toast.error("Erro", {
+        description: "Ocorreu um erro inesperado"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const createPaymentIntent = async () => {
-      try {
-        setIsLoading(true);
-        console.log(`Creating payment intent for order #${orderId}, type: ${paymentType}, priceId: ${priceId || 'N/A'}`);
-        
-        const { data, error } = await supabase.functions.invoke('create-payment-intent', {
-          body: { 
-            order_id: orderId, 
-            payment_type: paymentType,
-            amount: amount, // Pass the amount if provided
-            price_id: priceId // Pass the price ID if provided
-          }
-        });
-
-        console.log("Payment intent response:", data, error);
-
-        if (error) {
-          console.error('Error creating payment intent:', error);
-          setError(`Não foi possível iniciar o processo de pagamento: ${error.message || 'Erro desconhecido'}`);
-          toast.error("Erro", {
-            description: `Não foi possível iniciar o pagamento: ${error.message || 'Erro desconhecido'}`
-          });
-          return;
-        }
-
-        if (data.error) {
-          console.error('Server error creating payment intent:', data.error);
-          setError(`Erro do servidor: ${data.error}${data.details ? ` - ${data.details}` : ''}`);
-          toast.error("Erro do servidor", {
-            description: data.error
-          });
-          return;
-        }
-
-        if (data.clientSecret) {
-          console.log("Client secret obtained successfully");
-          setClientSecret(data.clientSecret);
-        } else {
-          setError('A resposta do servidor não contém o client secret necessário.');
-          console.error('Missing client secret in response', data);
-        }
-      } catch (err) {
-        console.error('Unexpected error:', err);
-        setError('Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.');
-        toast.error("Erro", {
-          description: "Ocorreu um erro inesperado"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     createPaymentIntent();
-  }, [orderId, paymentType, amount, priceId]);
+  }, [orderId, paymentType, amount, priceId, retryCount]);
+
+  const handleRetry = () => {
+    setError(null);
+    setRetryCount(prev => prev + 1);
+  };
 
   if (isLoading) {
     return (
@@ -166,13 +188,19 @@ export const StripePaymentForm = ({ orderId, paymentType, amount, priceId, onSuc
     return (
       <div className="p-4 border border-red-300 bg-red-50 rounded text-red-700">
         <h3 className="font-semibold">Erro no processamento de pagamento</h3>
-        <p>{error}</p>
-        <Button 
-          onClick={() => window.location.reload()}
-          className="mt-4 bg-red-600 hover:bg-red-700"
-        >
-          Tentar Novamente
-        </Button>
+        <p className="text-sm mb-2">{error}</p>
+        <div className="flex flex-col space-y-2">
+          <p className="text-xs text-gray-600">
+            Detalhes técnicos: Pedido #{orderId}, Tipo: {paymentType}, 
+            Price ID: {priceId || 'N/A'}
+          </p>
+          <Button 
+            onClick={handleRetry}
+            className="mt-4 bg-red-600 hover:bg-red-700"
+          >
+            Tentar Novamente
+          </Button>
+        </div>
       </div>
     );
   }
@@ -183,7 +211,7 @@ export const StripePaymentForm = ({ orderId, paymentType, amount, priceId, onSuc
         <h3 className="font-semibold">Aguardando configuração de pagamento</h3>
         <p>Não foi possível obter as informações de pagamento necessárias.</p>
         <Button 
-          onClick={() => window.location.reload()} 
+          onClick={handleRetry}
           className="mt-4 bg-yellow-600 hover:bg-yellow-700"
         >
           Tentar Novamente
