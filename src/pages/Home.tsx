@@ -4,19 +4,23 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Layout from '@/components/Layout';
 import { ChevronRight } from 'lucide-react';
+import StatsCounter from '@/components/home/StatsCounter';
 
 const Home = () => {
   return (
     <Layout>
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-gray-50 to-blue-50 py-20">
+      {/* Hero Section with Stats */}
+      <section className="bg-gradient-to-r from-kolibra-blue to-blue-700 py-16 text-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl">
-            <h1 className="text-5xl font-bold text-kolibra-blue mb-6">
-              Impulsione seu Negócio com Soluções Digitais
+          <div className="max-w-3xl mb-10">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              Transforme seu Negócio com Soluções Digitais Acessíveis
             </h1>
-            <p className="text-xl text-gray-700 mb-8">
+            <p className="text-xl mb-6 text-white/90">
               Oferecemos serviços profissionais de branding, web design e marketing digital para transformar sua marca em uma presença digital de destaque.
+            </p>
+            <p className="text-2xl font-bold mb-8 text-kolibra-orange">
+              A SOLUÇÃO CERTA PARA CRESCER
             </p>
             <Link to="/servicos">
               <Button className="bg-kolibra-orange hover:bg-amber-500 text-white text-lg px-8 py-6">
@@ -24,6 +28,9 @@ const Home = () => {
               </Button>
             </Link>
           </div>
+          
+          {/* Stats Counter */}
+          <StatsCounter />
         </div>
       </section>
 

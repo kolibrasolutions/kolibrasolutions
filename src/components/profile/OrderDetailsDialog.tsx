@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { formatCurrency } from '@/lib/utils';
 import {
@@ -10,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Order } from '@/types/orders';
+import OrderRatingSection from './OrderRatingSection';
 
 type OrderType = {
   id: number;
@@ -162,6 +164,11 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
               </TableBody>
             </Table>
           </div>
+          
+          {/* Seção de avaliação para pedidos finalizados */}
+          {order.status === 'Finalizado' && (
+            <OrderRatingSection order={order} />
+          )}
           
           <div className="flex justify-end space-x-2">
             {order.status === 'Aceito' && (
