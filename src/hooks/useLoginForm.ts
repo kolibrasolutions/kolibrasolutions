@@ -10,6 +10,7 @@ export const useLoginForm = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,10 +24,14 @@ export const useLoginForm = () => {
     try {
       if (isLogin) {
         // Login logic
-        console.log("Attempting login with:", { email });
+        console.log("Attempting login with:", { email, rememberMe });
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
-          password
+          password,
+          options: {
+            // Set session persistence based on remember me checkbox
+            persistSession: rememberMe
+          }
         });
         
         if (error) {
@@ -54,6 +59,8 @@ export const useLoginForm = () => {
               full_name: fullName,
               phone: phone,
             },
+            // Always persist session on signup
+            persistSession: true
           }
         });
         
@@ -91,6 +98,8 @@ export const useLoginForm = () => {
     setFullName,
     phone,
     setPhone,
+    rememberMe,
+    setRememberMe,
     isLoading,
     toggleAuthMode,
     handleSubmit

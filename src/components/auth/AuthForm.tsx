@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface AuthFormProps {
   isLogin: boolean;
@@ -15,6 +16,8 @@ interface AuthFormProps {
   setFullName: (value: string) => void;
   phone: string;
   setPhone: (value: string) => void;
+  rememberMe: boolean;
+  setRememberMe: (value: boolean) => void;
   isLoading: boolean;
   toggleAuthMode: () => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
@@ -30,6 +33,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
   setFullName,
   phone,
   setPhone,
+  rememberMe,
+  setRememberMe,
   isLoading,
   toggleAuthMode,
   handleSubmit
@@ -100,6 +105,22 @@ const AuthForm: React.FC<AuthFormProps> = ({
                 minLength={6}
               />
             </div>
+
+            {isLogin && (
+              <div className="flex items-center space-x-2 pt-2">
+                <Checkbox 
+                  id="rememberMe" 
+                  checked={rememberMe} 
+                  onCheckedChange={(checked) => setRememberMe(checked === true)}
+                />
+                <Label 
+                  htmlFor="rememberMe" 
+                  className="text-sm font-normal cursor-pointer"
+                >
+                  Lembrar de mim
+                </Label>
+              </div>
+            )}
           </div>
         </CardContent>
         <CardFooter className="flex flex-col">
