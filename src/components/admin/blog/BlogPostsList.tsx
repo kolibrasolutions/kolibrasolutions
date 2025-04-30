@@ -137,7 +137,12 @@ export const BlogPostsList = () => {
                   Criado há {formatDistanceToNow(new Date(post.created_at), { locale: ptBR, addSuffix: false })}
                 </p>
                 <div className="flex justify-between items-center mt-4">
-                  <Button variant="outline" size="sm" onClick={() => handlePublishToggle(post)}>
+                  <Button 
+                    variant={post.published ? "outline" : "default"}
+                    size="sm" 
+                    className={post.published ? "border-red-200 text-red-600 hover:bg-red-50" : "bg-green-600 hover:bg-green-700 text-white"}
+                    onClick={() => handlePublishToggle(post)}
+                  >
                     {post.published ? 'Despublicar' : 'Publicar'}
                   </Button>
                   <div className="flex gap-2">

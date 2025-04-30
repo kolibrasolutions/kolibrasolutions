@@ -6,6 +6,8 @@ import { toast } from '@/components/ui/sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 type BlogPost = {
   id: string;
@@ -20,6 +22,14 @@ type BlogPost = {
 const Blog = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedPosts, setExpandedPosts] = useState<Record<string, boolean>>({});
+  
+  const togglePostExpansion = (postId: string) => {
+    setExpandedPosts(prev => ({
+      ...prev,
+      [postId]: !prev[postId]
+    }));
+  };
   
   useEffect(() => {
     const fetchPosts = async () => {
@@ -82,14 +92,34 @@ const Blog = () => {
                   <p className="text-sm text-gray-500 mb-4">
                     Publicado há {formatDistanceToNow(new Date(post.created_at), { locale: ptBR, addSuffix: false })}
                   </p>
-                  <p className="text-gray-700 line-clamp-4 flex-grow">
-                    {post.content}
-                  </p>
-                  <div className="mt-6 pt-4 border-t">
-                    <a href="#" className="text-green-700 hover:underline font-medium">
-                      Ler mais
-                    </a>
-                  </div>
+                  
+                  <Collapsible 
+                    open={expandedPosts[post.id] || false}
+                    onOpenChange={() => togglePostExpansion(post.id)}
+                    className="flex-grow flex flex-col"
+                  >
+                    <div className="text-gray-700 mb-4">
+                      <CollapsibleContent asChild={false}>
+                        <div className="mb-4">{post.content}</div>
+                      </CollapsibleContent>
+                      
+                      {!expandedPosts[post.id] && (
+                        <p className="line-clamp-4">{post.content}</p>
+                      )}
+                    </div>
+                    
+                    <div className="mt-auto pt-4 border-t">
+                      <CollapsibleTrigger asChild>
+                        <button className="text-green-700 hover:underline font-medium flex items-center gap-1">
+                          {expandedPosts[post.id] ? (
+                            <>Ver menos <ChevronUp className="h-4 w-4" /></>
+                          ) : (
+                            <>Ler mais <ChevronDown className="h-4 w-4" /></>
+                          )}
+                        </button>
+                      </CollapsibleTrigger>
+                    </div>
+                  </Collapsible>
                 </CardContent>
               </Card>
             ))}
