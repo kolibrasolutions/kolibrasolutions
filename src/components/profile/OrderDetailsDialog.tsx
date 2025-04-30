@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { formatCurrency } from '@/lib/utils';
 import {
@@ -10,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Order } from '@/types/orders';
 
 type OrderType = {
   id: number;
@@ -32,11 +32,11 @@ type OrderType = {
 };
 
 type OrderDetailsDialogProps = {
-  order: OrderType | null;
+  order: Order | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onPayFinalAmount: (order: OrderType) => void;
-  onPayInitialAmount: (order: OrderType) => void;
+  onPayFinalAmount: (order: Order) => void;
+  onPayInitialAmount: (order: Order) => void;
 };
 
 export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({

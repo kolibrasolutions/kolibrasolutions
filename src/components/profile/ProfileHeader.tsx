@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Order } from '@/types/orders';
 
 type ProfileHeaderProps = {
   user: any;
-  orders: any[];
+  orders: Order[];
 };
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, orders }) => {

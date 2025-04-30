@@ -5,33 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { OrderStatusBadge } from './OrderStatusBadge';
 import { formatCurrency } from '@/lib/utils';
-
-type OrderType = {
-  id: number;
-  created_at: string;
-  updated_at: string | null;
-  status: string;
-  total_price: number;
-  initial_payment_amount: number | null;
-  final_payment_amount: number | null;
-  order_items: {
-    id: number;
-    service: {
-      name: string;
-      price: number;
-      description: string | null;
-    };
-    quantity: number;
-    price_at_order: number;
-  }[];
-};
+import { Order } from '@/types/orders';
 
 type OrdersListProps = {
-  orders: OrderType[];
+  orders: Order[];
   loading: boolean;
-  onViewDetails: (order: OrderType) => void;
-  onPayFinal: (order: OrderType) => void;
-  onPayInitial: (order: OrderType) => void;
+  onViewDetails: (order: Order) => void;
+  onPayFinal: (order: Order) => void;
+  onPayInitial: (order: Order) => void;
 };
 
 export const OrdersList: React.FC<OrdersListProps> = ({ 

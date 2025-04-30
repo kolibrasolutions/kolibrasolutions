@@ -3,29 +3,10 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { StripePaymentForm } from '@/components/StripePaymentForm';
 import { formatCurrency } from '@/lib/utils';
-
-type OrderType = {
-  id: number;
-  created_at: string;
-  updated_at: string | null;
-  status: string;
-  total_price: number;
-  initial_payment_amount: number | null;
-  final_payment_amount: number | null;
-  order_items: {
-    id: number;
-    service: {
-      name: string;
-      price: number;
-      description: string | null;
-    };
-    quantity: number;
-    price_at_order: number;
-  }[];
-};
+import { Order } from '@/types/orders';
 
 type PaymentDialogProps = {
-  order: OrderType | null;
+  order: Order | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
