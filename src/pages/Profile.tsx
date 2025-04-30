@@ -445,8 +445,8 @@ const Profile = () => {
                 
                 <StripePaymentForm 
                   orderId={paymentOrder.id} 
-                  amount={paymentOrder.final_payment_amount || (paymentOrder.total_price * 0.8)}
                   paymentType="final"
+                  amount={paymentOrder.final_payment_amount || (paymentOrder.total_price * 0.8)}
                   onSuccess={() => {
                     setPaymentOrder(null);
                     // Update orders list

@@ -18,6 +18,7 @@ const stripePromise = loadStripe("pk_test_51OvlGMDJBU0mQ1ud1Clz6qb7F5JgjOVPEx3c7
 interface PaymentFormProps {
   orderId: number;
   paymentType: 'initial' | 'final';
+  amount?: number; // Add the optional amount prop
   onSuccess?: () => void;
 }
 
@@ -77,7 +78,7 @@ const CheckoutForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   );
 };
 
-export const StripePaymentForm = ({ orderId, paymentType, onSuccess }: PaymentFormProps) => {
+export const StripePaymentForm = ({ orderId, paymentType, amount, onSuccess }: PaymentFormProps) => {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -85,7 +86,11 @@ export const StripePaymentForm = ({ orderId, paymentType, onSuccess }: PaymentFo
     const createPaymentIntent = async () => {
       try {
         const { data, error } = await supabase.functions.invoke('create-payment-intent', {
-          body: { order_id: orderId, payment_type: paymentType }
+          body: { 
+            order_id: orderId, 
+            payment_type: paymentType,
+            amount: amount // Pass the amount if provided
+          }
         });
 
         if (error) {
@@ -112,7 +117,7 @@ export const StripePaymentForm = ({ orderId, paymentType, onSuccess }: PaymentFo
     };
 
     createPaymentIntent();
-  }, [orderId, paymentType]);
+  }, [orderId, paymentType, amount]);
 
   if (error) {
     return (
