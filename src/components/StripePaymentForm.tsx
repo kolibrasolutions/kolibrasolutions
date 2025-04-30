@@ -19,6 +19,7 @@ interface PaymentFormProps {
   orderId: number;
   paymentType: 'initial' | 'final';
   amount?: number; // Add the optional amount prop
+  priceId?: string; // Add an optional priceId prop for Stripe Checkout
   onSuccess?: () => void;
 }
 
@@ -78,7 +79,7 @@ const CheckoutForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   );
 };
 
-export const StripePaymentForm = ({ orderId, paymentType, amount, onSuccess }: PaymentFormProps) => {
+export const StripePaymentForm = ({ orderId, paymentType, amount, priceId, onSuccess }: PaymentFormProps) => {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -89,7 +90,8 @@ export const StripePaymentForm = ({ orderId, paymentType, amount, onSuccess }: P
           body: { 
             order_id: orderId, 
             payment_type: paymentType,
-            amount: amount // Pass the amount if provided
+            amount: amount, // Pass the amount if provided
+            price_id: priceId // Pass the price ID if provided
           }
         });
 
@@ -117,7 +119,7 @@ export const StripePaymentForm = ({ orderId, paymentType, amount, onSuccess }: P
     };
 
     createPaymentIntent();
-  }, [orderId, paymentType, amount]);
+  }, [orderId, paymentType, amount, priceId]);
 
   if (error) {
     return (

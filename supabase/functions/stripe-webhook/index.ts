@@ -15,8 +15,8 @@ serve(async (req) => {
   try {
     // Initialize Stripe with the secret key
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      httpClient: Deno.createHttpClient(),
       apiVersion: "2023-10-16",
+      httpClient: Deno.createFetch(),
     });
     
     // Get the signature from the headers
@@ -142,7 +142,7 @@ serve(async (req) => {
     console.error(`Webhook error: ${err.message}`);
     return new Response(
       JSON.stringify({ error: "Webhook handler failed", details: err.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      { status: 500, headers: webhookHeaders }
     );
   }
 });

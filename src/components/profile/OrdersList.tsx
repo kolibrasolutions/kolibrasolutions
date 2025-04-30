@@ -31,13 +31,15 @@ type OrdersListProps = {
   loading: boolean;
   onViewDetails: (order: OrderType) => void;
   onPayFinal: (order: OrderType) => void;
+  onPayInitial: (order: OrderType) => void;
 };
 
 export const OrdersList: React.FC<OrdersListProps> = ({ 
   orders, 
   loading, 
   onViewDetails, 
-  onPayFinal 
+  onPayFinal,
+  onPayInitial
 }) => {
   const navigate = useNavigate();
   
@@ -101,13 +103,23 @@ export const OrdersList: React.FC<OrdersListProps> = ({
                     Detalhes
                   </Button>
                   
+                  {order.status === 'Aceito' && !order.initial_payment_amount && (
+                    <Button 
+                      size="sm"
+                      onClick={() => onPayInitial(order)}
+                      className="bg-blue-500 hover:bg-blue-600"
+                    >
+                      Pagar 20%
+                    </Button>
+                  )}
+                  
                   {order.status === 'Finalizado' && !order.final_payment_amount && (
                     <Button 
                       size="sm"
                       onClick={() => onPayFinal(order)}
                       className="bg-green-500 hover:bg-green-600"
                     >
-                      Pagar Restante
+                      Pagar 80%
                     </Button>
                   )}
                 </div>

@@ -12,6 +12,8 @@ export const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({ status }) =>
         return 'bg-yellow-100 text-yellow-800';
       case 'Aceito':
         return 'bg-blue-100 text-blue-800';
+      case 'Pagamento Inicial Realizado':
+        return 'bg-indigo-100 text-indigo-800';
       case 'Em Andamento':
         return 'bg-purple-100 text-purple-800';
       case 'Finalizado':

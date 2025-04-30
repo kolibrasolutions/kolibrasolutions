@@ -36,6 +36,7 @@ type OrderDetailsDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onPayFinalAmount: (order: OrderType) => void;
+  onPayInitialAmount: (order: OrderType) => void;
 };
 
 export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
@@ -43,6 +44,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
   open,
   onOpenChange,
   onPayFinalAmount,
+  onPayInitialAmount,
 }) => {
   // Format date for display
   const formatDate = (dateString: string | null) => {
@@ -91,18 +93,28 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                 </div>
                 
                 <div className="relative flex items-center">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${['Aceito', 'Em Andamento', 'Finalizado'].includes(order.status) ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${['Aceito', 'Pagamento Inicial Realizado', 'Em Andamento', 'Finalizado'].includes(order.status) ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
                     2
                   </div>
                   <div className="ml-4">
                     <p className="font-semibold">Pedido Aceito</p>
-                    <p className="text-sm text-gray-500">Preparando para iniciar</p>
+                    <p className="text-sm text-gray-500">Aguardando pagamento inicial</p>
+                  </div>
+                </div>
+                
+                <div className="relative flex items-center">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${['Pagamento Inicial Realizado', 'Em Andamento', 'Finalizado'].includes(order.status) ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                    3
+                  </div>
+                  <div className="ml-4">
+                    <p className="font-semibold">Pagamento Inicial</p>
+                    <p className="text-sm text-gray-500">20% do valor pago</p>
                   </div>
                 </div>
                 
                 <div className="relative flex items-center">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${['Em Andamento', 'Finalizado'].includes(order.status) ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
-                    3
+                    4
                   </div>
                   <div className="ml-4">
                     <p className="font-semibold">Em Andamento</p>
@@ -112,7 +124,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                 
                 <div className="relative flex items-center">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${order.status === 'Finalizado' ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
-                    4
+                    5
                   </div>
                   <div className="ml-4">
                     <p className="font-semibold">Finalizado</p>
@@ -152,6 +164,17 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
           </div>
           
           <div className="flex justify-end space-x-2">
+            {order.status === 'Aceito' && !order.initial_payment_amount && (
+              <Button 
+                onClick={() => {
+                  onPayInitialAmount(order);
+                }}
+                className="bg-blue-500 hover:bg-blue-600"
+              >
+                Realizar Pagamento Inicial (20%)
+              </Button>
+            )}
+            
             {order.status === 'Finalizado' && !order.final_payment_amount && (
               <Button 
                 onClick={() => {
@@ -159,7 +182,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                 }}
                 className="bg-green-500 hover:bg-green-600"
               >
-                Realizar Pagamento Final
+                Realizar Pagamento Final (80%)
               </Button>
             )}
           </div>

@@ -16,7 +16,7 @@ serve(async (req) => {
 
   try {
     // Get request body
-    const { order_id, payment_type } = await req.json();
+    const { order_id, payment_type, price_id } = await req.json();
     
     if (!order_id || !payment_type) {
       return new Response(
@@ -109,18 +109,18 @@ serve(async (req) => {
     // Validate order status for requested payment type
     let paymentAmount;
     if (payment_type === "initial") {
-      if (order.status !== "Pendente") {
+      if (order.status !== "Aceito") {
         return new Response(
-          JSON.stringify({ error: "Initial payment already processed or not in correct status" }),
+          JSON.stringify({ error: "Initial payment can only be processed when the order is accepted" }),
           { 
             status: 400, 
             headers: { ...corsHeaders, "Content-Type": "application/json" } 
           }
         );
       }
-      paymentAmount = order.initial_payment_amount || Math.round(order.total_price * 0.2); // Updated to 20% if not specified
+      paymentAmount = order.initial_payment_amount || Math.round(order.total_price * 0.2);
     } else { // final payment
-      if (order.status !== "Em Andamento" && order.status !== "Pagamento Inicial Realizado") {
+      if (order.status !== "Em Andamento" && order.status !== "Pagamento Inicial Realizado" && order.status !== "Finalizado") {
         return new Response(
           JSON.stringify({ error: "Order not ready for final payment" }),
           { 
@@ -134,8 +134,8 @@ serve(async (req) => {
 
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      httpClient: Deno.createHttpClient(),
       apiVersion: "2023-10-16",
+      httpClient: Deno.createFetch(),
     });
 
     // Create payment intent
@@ -147,6 +147,8 @@ serve(async (req) => {
         user_id: user.id,
         payment_type 
       },
+      // If a price_id is provided, use it
+      ...(price_id && { payment_method_types: ["card"] })
     });
 
     // Record the payment intent in the database

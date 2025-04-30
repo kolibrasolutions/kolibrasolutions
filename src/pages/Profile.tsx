@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
-import { StripePaymentForm } from '@/components/StripePaymentForm';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { OrdersList } from '@/components/profile/OrdersList';
 import { OrderDetailsDialog } from '@/components/profile/OrderDetailsDialog';
 import { PaymentDialog } from '@/components/profile/PaymentDialog';
+import { InitialPaymentDialog } from '@/components/profile/InitialPaymentDialog';
 
 type OrderType = {
   id: number;
@@ -36,6 +36,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [viewOrderDetails, setViewOrderDetails] = useState<OrderType | null>(null);
   const [paymentOrder, setPaymentOrder] = useState<OrderType | null>(null);
+  const [initialPaymentOrder, setInitialPaymentOrder] = useState<OrderType | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -85,7 +86,19 @@ const Profile = () => {
     }
   };
   
-  // Handle payment for finalized orders
+  // Handle payment for accepted orders (initial 20%)
+  const handlePayInitialAmount = (order: OrderType) => {
+    if (order.status !== 'Aceito') {
+      toast("Informação", { 
+        description: "O pagamento inicial só pode ser realizado quando o pedido estiver aceito pelo administrador" 
+      });
+      return;
+    }
+    
+    setInitialPaymentOrder(order);
+  };
+  
+  // Handle payment for finalized orders (final 80%)
   const handlePayFinalAmount = (order: OrderType) => {
     if (order.status !== 'Finalizado') {
       toast("Informação", { 
@@ -121,6 +134,7 @@ const Profile = () => {
           loading={loading}
           onViewDetails={(order) => setViewOrderDetails(order)}
           onPayFinal={handlePayFinalAmount}
+          onPayInitial={handlePayInitialAmount}
         />
         
         {/* Order Details Dialog */}
@@ -134,9 +148,13 @@ const Profile = () => {
             handlePayFinalAmount(order);
             setViewOrderDetails(null);
           }}
+          onPayInitialAmount={(order) => {
+            handlePayInitialAmount(order);
+            setViewOrderDetails(null);
+          }}
         />
         
-        {/* Payment Dialog */}
+        {/* Final Payment Dialog */}
         <PaymentDialog
           order={paymentOrder}
           open={!!paymentOrder}
@@ -145,6 +163,21 @@ const Profile = () => {
           }}
           onSuccess={() => {
             setPaymentOrder(null);
+            if (user) {
+              fetchOrders(user.id);
+            }
+          }}
+        />
+        
+        {/* Initial Payment Dialog */}
+        <InitialPaymentDialog
+          order={initialPaymentOrder}
+          open={!!initialPaymentOrder}
+          onOpenChange={(open) => {
+            if (!open) setInitialPaymentOrder(null);
+          }}
+          onSuccess={() => {
+            setInitialPaymentOrder(null);
             if (user) {
               fetchOrders(user.id);
             }
