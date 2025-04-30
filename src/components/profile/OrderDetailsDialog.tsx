@@ -3,14 +3,12 @@ import React from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog';
 import { Order } from '@/types/orders';
 import OrderDetailsContent from './order-details/OrderDetailsContent';
 import OrderActionButtons from './order-details/OrderActionButtons';
 import OrderRatingWrapper from './order-details/OrderRatingWrapper';
+import OrderHeader from './order-details/OrderHeader';
 
 type OrderDetailsDialogProps = {
   order: Order | null;
@@ -27,12 +25,6 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
   onPayFinalAmount,
   onPayInitialAmount,
 }) => {
-  // Format date for display
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleString('pt-BR');
-  };
-
   if (!order) {
     return null;
   }
@@ -40,12 +32,11 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Detalhes do Pedido #{order.id}</DialogTitle>
-          <DialogDescription>
-            Criado em {formatDate(order.created_at || null)}
-          </DialogDescription>
-        </DialogHeader>
+        {/* Extracted header component */}
+        <OrderHeader 
+          orderId={order.id} 
+          createdAt={order.created_at || null} 
+        />
 
         <div className="space-y-6">
           {/* Main content with order details, items and status progress */}
