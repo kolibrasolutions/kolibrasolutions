@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
@@ -9,6 +10,8 @@ import { OrdersList } from '@/components/profile/OrdersList';
 import { OrderDetailsDialog } from '@/components/profile/OrderDetailsDialog';
 import { PaymentDialog } from '@/components/profile/PaymentDialog';
 import { InitialPaymentDialog } from '@/components/profile/InitialPaymentDialog';
+import { useAuth } from '@/hooks/useAuth';
+import { LayoutDashboard } from 'lucide-react';
 
 type OrderType = {
   id: number;
@@ -38,6 +41,7 @@ const Profile = () => {
   const [paymentOrder, setPaymentOrder] = useState<OrderType | null>(null);
   const [initialPaymentOrder, setInitialPaymentOrder] = useState<OrderType | null>(null);
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -126,6 +130,21 @@ const Profile = () => {
   return (
     <Layout>
       <div className="container mx-auto py-8 px-4">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Minha Conta</h1>
+          
+          {isAdmin && (
+            <Button 
+              onClick={() => navigate('/admin')}
+              variant="outline"
+              className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200"
+            >
+              <LayoutDashboard size={18} />
+              Acessar Painel Admin
+            </Button>
+          )}
+        </div>
+        
         <ProfileHeader user={user} orders={orders} />
         
         <h2 className="text-2xl font-bold mb-4">Meus Pedidos</h2>
