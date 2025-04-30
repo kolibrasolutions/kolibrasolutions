@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { MultipleImageUpload } from '@/components/admin/shared/MultipleImageUpload';
-import { v4 as uuidv4 } from '@supabase/supabase-js';
+import { v4 as uuidv4 } from 'uuid';
 import { Loader2 } from 'lucide-react';
 
 type PortfolioProject = {

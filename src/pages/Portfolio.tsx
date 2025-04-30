@@ -5,15 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-
-type PortfolioProject = {
-  id: string;
-  title: string;
-  description: string;
-  images: string[];
-  created_at: string;
-  updated_at: string;
-};
+import { PortfolioProject } from '@/types/orders';
+import { Json } from '@/integrations/supabase/types';
 
 const Portfolio = () => {
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
@@ -31,7 +24,14 @@ const Portfolio = () => {
         
         if (error) throw error;
         
-        setProjects(data || []);
+        // Convert the Supabase data to match our PortfolioProject type
+        const formattedProjects: PortfolioProject[] = data?.map(project => ({
+          ...project,
+          // Ensure images is always treated as string[]
+          images: Array.isArray(project.images) ? project.images : []
+        })) || [];
+        
+        setProjects(formattedProjects);
       } catch (error) {
         console.error('Error fetching portfolio projects:', error);
         toast.error('Erro ao carregar projetos do portfólio');

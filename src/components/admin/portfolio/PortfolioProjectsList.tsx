@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
@@ -9,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { PortfolioProjectDialog } from './PortfolioProjectDialog';
+import { PortfolioProject } from '@/types/orders';
+import { Json } from '@/integrations/supabase/types';
 
 type PortfolioProject = {
   id: string;
@@ -36,7 +37,14 @@ export const PortfolioProjectsList = () => {
       
       if (error) throw error;
       
-      setProjects(data || []);
+      // Convert the Supabase data to match our PortfolioProject type
+      const formattedProjects: PortfolioProject[] = data?.map(project => ({
+        ...project,
+        // Ensure images is always treated as string[]
+        images: Array.isArray(project.images) ? project.images : []
+      })) || [];
+      
+      setProjects(formattedProjects);
     } catch (error) {
       console.error('Error fetching portfolio projects:', error);
       toast.error('Erro ao carregar projetos do portfólio');

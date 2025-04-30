@@ -1,4 +1,3 @@
-
 export type OrderItem = {
   id: number;
   service: {
@@ -19,4 +18,14 @@ export type Order = {
   initial_payment_amount: number | null;
   final_payment_amount: number | null;
   order_items: OrderItem[];
+};
+
+export type PortfolioProject = {
+  id: string;
+  title: string;
+  description: string;
+  images: string[];
+  published: boolean;
+  created_at: string;
+  updated_at: string;
 };
