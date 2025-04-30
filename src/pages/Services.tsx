@@ -1,23 +1,20 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from '@/components/ui/sonner';
 import Layout from '@/components/Layout';
-import { Service } from '@/types';
 import { useCart } from '@/contexts/CartContext';
 import { supabase } from '@/integrations/supabase/client';
-import { formatCurrency } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Plus, ShoppingCart, X } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
+import { useServices } from '@/hooks/useServices';
+import FeaturedBanner from '@/components/services/FeaturedBanner';
+import ServicesList from '@/components/services/ServicesList';
+import CartSummary from '@/components/services/CartSummary';
 
 const Services = () => {
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [categories, setCategories] = useState<string[]>([]);
   const [user, setUser] = useState<any>(null);
   const { cartItems, addToCart, removeFromCart, getTotal, clearCart } = useCart();
   const navigate = useNavigate();
+  const { servicesByCategory, loading, error } = useServices();
 
   // Get user session
   useEffect(() => {
@@ -35,34 +32,6 @@ const Services = () => {
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, []);
-
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from('services')
-          .select('*')
-          .eq('is_active', true)
-          .order('category');
-          
-        if (error) throw error;
-
-        setServices(data);
-        
-        // Extract unique categories
-        const uniqueCategories = Array.from(new Set(data.map(service => service.category)));
-        setCategories(uniqueCategories);
-      } catch (error) {
-        console.error('Error fetching services:', error);
-        setError('Não foi possível carregar os serviços. Por favor, tente novamente mais tarde.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchServices();
   }, []);
 
   const handleCheckout = async () => {
@@ -89,7 +58,7 @@ const Services = () => {
       }));
       
       const totalPrice = getTotal();
-      const initialPaymentAmount = totalPrice * 0.2; // 20% initial payment (changed from 0.5)
+      const initialPaymentAmount = totalPrice * 0.2; // 20% initial payment
       
       const { data: order, error: orderError } = await supabase
         .from('orders')
@@ -139,137 +108,32 @@ const Services = () => {
     }
   };
 
-  // Group services by category
-  const servicesByCategory = categories.map(category => ({
-    category,
-    items: services.filter(service => service.category === category)
-  }));
-
   return (
     <Layout>
       <div className="container mx-auto px-4 py-12">
         <h1 className="text-4xl font-bold text-kolibra-blue mb-6">Nossas Soluções</h1>
         
-        {/* Featured Banner */}
-        <div className="bg-gradient-to-r from-kolibra-blue to-blue-700 text-white p-8 rounded-lg mb-12 shadow-lg">
-          <h2 className="text-2xl font-bold mb-2">KOLIBRA FINANCE</h2>
-          <p className="mb-4">Soluções financeiras SaaS para gestão completa do seu negócio.</p>
-          <Button className="bg-kolibra-orange hover:bg-amber-500 text-white">
-            Conhecer Planos
-          </Button>
-        </div>
+        <FeaturedBanner />
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Services Accordion */}
           <div className="lg:w-2/3">
-            {loading ? (
-              <div className="text-center py-12">Carregando serviços...</div>
-            ) : error ? (
-              <div className="text-center text-red-500 py-12">{error}</div>
-            ) : (
-              <Accordion type="single" collapsible className="w-full">
-                {servicesByCategory.map((categoryGroup, index) => (
-                  <AccordionItem key={index} value={`category-${index}`}>
-                    <AccordionTrigger className="text-xl font-medium text-kolibra-blue">
-                      {categoryGroup.category}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-4">
-                        {categoryGroup.items.map(service => (
-                          <div key={service.id} className="border border-gray-200 rounded-md p-4 hover:shadow-md transition-shadow">
-                            <div className="flex justify-between">
-                              <div>
-                                <h3 className="font-bold text-lg">{service.name}</h3>
-                                <p className="text-gray-700 mt-1">{service.description}</p>
-                              </div>
-                              <div className="flex flex-col items-end">
-                                <span className="font-bold text-kolibra-orange">{formatCurrency(service.price)}</span>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline" 
-                                  className="mt-2 border-kolibra-orange text-kolibra-orange hover:bg-kolibra-orange hover:text-white"
-                                  onClick={() => addToCart(service)}
-                                >
-                                  <Plus size={16} className="mr-1" /> Adicionar
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            )}
+            <ServicesList 
+              servicesByCategory={servicesByCategory} 
+              loading={loading} 
+              error={error} 
+              onAddToCart={addToCart} 
+            />
           </div>
           
           {/* Cart Summary */}
           <div className="lg:w-1/3">
-            <div className="bg-gray-50 rounded-lg p-6 sticky top-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-kolibra-blue flex items-center">
-                  <ShoppingCart size={24} className="mr-2" />
-                  Serviços Adicionados
-                </h2>
-              </div>
-              
-              {cartItems.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  Seu carrinho está vazio
-                </div>
-              ) : (
-                <>
-                  <div className="space-y-4 mb-6 max-h-[400px] overflow-y-auto">
-                    {cartItems.map(item => (
-                      <div key={item.id} className="flex justify-between items-center border-b border-gray-200 pb-4">
-                        <div>
-                          <h3 className="font-medium">{item.name}</h3>
-                          <p className="text-sm text-gray-500">
-                            {item.quantity} x {formatCurrency(item.price)}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="font-semibold">{formatCurrency(item.price * item.quantity)}</span>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-0 w-8 h-8"
-                            onClick={() => removeFromCart(item.id)}
-                          >
-                            <X size={18} />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="border-t border-gray-200 pt-4 mb-6">
-                    <div className="flex justify-between items-center text-xl font-bold">
-                      <span>Total</span>
-                      <span className="text-kolibra-blue">{formatCurrency(getTotal())}</span>
-                    </div>
-                    
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        Pagamento inicial de 20%: {formatCurrency(getTotal() * 0.2)}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Pagamento final de 80% na conclusão: {formatCurrency(getTotal() * 0.8)}
-                      </p>
-                    </div>
-                  </div>
-                </>
-              )}
-              
-              <Button 
-                className="w-full bg-kolibra-orange hover:bg-amber-500 text-white"
-                disabled={cartItems.length === 0}
-                onClick={handleCheckout}
-              >
-                Finalizar Pedido
-              </Button>
-            </div>
+            <CartSummary 
+              cartItems={cartItems} 
+              getTotal={getTotal} 
+              removeFromCart={removeFromCart} 
+              onCheckout={handleCheckout} 
+            />
           </div>
         </div>
       </div>
