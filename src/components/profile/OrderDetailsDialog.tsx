@@ -164,7 +164,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
           </div>
           
           <div className="flex justify-end space-x-2">
-            {order.status === 'Aceito' && !order.initial_payment_amount && (
+            {order.status === 'Aceito' && (
               <Button 
                 onClick={() => {
                   onPayInitialAmount(order);

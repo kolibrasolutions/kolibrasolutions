@@ -103,7 +103,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({
                     Detalhes
                   </Button>
                   
-                  {order.status === 'Aceito' && !order.initial_payment_amount && (
+                  {order.status === 'Aceito' && (
                     <Button 
                       size="sm"
                       onClick={() => onPayInitial(order)}

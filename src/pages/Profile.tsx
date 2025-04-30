@@ -77,6 +77,7 @@ const Profile = () => {
         throw error;
       }
       
+      console.log("Orders fetched:", data);
       setOrders(data || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
