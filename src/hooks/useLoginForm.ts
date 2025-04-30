@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, updateAuthSettings } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 
 export const useLoginForm = () => {
@@ -23,15 +23,14 @@ export const useLoginForm = () => {
     
     try {
       if (isLogin) {
+        // Atualiza as configurações de persistência baseado no checkbox "Lembrar de mim"
+        updateAuthSettings(rememberMe);
+        
         // Login logic
         console.log("Attempting login with:", { email, rememberMe });
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
-          password,
-          options: {
-            // Set session persistence based on remember me checkbox
-            persistSession: rememberMe
-          }
+          password
         });
         
         if (error) {
@@ -49,6 +48,9 @@ export const useLoginForm = () => {
         navigate(returnUrl);
         
       } else {
+        // Para cadastro, sempre queremos persistir a sessão
+        updateAuthSettings(true);
+        
         // Registration logic
         console.log("Attempting signup with:", { email, fullName, phone });
         const { data, error: signUpError } = await supabase.auth.signUp({
@@ -58,9 +60,7 @@ export const useLoginForm = () => {
             data: {
               full_name: fullName,
               phone: phone,
-            },
-            // Always persist session on signup
-            persistSession: true
+            }
           }
         });
         
