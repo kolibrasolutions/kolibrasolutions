@@ -1,17 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/sonner';
+import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { ImageUpload } from '@/components/admin/shared/ImageUpload';
-import { v4 as uuidv4 } from 'uuid';
 import { Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { BlogPostForm } from './BlogPostForm';
+import { usePostForm } from './usePostForm';
 
 type BlogPost = {
   id: string;
@@ -32,129 +26,19 @@ type BlogPostDialogProps = {
 };
 
 export const BlogPostDialog = ({ open, onOpenChange, post, onSuccess }: BlogPostDialogProps) => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [published, setPublished] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  
-  useEffect(() => {
-    if (post) {
-      setTitle(post.title);
-      setContent(post.content);
-      setPublished(post.published);
-      setImageUrl(post.image_url);
-    } else {
-      setTitle('');
-      setContent('');
-      setPublished(false);
-      setImageUrl(null);
-    }
-    setImageFile(null);
-  }, [post, open]);
-  
-  const handleImageChange = (file: File | null) => {
-    setImageFile(file);
-  };
-  
-  const uploadImage = async (): Promise<string | null> => {
-    if (!imageFile) return imageUrl;
-    
-    setUploading(true);
-    try {
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${uuidv4()}.${fileExt}`;
-      const filePath = `${fileName}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('blog_images')
-        .upload(filePath, imageFile);
-      
-      if (uploadError) throw uploadError;
-      
-      const { data } = supabase.storage
-        .from('blog_images')
-        .getPublicUrl(filePath);
-      
-      return data.publicUrl;
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      toast.error('Erro ao fazer upload da imagem');
-      return null;
-    } finally {
-      setUploading(false);
-    }
-  };
-  
-  const handleSave = async () => {
-    if (!title.trim() || !content.trim()) {
-      toast.error('Por favor, preencha todos os campos obrigatórios');
-      return;
-    }
-    
-    setSaving(true);
-    try {
-      let finalImageUrl = imageUrl;
-      
-      if (imageFile) {
-        finalImageUrl = await uploadImage();
-        if (!finalImageUrl && imageFile) {
-          toast.error('Erro ao fazer upload da imagem');
-          setSaving(false);
-          return;
-        }
-      }
-      
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        toast.error('Você precisa estar logado para salvar uma postagem');
-        return;
-      }
-      
-      if (post) {
-        // Update existing post
-        const { error } = await supabase
-          .from('blog_posts')
-          .update({
-            title,
-            content,
-            image_url: finalImageUrl,
-            published,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', post.id);
-        
-        if (error) throw error;
-        
-        toast.success('Postagem atualizada com sucesso');
-      } else {
-        // Create new post
-        const { error } = await supabase
-          .from('blog_posts')
-          .insert({
-            title,
-            content,
-            image_url: finalImageUrl,
-            published,
-            author_id: session.user.id,
-          });
-        
-        if (error) throw error;
-        
-        toast.success('Postagem criada com sucesso');
-      }
-      
-      onSuccess();
-    } catch (error) {
-      console.error('Error saving blog post:', error);
-      toast.error('Erro ao salvar postagem');
-    } finally {
-      setSaving(false);
-    }
-  };
+  const {
+    title,
+    setTitle,
+    content,
+    setContent,
+    published,
+    setPublished,
+    imageUrl,
+    saving,
+    uploading,
+    handleImageChange,
+    handleSave
+  } = usePostForm(post, onSuccess);
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -164,45 +48,16 @@ export const BlogPostDialog = ({ open, onOpenChange, post, onSuccess }: BlogPost
         </DialogHeader>
         
         <ScrollArea className="max-h-[60vh] pr-4">
-          <div className="grid gap-6 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="title">Título</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Digite o título da postagem"
-              />
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="content">Conteúdo</Label>
-              <Textarea
-                id="content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Digite o conteúdo da postagem"
-                className="min-h-[200px]"
-              />
-            </div>
-            
-            <div className="grid gap-2">
-              <Label>Imagem de Destaque</Label>
-              <ImageUpload 
-                currentImageUrl={imageUrl} 
-                onFileChange={handleImageChange} 
-              />
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="published"
-                checked={published}
-                onCheckedChange={setPublished}
-              />
-              <Label htmlFor="published">Publicar imediatamente</Label>
-            </div>
-          </div>
+          <BlogPostForm
+            title={title}
+            setTitle={setTitle}
+            content={content}
+            setContent={setContent}
+            published={published}
+            setPublished={setPublished}
+            imageUrl={imageUrl}
+            handleImageChange={handleImageChange}
+          />
         </ScrollArea>
         
         <DialogFooter>
