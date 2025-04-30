@@ -31,6 +31,14 @@ async function getSignedUrl(supabase: any, bucket: string, filePath: string) {
   }
 }
 
+// Format currency for display
+function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  }).format(amount);
+}
+
 // Send delivery email with file links
 async function sendDeliveryEmail(
   resend: Resend, 
@@ -94,14 +102,40 @@ async function sendDeliveryEmail(
     `;
   }
 
+  // Calculate payment values
+  const initialPayment = orderDetails.initial_payment_amount || orderDetails.total_price * 0.2;
+  const finalPayment = orderDetails.final_payment_amount || orderDetails.total_price * 0.8;
+
+  // Payment information section
+  const paymentHTML = `
+    <div style="margin: 20px 0; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f0f9ff;">
+      <h3 style="margin-top: 0; color: #1f2937;">Informações de Pagamento:</h3>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 10px;">Pagamento Inicial (20%):</td>
+          <td style="padding: 10px; font-weight: bold; text-align: right;">R$ ${initialPayment.toFixed(2)}</td>
+          <td style="padding: 10px; color: #10b981;">Pago</td>
+        </tr>
+        <tr style="background-color: #ecfdf5;">
+          <td style="padding: 10px;">Pagamento Final (80%):</td>
+          <td style="padding: 10px; font-weight: bold; text-align: right;">R$ ${finalPayment.toFixed(2)}</td>
+          <td style="padding: 10px; color: #10b981;">Aguardando Pagamento</td>
+        </tr>
+      </table>
+      <p style="margin-top: 15px; padding: 10px; background-color: #ffedd5; border-radius: 4px; color: #9a3412; font-weight: medium;">
+        Importante: Para acessar o resultado final do seu projeto, por favor realize o pagamento final acessando sua conta em nosso site.
+      </p>
+    </div>
+  `;
+  
   try {
     const { data, error } = await resend.emails.send({
-      from: "JardimPró <noreply@sua-empresa.com.br>",
+      from: "Kolibra Finance <noreply@kolibra.com.br>",
       to: [userEmail],
-      subject: `Pedido #${orderDetails.id} - Entrega Finalizada`,
+      subject: `Pedido #${orderDetails.id} - Finalizado e Pronto para Entrega!`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-          <header style="background-color: #10b981; padding: 20px; text-align: center; color: white;">
+          <header style="background-color: #0c4a6e; padding: 20px; text-align: center; color: white;">
             <h1 style="margin: 0;">Seu Pedido Foi Finalizado!</h1>
           </header>
           
@@ -114,20 +148,22 @@ async function sendDeliveryEmail(
             
             ${servicesHTML}
             
+            ${paymentHTML}
+            
             ${filesHTML}
             
             ${!fileLinks || fileLinks.length === 0 ? 
               `<p style="font-size: 16px; color: #333; margin-top: 20px;">
-                Entraremos em contato em breve para agendar a entrega ou para fornecer mais informações sobre o seu serviço.
+                Após o pagamento final, você receberá acesso completo ao seu projeto.
               </p>` : ''
             }
             
             <p style="font-size: 16px; color: #333; margin-top: 20px;">
-              Obrigado por escolher a JardimPró! Se tiver alguma dúvida, por favor entre em contato conosco.
+              Obrigado por escolher a Kolibra Finance! Se tiver alguma dúvida, por favor entre em contato conosco.
             </p>
             
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; font-size: 14px; color: #666;">
-              <p>&copy; ${new Date().getFullYear()} JardimPró. Todos os direitos reservados.</p>
+              <p>&copy; ${new Date().getFullYear()} Kolibra Finance. Todos os direitos reservados.</p>
             </div>
           </div>
         </div>
@@ -201,7 +237,7 @@ serve(async (req) => {
     // Get user details
     const { data: userData, error: userError } = await supabaseServiceRole
       .from("users")
-      .select("email, full_name")
+      .select("email, full_name, phone")
       .eq("id", order.user_id)
       .single();
 
@@ -231,6 +267,21 @@ serve(async (req) => {
     // Check for delivery files in storage
     const orderFilesBucket = "order_files";
     const orderFilesDirectory = `order_${order_id}`;
+    
+    // Check if bucket exists and create it if not
+    const { data: buckets } = await supabaseServiceRole
+      .storage
+      .listBuckets();
+      
+    if (!buckets?.find(b => b.name === orderFilesBucket)) {
+      // Create the bucket if it doesn't exist
+      await supabaseServiceRole
+        .storage
+        .createBucket(orderFilesBucket, {
+          public: false,
+          fileSizeLimit: 50000000, // 50MB limit
+        });
+    }
 
     // List files in the order directory
     const { data: files, error: filesError } = await supabaseServiceRole

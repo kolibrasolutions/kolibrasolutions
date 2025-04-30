@@ -14,6 +14,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionChecked, setSessionChecked] = useState(false);
   const navigate = useNavigate();
@@ -63,13 +64,14 @@ const Login = () => {
           options: {
             data: {
               full_name: fullName,
+              phone: phone,
             },
           }
         });
         
         if (signUpError) throw signUpError;
         
-        // After signup, insert user profile with full name
+        // After signup, insert user profile with full name and phone
         toast("Cadastro realizado com sucesso!", {
           description: "Por favor, verifique seu email para confirmar a conta."
         });
@@ -115,17 +117,31 @@ const Login = () => {
               <CardContent>
                 <div className="space-y-4">
                   {!isLogin && (
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName">Nome Completo</Label>
-                      <Input 
-                        id="fullName" 
-                        type="text" 
-                        placeholder="Digite seu nome completo"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        required
-                      />
-                    </div>
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="fullName">Nome Completo</Label>
+                        <Input 
+                          id="fullName" 
+                          type="text" 
+                          placeholder="Digite seu nome completo"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          required
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Telefone</Label>
+                        <Input 
+                          id="phone" 
+                          type="tel" 
+                          placeholder="Digite seu telefone"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </>
                   )}
                   
                   <div className="space-y-2">

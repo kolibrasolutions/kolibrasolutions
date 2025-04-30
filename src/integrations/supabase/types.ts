@@ -51,6 +51,7 @@ export type Database = {
       orders: {
         Row: {
           created_at: string | null
+          delivery_date: string | null
           final_payment_amount: number | null
           id: number
           initial_payment_amount: number | null
@@ -61,6 +62,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          delivery_date?: string | null
           final_payment_amount?: number | null
           id?: number
           initial_payment_amount?: number | null
@@ -71,6 +73,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          delivery_date?: string | null
           final_payment_amount?: number | null
           id?: number
           initial_payment_amount?: number | null
@@ -172,6 +175,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          phone: string | null
           role: string
           updated_at: string | null
         }
@@ -180,6 +184,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          phone?: string | null
           role?: string
           updated_at?: string | null
         }
@@ -188,6 +193,7 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          phone?: string | null
           role?: string
           updated_at?: string | null
         }
