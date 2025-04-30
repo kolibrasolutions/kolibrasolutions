@@ -73,14 +73,25 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
   };
   
   const handleSave = async () => {
-    if (!title.trim() || !content.trim()) {
-      toast.error('Por favor, preencha todos os campos obrigatórios');
+    if (!title.trim()) {
+      toast.error('Por favor, preencha o título');
       return;
+    }
+    
+    // Content validation but not blocking
+    if (!content.trim()) {
+      toast.warning('O conteúdo está vazio');
     }
     
     setSaving(true);
     
     try {
+      // Set a timeout to prevent infinite loading
+      const saveTimeout = setTimeout(() => {
+        setSaving(false);
+        toast.error('Tempo limite excedido. Por favor, tente novamente.');
+      }, 30000); // 30 second timeout
+      
       let finalImageUrl = imageUrl;
       
       if (imageFile) {
@@ -88,6 +99,7 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
         if (!finalImageUrl && imageFile) {
           toast.error('Erro ao fazer upload da imagem');
           setSaving(false);
+          clearTimeout(saveTimeout);
           return;
         }
       }
@@ -97,6 +109,7 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
       if (!session) {
         toast.error('Você precisa estar logado para salvar uma postagem');
         setSaving(false);
+        clearTimeout(saveTimeout);
         return;
       }
       
@@ -133,10 +146,11 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
         toast.success('Postagem criada com sucesso');
       }
       
+      clearTimeout(saveTimeout);
       onSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving blog post:', error);
-      toast.error('Erro ao salvar postagem');
+      toast.error(`Erro ao salvar postagem: ${error.message || 'Tente novamente'}`);
     } finally {
       setSaving(false);
     }
@@ -157,4 +171,3 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
     handleSave
   };
 };
-

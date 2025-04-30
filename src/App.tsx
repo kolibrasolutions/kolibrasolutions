@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import Services from "./pages/Services";
 import Portfolio from "./pages/Portfolio";
 import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import PaymentConfirmation from "./pages/PaymentConfirmation";
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/soluções" element={<Services />} />  {/* Alternative route with accent */}
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:id" element={<BlogPost />} />
             <Route path="/login" element={<Login />} />
             <Route path="/payment-confirmation" element={<PaymentConfirmation />} />
             <Route path="/admin" element={<Admin />} />
