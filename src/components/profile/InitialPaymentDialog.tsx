@@ -41,6 +41,10 @@ export const InitialPaymentDialog: React.FC<InitialPaymentDialogProps> = ({
     return null;
   }
 
+  // Calculate the 20% initial payment amount
+  const initialAmount = order.initial_payment_amount || (order.total_price * 0.2);
+  console.log(`InitialPaymentDialog - Order #${order.id}, status: ${order.status}, initial amount: ${initialAmount}`);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
@@ -62,7 +66,7 @@ export const InitialPaymentDialog: React.FC<InitialPaymentDialogProps> = ({
               <div className="col-span-2">
                 <p className="text-sm text-gray-500">Pagamento Inicial (20%)</p>
                 <p className="font-bold text-xl text-green-600">
-                  {formatCurrency(order.initial_payment_amount || (order.total_price * 0.2))}
+                  {formatCurrency(initialAmount)}
                 </p>
               </div>
             </div>
@@ -71,9 +75,9 @@ export const InitialPaymentDialog: React.FC<InitialPaymentDialogProps> = ({
           <StripePaymentForm 
             orderId={order.id} 
             paymentType="initial"
-            amount={order.initial_payment_amount || (order.total_price * 0.2)}
-            onSuccess={onSuccess}
+            amount={initialAmount}
             priceId="prod_SE3wdy3XRuRscG" // Using the provided price ID for 20% payment
+            onSuccess={onSuccess}
           />
         </div>
       </DialogContent>

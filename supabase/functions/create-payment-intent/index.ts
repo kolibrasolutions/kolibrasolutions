@@ -16,7 +16,7 @@ serve(async (req) => {
 
   try {
     // Get request body
-    const { order_id, payment_type, price_id } = await req.json();
+    const { order_id, payment_type, price_id, amount } = await req.json();
     
     if (!order_id || !payment_type) {
       return new Response(
@@ -38,6 +38,8 @@ serve(async (req) => {
         }
       );
     }
+
+    console.log(`Processing ${payment_type} payment for order ${order_id}`);
 
     // Initialize Supabase client (client using anon key for auth)
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
@@ -62,7 +64,7 @@ serve(async (req) => {
 
     if (authError || !user) {
       return new Response(
-        JSON.stringify({ error: "Unauthorized: Invalid token" }),
+        JSON.stringify({ error: "Unauthorized: Invalid token", details: authError?.message }),
         { 
           status: 401, 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 
@@ -87,13 +89,15 @@ serve(async (req) => {
     if (orderError || !order) {
       console.error("Order fetch error:", orderError);
       return new Response(
-        JSON.stringify({ error: "Order not found" }),
+        JSON.stringify({ error: "Order not found", details: orderError?.message }),
         { 
           status: 404, 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 
         }
       );
     }
+
+    console.log("Order fetched:", JSON.stringify(order));
     
     // Verify that the order belongs to the authenticated user
     if (order.user_id !== user.id) {
@@ -111,7 +115,7 @@ serve(async (req) => {
     if (payment_type === "initial") {
       if (order.status !== "Aceito") {
         return new Response(
-          JSON.stringify({ error: "Initial payment can only be processed when the order is accepted" }),
+          JSON.stringify({ error: "Initial payment can only be processed when the order is accepted", orderStatus: order.status }),
           { 
             status: 400, 
             headers: { ...corsHeaders, "Content-Type": "application/json" } 
@@ -122,7 +126,7 @@ serve(async (req) => {
     } else { // final payment
       if (order.status !== "Finalizado") {
         return new Response(
-          JSON.stringify({ error: "Final payment can only be processed when the order is finalized" }),
+          JSON.stringify({ error: "Final payment can only be processed when the order is finalized", orderStatus: order.status }),
           { 
             status: 400, 
             headers: { ...corsHeaders, "Content-Type": "application/json" } 
@@ -132,24 +136,39 @@ serve(async (req) => {
       paymentAmount = order.final_payment_amount || (order.total_price - (order.initial_payment_amount || 0));
     }
 
-    // Initialize Stripe
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2023-10-16",
-      httpClient: Deno.createFetch(),
+    console.log(`Payment amount: ${paymentAmount}, Price ID: ${price_id || 'not provided'}`);
+
+    // Initialize Stripe - Remove the problematic httpClient config
+    const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeSecretKey) {
+      return new Response(
+        JSON.stringify({ error: "Server configuration error: Missing Stripe secret key" }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+    const stripe = new Stripe(stripeSecretKey, {
+      apiVersion: "2023-10-16"
     });
 
-    // Create payment intent
-    const paymentIntent = await stripe.paymentIntents.create({
+    // Create payment intent with proper configuration
+    let paymentIntentData = {
       amount: Math.round(paymentAmount * 100), // Convert to cents
       currency: "brl",
       metadata: { 
         order_id: order.id.toString(), 
         user_id: user.id,
         payment_type 
-      },
-      // If a price_id is provided, use it
-      ...(price_id && { payment_method_types: ["card"] })
-    });
+      }
+    };
+
+    console.log("Creating payment intent with data:", JSON.stringify(paymentIntentData));
+    
+    // Create the payment intent
+    const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
+    console.log("Payment intent created:", paymentIntent.id);
 
     // Record the payment intent in the database
     const { error: paymentInsertError } = await supabaseServiceRole
@@ -165,7 +184,7 @@ serve(async (req) => {
     if (paymentInsertError) {
       console.error("Payment insert error:", paymentInsertError);
       return new Response(
-        JSON.stringify({ error: "Failed to record payment" }),
+        JSON.stringify({ error: "Failed to record payment", details: paymentInsertError.message }),
         { 
           status: 500, 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 
