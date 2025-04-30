@@ -20,15 +20,36 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
+  console.log("Login page rendering");
+  
   // Check if the user is already logged in
   useEffect(() => {
     const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        const returnUrl = new URLSearchParams(location.search).get('returnUrl') || '/';
-        navigate(returnUrl);
+      try {
+        console.log("Checking user session...");
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error checking session:", error);
+          setSessionChecked(true);
+          return;
+        }
+        
+        console.log("Session data:", data);
+        
+        if (data.session) {
+          const returnUrl = new URLSearchParams(location.search).get('returnUrl') || '/';
+          console.log("User is logged in, redirecting to:", returnUrl);
+          navigate(returnUrl);
+        } else {
+          console.log("No active session found");
+        }
+        
+        setSessionChecked(true);
+      } catch (err) {
+        console.error("Session check exception:", err);
+        setSessionChecked(true);
       }
-      setSessionChecked(true);
     };
     
     checkSession();
@@ -41,14 +62,19 @@ const Login = () => {
     try {
       if (isLogin) {
         // Login logic
-        const { error } = await supabase.auth.signInWithPassword({
+        console.log("Attempting login with:", { email });
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password
         });
         
-        if (error) throw error;
+        if (error) {
+          console.error("Login error:", error);
+          throw error;
+        }
         
-        toast("Login realizado com sucesso!", {
+        console.log("Login successful:", data);
+        toast.success("Login realizado com sucesso!", {
           description: "Bem-vindo de volta."
         });
         
@@ -58,7 +84,8 @@ const Login = () => {
         
       } else {
         // Registration logic
-        const { error: signUpError } = await supabase.auth.signUp({
+        console.log("Attempting signup with:", { email, fullName, phone });
+        const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -69,10 +96,15 @@ const Login = () => {
           }
         });
         
-        if (signUpError) throw signUpError;
+        if (signUpError) {
+          console.error("Signup error:", signUpError);
+          throw signUpError;
+        }
+        
+        console.log("Signup successful:", data);
         
         // After signup, insert user profile with full name and phone
-        toast("Cadastro realizado com sucesso!", {
+        toast.success("Cadastro realizado com sucesso!", {
           description: "Por favor, verifique seu email para confirmar a conta."
         });
         
@@ -81,7 +113,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error('Authentication error:', error);
-      toast("Erro", {
+      toast.error("Erro", {
         description: error.message || "Ocorreu um erro ao processar sua solicitação."
       });
     } finally {
@@ -165,6 +197,7 @@ const Login = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      minLength={6}
                     />
                   </div>
                 </div>

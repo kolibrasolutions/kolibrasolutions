@@ -4,6 +4,7 @@ import { Service } from '@/types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import ServiceCard from './ServiceCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AlertCircle } from 'lucide-react';
 
 interface ServicesListProps {
   servicesByCategory: { category: string; items: Service[] }[];
@@ -13,6 +14,8 @@ interface ServicesListProps {
 }
 
 const ServicesList = ({ servicesByCategory, loading, error, onAddToCart }: ServicesListProps) => {
+  console.log("ServicesList rendering:", { loading, error, servicesByCategory });
+  
   if (loading) {
     return (
       <div className="space-y-8">
@@ -27,24 +30,25 @@ const ServicesList = ({ servicesByCategory, loading, error, onAddToCart }: Servi
   if (error) {
     return (
       <div className="text-center py-12 border border-red-200 rounded-lg bg-red-50">
-        <div className="text-red-600 mb-2 text-lg">Erro ao carregar serviços</div>
+        <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-2" />
+        <div className="text-red-600 mb-2 text-lg font-semibold">Erro ao carregar serviços</div>
         <p className="text-gray-600">{error}</p>
         <p className="mt-4 text-sm text-gray-500">Por favor, tente novamente mais tarde ou entre em contato com o suporte.</p>
       </div>
     );
   }
 
-  if (servicesByCategory.length === 0) {
+  if (!servicesByCategory || servicesByCategory.length === 0) {
     return (
       <div className="text-center py-12 border border-gray-200 rounded-lg bg-gray-50">
         <div className="text-gray-600 mb-2 text-lg">Nenhum serviço disponível</div>
-        <p className="text-gray-500">No momento não há serviços cadastrados nesta categoria.</p>
+        <p className="text-gray-500">No momento não há serviços cadastrados.</p>
       </div>
     );
   }
 
   return (
-    <Accordion type="single" collapsible className="w-full">
+    <Accordion type="single" collapsible className="w-full" defaultValue="category-0">
       {servicesByCategory.map((categoryGroup, index) => (
         <AccordionItem key={index} value={`category-${index}`}>
           <AccordionTrigger className="text-xl font-medium text-kolibra-blue">

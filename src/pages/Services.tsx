@@ -18,6 +18,8 @@ const Services = () => {
   const navigate = useNavigate();
   const { servicesByCategory, loading, error } = useServices();
 
+  console.log("Services page rendering", { loading, error, servicesByCategory });
+
   // Get user session
   useEffect(() => {
     let isMounted = true;
@@ -126,7 +128,7 @@ const Services = () => {
       
     } catch (error) {
       console.error('Error creating order:', error);
-      toast("Erro ao criar pedido", {
+      toast.error("Erro ao criar pedido", {
         description: error.message || "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente."
       });
     }
@@ -141,9 +143,14 @@ const Services = () => {
 
         {loading ? (
           <div className="space-y-6">
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-64 w-full" />
-            <Skeleton className="h-64 w-full" />
+            <div className="py-4 px-3 bg-gray-100 rounded-lg mb-4">
+              <Skeleton className="h-8 w-48 mb-4" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+            <div className="py-4 px-3 bg-gray-100 rounded-lg mb-4">
+              <Skeleton className="h-8 w-48 mb-4" />
+              <Skeleton className="h-24 w-full" />
+            </div>
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-8">
@@ -151,7 +158,7 @@ const Services = () => {
             <div className="lg:w-2/3">
               <ServicesList 
                 servicesByCategory={servicesByCategory} 
-                loading={false} 
+                loading={loading} 
                 error={error} 
                 onAddToCart={addToCart} 
               />

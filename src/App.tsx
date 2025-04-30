@@ -17,7 +17,16 @@ import PaymentConfirmation from "./pages/PaymentConfirmation";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 
-const queryClient = new QueryClient();
+// Create a new QueryClient with custom error handling
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      staleTime: 30000,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -29,6 +38,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/servicos" element={<Services />} />
+            <Route path="/soluções" element={<Services />} />  {/* Alternative route for Services */}
+            <Route path="/solucoes" element={<Services />} />  {/* Alternative route without accent */}
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/login" element={<Login />} />

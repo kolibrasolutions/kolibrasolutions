@@ -16,6 +16,10 @@ export const useServices = () => {
     const fetchServices = async () => {
       try {
         setLoading(true);
+        setError(null); // Reset error state before fetching
+        
+        // Add slight delay to ensure UI shows loading state
+        await new Promise(resolve => setTimeout(resolve, 300));
         
         const { data, error: fetchError } = await supabase
           .from('services')
@@ -26,13 +30,13 @@ export const useServices = () => {
         if (fetchError) throw fetchError;
         
         if (isMounted) {
+          console.log('Services fetched successfully:', data);
           // Make sure component is still mounted before updating state
           setServices(data || []);
           
           // Extract unique categories
           const uniqueCategories = Array.from(new Set((data || []).map(service => service.category)));
           setCategories(uniqueCategories);
-          setError(null);
         }
       } catch (error) {
         console.error('Error fetching services:', error);
