@@ -118,7 +118,7 @@ serve(async (req) => {
           }
         );
       }
-      paymentAmount = order.initial_payment_amount || Math.round(order.total_price * 0.5); // Default to 50% if not specified
+      paymentAmount = order.initial_payment_amount || Math.round(order.total_price * 0.2); // Updated to 20% if not specified
     } else { // final payment
       if (order.status !== "Em Andamento" && order.status !== "Pagamento Inicial Realizado") {
         return new Response(

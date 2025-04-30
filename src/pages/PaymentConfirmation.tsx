@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -225,7 +224,7 @@ const PaymentConfirmation = () => {
         {/* Payment section based on status */}
         {order!.status === 'Pendente' && (
           <div className="mt-6">
-            <h2 className="text-xl font-semibold mb-3">Pagamento Inicial</h2>
+            <h2 className="text-xl font-semibold mb-3">Pagamento Inicial (20%)</h2>
             <StripePaymentForm 
               orderId={order!.id} 
               paymentType="initial" 
@@ -235,7 +234,7 @@ const PaymentConfirmation = () => {
 
         {order!.status === 'Pagamento Inicial Realizado' && (
           <div className="mt-6">
-            <h2 className="text-xl font-semibold mb-3">Pagamento Final</h2>
+            <h2 className="text-xl font-semibold mb-3">Pagamento Final (80%)</h2>
             <StripePaymentForm 
               orderId={order!.id} 
               paymentType="final" 

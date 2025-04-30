@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -90,7 +89,7 @@ const Services = () => {
       }));
       
       const totalPrice = getTotal();
-      const initialPaymentAmount = totalPrice * 0.5; // 50% initial payment
+      const initialPaymentAmount = totalPrice * 0.2; // 20% initial payment (changed from 0.5)
       
       const { data: order, error: orderError } = await supabase
         .from('orders')
@@ -253,10 +252,10 @@ const Services = () => {
                     
                     <div className="mt-2">
                       <p className="text-sm text-gray-500">
-                        Pagamento inicial de 50%: {formatCurrency(getTotal() * 0.5)}
+                        Pagamento inicial de 20%: {formatCurrency(getTotal() * 0.2)}
                       </p>
                       <p className="text-sm text-gray-500">
-                        Pagamento final de 50% na conclusão: {formatCurrency(getTotal() * 0.5)}
+                        Pagamento final de 80% na conclusão: {formatCurrency(getTotal() * 0.8)}
                       </p>
                     </div>
                   </div>
