@@ -80,8 +80,7 @@ const Login = () => {
     } catch (error) {
       console.error('Authentication error:', error);
       toast("Erro", {
-        description: error.message || "Ocorreu um erro ao processar sua solicitação.",
-        variant: "destructive"
+        description: error.message || "Ocorreu um erro ao processar sua solicitação."
       });
     } finally {
       setIsLoading(false);

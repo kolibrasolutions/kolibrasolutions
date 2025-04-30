@@ -8,6 +8,20 @@ import { CheckCircle, XCircle, Loader2, FileDown, ArrowRight } from 'lucide-reac
 import { formatCurrency } from '@/lib/utils';
 import { StripePaymentForm } from '@/components/StripePaymentForm';
 
+interface OrderItem {
+  id: number;
+  service_id: number;
+  service_name?: string;
+  quantity: number;
+  price_at_order: number;
+}
+
+interface DeliveryFile {
+  url: string;
+  name: string;
+  expires_at: string;
+}
+
 interface OrderData {
   id: number;
   status: string;
@@ -15,18 +29,8 @@ interface OrderData {
   initial_payment_amount: number | null;
   final_payment_amount: number | null;
   created_at: string | null;
-  order_items?: Array<{
-    id: number;
-    service_id: number;
-    service_name?: string;
-    quantity: number;
-    price_at_order: number;
-  }>;
-  delivery_files?: Array<{
-    url: string;
-    name: string;
-    expires_at: string;
-  }>;
+  order_items?: OrderItem[];
+  delivery_files?: DeliveryFile[];
 }
 
 const PaymentConfirmation = () => {
@@ -86,23 +90,30 @@ const PaymentConfirmation = () => {
             price_at_order: item.price_at_order
           }));
           
-          orderData.order_items = items;
-        }
-
-        // Check if there are any delivery files for this order (for finalized orders)
-        if (orderData.status === 'Finalizado') {
-          const { data: filesData } = await supabase
-            .functions
-            .invoke('get-delivery-files', { 
-              body: { order_id: Number(orderId) }
-            });
+          // Add order_items to the order data object
+          const orderWithItems = {
+            ...orderData,
+            order_items: items
+          };
           
-          if (filesData && filesData.files) {
-            orderData.delivery_files = filesData.files;
+          // Check if there are any delivery files for this order (for finalized orders)
+          if (orderData.status === 'Finalizado') {
+            const { data: filesData } = await supabase
+              .functions
+              .invoke('get-delivery-files', { 
+                body: { order_id: Number(orderId) }
+              });
+            
+            if (filesData && filesData.files) {
+              orderWithItems.delivery_files = filesData.files;
+            }
           }
-        }
 
-        setOrder(orderData);
+          setOrder(orderWithItems);
+        } else {
+          // Even without items, we still set the order data
+          setOrder(orderData);
+        }
         
         // Set status based on order status or redirect_status
         if (redirectStatus === 'succeeded') {
@@ -188,24 +199,26 @@ const PaymentConfirmation = () => {
         </div>
 
         {/* Order items */}
-        <div>
-          <h2 className="text-xl font-semibold mb-3">Serviços</h2>
-          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-            {order.order_items?.map((item) => (
-              <div key={item.id} className="flex justify-between">
-                <div>
-                  <p className="font-medium">{item.service_name}</p>
-                  <p className="text-sm text-gray-500">Quantidade: {item.quantity}</p>
+        {order.order_items && order.order_items.length > 0 && (
+          <div>
+            <h2 className="text-xl font-semibold mb-3">Serviços</h2>
+            <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+              {order.order_items.map((item) => (
+                <div key={item.id} className="flex justify-between">
+                  <div>
+                    <p className="font-medium">{item.service_name}</p>
+                    <p className="text-sm text-gray-500">Quantidade: {item.quantity}</p>
+                  </div>
+                  <p className="font-semibold">{formatCurrency(item.price_at_order)}</p>
                 </div>
-                <p className="font-semibold">{formatCurrency(item.price_at_order)}</p>
+              ))}
+              <div className="border-t pt-3 mt-3 flex justify-between">
+                <p className="font-semibold">Total</p>
+                <p className="font-semibold text-green-700">{formatCurrency(order.total_price)}</p>
               </div>
-            ))}
-            <div className="border-t pt-3 mt-3 flex justify-between">
-              <p className="font-semibold">Total</p>
-              <p className="font-semibold text-green-700">{formatCurrency(order.total_price)}</p>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Payment section based on status */}
         {order.status === 'Pendente' && (
