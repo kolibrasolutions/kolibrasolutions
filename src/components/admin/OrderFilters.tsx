@@ -38,15 +38,15 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
       </div>
       <div className="w-full md:w-1/4">
         <Select
-          value={statusFilter || ''}
-          onValueChange={(value) => setStatusFilter(value || null)}
+          value={statusFilter || 'all'}
+          onValueChange={(value) => setStatusFilter(value === 'all' ? null : value)}
         >
           <SelectTrigger>
             <SelectValue placeholder="Filtrar por status" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value="">Todos os status</SelectItem>
+              <SelectItem value="all">Todos os status</SelectItem>
               <SelectItem value="Pendente">Pendente</SelectItem>
               <SelectItem value="Aceito">Aceito</SelectItem>
               <SelectItem value="Em Andamento">Em Andamento</SelectItem>
