@@ -7,7 +7,12 @@ type OrderRatingWrapperProps = {
   order: Order;
 };
 
+/**
+ * Component that conditionally renders the OrderRatingSection 
+ * only when the order status is "Finalizado"
+ */
 const OrderRatingWrapper: React.FC<OrderRatingWrapperProps> = ({ order }) => {
+  // Only show the rating section for completed orders
   if (order.status !== 'Finalizado') {
     return null;
   }
