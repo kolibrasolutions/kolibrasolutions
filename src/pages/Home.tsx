@@ -43,7 +43,7 @@ const Home = () => {
             <div className="bg-gray-50 rounded-lg overflow-hidden shadow-md">
               <div className="h-48 flex items-center justify-center bg-gray-100">
                 <img 
-                  src="/lovable-uploads/pencil.png" 
+                  src="/lovable-uploads/3627e16d-da94-436c-92bf-637097d02800.png" 
                   alt="Branding Profissional" 
                   className="h-32 w-auto object-contain"
                 />
@@ -60,7 +60,7 @@ const Home = () => {
             <div className="bg-gray-50 rounded-lg overflow-hidden shadow-md">
               <div className="h-48 flex items-center justify-center bg-gray-100">
                 <img 
-                  src="/lovable-uploads/computer.png" 
+                  src="/lovable-uploads/6384125c-1a08-4066-b2eb-8080bc282f20.png" 
                   alt="Web Design Responsivo" 
                   className="h-32 w-auto object-contain"
                 />
@@ -77,7 +77,7 @@ const Home = () => {
             <div className="bg-gray-50 rounded-lg overflow-hidden shadow-md">
               <div className="h-48 flex items-center justify-center bg-gray-100">
                 <img 
-                  src="/lovable-uploads/megaphone.png" 
+                  src="/lovable-uploads/3627e16d-da94-436c-92bf-637097d02800.png" 
                   alt="Marketing Digital" 
                   className="h-32 w-auto object-contain"
                 />
