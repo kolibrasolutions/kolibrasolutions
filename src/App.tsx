@@ -13,6 +13,7 @@ import Portfolio from "./pages/Portfolio";
 import Blog from "./pages/Blog";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+import PaymentConfirmation from "./pages/PaymentConfirmation";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/payment-confirmation" element={<PaymentConfirmation />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

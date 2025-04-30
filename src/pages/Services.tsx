@@ -9,14 +9,34 @@ import { formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Plus, ShoppingCart, X } from 'lucide-react';
+import { toast } from '@/components/ui/sonner';
 
 const Services = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
-  const { cartItems, addToCart, removeFromCart, getTotal } = useCart();
+  const [user, setUser] = useState<any>(null);
+  const { cartItems, addToCart, removeFromCart, getTotal, clearCart } = useCart();
   const navigate = useNavigate();
+
+  // Get user session
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getSession();
+      setUser(data.session?.user || null);
+    };
+    
+    checkUser();
+    
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user || null);
+    });
+    
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -47,22 +67,85 @@ const Services = () => {
   }, []);
 
   const handleCheckout = async () => {
+    if (cartItems.length === 0) {
+      toast({
+        title: "Carrinho vazio",
+        description: "Adicione algum serviço ao carrinho antes de finalizar o pedido.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        // User is not logged in, redirect to login
-        navigate('/login');
+      // Check if user is logged in
+      if (!user) {
+        // Save current path to redirect back after login
+        navigate('/login?returnUrl=/servicos');
         return;
       }
       
-      // If user is logged in
-      console.log('Usuário logado, pronto para criar pedido no backend', session);
-      // Additional checkout logic will be implemented in future prompts
+      // Create order in the database
+      const orderItems = cartItems.map(item => ({
+        service_id: item.id,
+        quantity: item.quantity,
+        price_at_order: item.price
+      }));
+      
+      const totalPrice = getTotal();
+      const initialPaymentAmount = totalPrice * 0.5; // 50% initial payment
+      
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          total_price: totalPrice,
+          initial_payment_amount: initialPaymentAmount,
+          final_payment_amount: totalPrice - initialPaymentAmount,
+          status: 'Pendente'
+        })
+        .select()
+        .single();
+      
+      if (orderError) {
+        throw new Error(orderError.message);
+      }
+      
+      // Add order items
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(
+          orderItems.map(item => ({
+            ...item,
+            order_id: order.id
+          }))
+        );
+      
+      if (itemsError) {
+        throw new Error(itemsError.message);
+      }
+      
+      // Clear the cart
+      clearCart();
+      
+      // Navigate to the payment page
+      navigate(`/payment-confirmation?orderId=${order.id}`);
+      
+      toast({
+        title: "Pedido criado com sucesso!",
+        description: "Você será redirecionado para o pagamento.",
+      });
+      
+      // For demo purposes, redirect to payment confirmation directly
+      // In a real app, you'd use the StripePaymentForm component here
+      // navigate(`/payment/${order.id}/initial`);
+      
     } catch (error) {
-      console.error('Error checking session:', error);
-      // Redirect to login on error
-      navigate('/login');
+      console.error('Error creating order:', error);
+      toast({
+        title: "Erro ao criar pedido",
+        description: error.message || "Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -175,6 +258,15 @@ const Services = () => {
                     <div className="flex justify-between items-center text-xl font-bold">
                       <span>Total</span>
                       <span className="text-green-700">{formatCurrency(getTotal())}</span>
+                    </div>
+                    
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        Pagamento inicial de 50%: {formatCurrency(getTotal() * 0.5)}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Pagamento final de 50% na conclusão: {formatCurrency(getTotal() * 0.5)}
+                      </p>
                     </div>
                   </div>
                 </>
