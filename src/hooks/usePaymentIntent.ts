@@ -22,10 +22,37 @@ export const usePaymentIntent = ({ orderId, paymentType, amount, priceId }: Paym
       setIsLoading(true);
       console.log(`Creating payment intent for order #${orderId}, type: ${paymentType}, priceId: ${priceId || 'N/A'}, amount: ${amount || 'N/A'}`);
       
+      // Fetch service data to get stripe_product_id if not provided
+      let productId = priceId;
+      
+      if (!productId && orderId) {
+        const { data: orderItems } = await supabase
+          .from('order_items')
+          .select('service_id')
+          .eq('order_id', orderId)
+          .limit(1);
+          
+        if (orderItems && orderItems.length > 0) {
+          const serviceId = orderItems[0].service_id;
+          
+          const { data: serviceData } = await supabase
+            .from('services')
+            .select('stripe_product_id')
+            .eq('id', serviceId)
+            .single();
+            
+          if (serviceData && serviceData.stripe_product_id) {
+            productId = paymentType === 'initial' 
+              ? serviceData.stripe_product_id // Use initial product ID (20%)
+              : serviceData.stripe_product_id; // For final, we would need to map it
+          }
+        }
+      }
+      
       const requestData = { 
         order_id: orderId, 
         payment_type: paymentType,
-        price_id: priceId,
+        price_id: productId,
         amount: amount
       };
       

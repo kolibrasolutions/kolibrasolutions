@@ -23,6 +23,7 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [saveTimeout, setSaveTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
   
   useEffect(() => {
     if (post) {
@@ -39,12 +40,29 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
     setImageFile(null);
   }, [post]);
   
+  // Cleanup function to clear timeout
+  useEffect(() => {
+    return () => {
+      if (saveTimeout) {
+        clearTimeout(saveTimeout);
+      }
+    };
+  }, [saveTimeout]);
+  
   const handleImageChange = (file: File | null) => {
     setImageFile(file);
   };
   
   const uploadImage = async (): Promise<string | null> => {
     if (!imageFile) return imageUrl;
+    
+    // Check file size (4MB limit)
+    if (imageFile.size > 4 * 1024 * 1024) {
+      toast.error('Erro: O arquivo é muito grande', {
+        description: 'O tamanho máximo permitido é de 4MB'
+      });
+      return null;
+    }
     
     setUploading(true);
     try {
@@ -78,6 +96,14 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
       return;
     }
     
+    // Content size check
+    if (content && content.length > 500000) { // Approx 500KB limit for text
+      toast.error('Conteúdo muito grande', {
+        description: 'O conteúdo do post é muito grande. Por favor, reduza o tamanho.'
+      });
+      return;
+    }
+    
     // Content validation but not blocking
     if (!content.trim()) {
       toast.warning('O conteúdo está vazio');
@@ -86,11 +112,13 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
     setSaving(true);
     
     try {
-      // Set a timeout to prevent infinite loading
-      const saveTimeout = setTimeout(() => {
+      // Set a timeout to prevent infinite loading - increased to 60 seconds
+      const timeout = setTimeout(() => {
         setSaving(false);
         toast.error('Tempo limite excedido. Por favor, tente novamente.');
-      }, 30000); // 30 second timeout
+      }, 60000); // 60 second timeout
+      
+      setSaveTimeout(timeout);
       
       let finalImageUrl = imageUrl;
       
@@ -99,7 +127,8 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
         if (!finalImageUrl && imageFile) {
           toast.error('Erro ao fazer upload da imagem');
           setSaving(false);
-          clearTimeout(saveTimeout);
+          clearTimeout(timeout);
+          setSaveTimeout(null);
           return;
         }
       }
@@ -109,7 +138,8 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
       if (!session) {
         toast.error('Você precisa estar logado para salvar uma postagem');
         setSaving(false);
-        clearTimeout(saveTimeout);
+        clearTimeout(timeout);
+        setSaveTimeout(null);
         return;
       }
       
@@ -146,12 +176,17 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
         toast.success('Postagem criada com sucesso');
       }
       
-      clearTimeout(saveTimeout);
+      clearTimeout(timeout);
+      setSaveTimeout(null);
       onSuccess();
     } catch (error: any) {
       console.error('Error saving blog post:', error);
       toast.error(`Erro ao salvar postagem: ${error.message || 'Tente novamente'}`);
     } finally {
+      if (saveTimeout) {
+        clearTimeout(saveTimeout);
+        setSaveTimeout(null);
+      }
       setSaving(false);
     }
   };

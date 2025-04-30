@@ -24,9 +24,8 @@ export const InitialPaymentDialog: React.FC<InitialPaymentDialogProps> = ({
 
   // Calculate the 20% initial payment amount
   const initialAmount = order.initial_payment_amount || (order.total_price * 0.2);
-  const priceId = "prod_SE3wdy3XRuRscG"; // Using the specific price ID for 20% payment
   
-  console.log(`InitialPaymentDialog - Order #${order.id}, status: ${order.status}, initial amount: ${initialAmount}, priceId: ${priceId}`);
+  console.log(`InitialPaymentDialog - Order #${order.id}, status: ${order.status}, initial amount: ${initialAmount}`);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -59,7 +58,6 @@ export const InitialPaymentDialog: React.FC<InitialPaymentDialogProps> = ({
             orderId={order.id} 
             paymentType="initial"
             amount={initialAmount}
-            priceId={priceId} // Explicitly passing the price ID
             onSuccess={onSuccess}
           />
         </div>
