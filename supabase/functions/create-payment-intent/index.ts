@@ -15,6 +15,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Processing payment intent creation request");
+    
     // Get request body
     const { order_id, payment_type, price_id, amount } = await req.json();
     
@@ -163,6 +165,7 @@ serve(async (req) => {
       );
     }
 
+    // Initialize Stripe properly without the problematic Deno.createFetch() option
     const stripe = new Stripe(stripeSecretKey, {
       apiVersion: "2023-10-16"
     });
