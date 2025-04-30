@@ -4,14 +4,19 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FileBox, Inbox, PenTool } from 'lucide-react';
 import { OrdersTable } from '@/components/admin/OrdersTable';
 import { OrderDetailsDialog } from '@/components/admin/OrderDetailsDialog';
 import { OrderFilters } from '@/components/admin/OrderFilters';
 import { useAdminOrders } from '@/hooks/useAdminOrders';
+import { BlogPostsList } from '@/components/admin/blog/BlogPostsList';
+import { PortfolioProjectsList } from '@/components/admin/portfolio/PortfolioProjectsList';
 
 const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [activeTab, setActiveTab] = useState("orders");
   const navigate = useNavigate();
   
   const {
@@ -90,35 +95,60 @@ const Admin = () => {
   return (
     <Layout>
       <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold mb-8">Painel Administrativo - Pedidos</h1>
+        <h1 className="text-3xl font-bold mb-8">Painel Administrativo</h1>
         
-        {/* Search and Filter */}
-        <OrderFilters 
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          onRefresh={fetchOrders}
-        />
-        
-        {/* Orders Table */}
-        <OrdersTable 
-          orders={filteredOrders}
-          loading={loading}
-          onViewDetails={setViewOrderDetails}
-          updateOrderStatus={updateOrderStatus}
-        />
-        
-        {/* Order Details Dialog */}
-        <OrderDetailsDialog 
-          order={viewOrderDetails}
-          open={!!viewOrderDetails}
-          onOpenChange={(open) => {
-            if (!open) setViewOrderDetails(null);
-          }}
-          updateOrderStatus={updateOrderStatus}
-          recordManualPayment={recordManualPayment}
-        />
+        <Tabs defaultValue="orders" value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="mb-8">
+            <TabsTrigger value="orders" className="flex items-center gap-2">
+              <Inbox className="h-4 w-4" />
+              <span>Pedidos</span>
+            </TabsTrigger>
+            <TabsTrigger value="blog" className="flex items-center gap-2">
+              <PenTool className="h-4 w-4" />
+              <span>Blog</span>
+            </TabsTrigger>
+            <TabsTrigger value="portfolio" className="flex items-center gap-2">
+              <FileBox className="h-4 w-4" />
+              <span>Portfólio</span>
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="orders" className="mt-0">
+            {/* Orders Tab Content */}
+            <OrderFilters 
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              statusFilter={statusFilter}
+              setStatusFilter={setStatusFilter}
+              onRefresh={fetchOrders}
+            />
+            
+            <OrdersTable 
+              orders={filteredOrders}
+              loading={loading}
+              onViewDetails={setViewOrderDetails}
+              updateOrderStatus={updateOrderStatus}
+            />
+            
+            <OrderDetailsDialog 
+              order={viewOrderDetails}
+              open={!!viewOrderDetails}
+              onOpenChange={(open) => {
+                if (!open) setViewOrderDetails(null);
+              }}
+              updateOrderStatus={updateOrderStatus}
+              recordManualPayment={recordManualPayment}
+            />
+          </TabsContent>
+          
+          <TabsContent value="blog" className="mt-0">
+            <BlogPostsList />
+          </TabsContent>
+          
+          <TabsContent value="portfolio" className="mt-0">
+            <PortfolioProjectsList />
+          </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );
