@@ -12,8 +12,8 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 
-// Initialize Stripe (replace with your publishable key)
-const stripePromise = loadStripe("pk_test_YOUR_STRIPE_PUBLISHABLE_KEY");
+// Initialize Stripe with your publishable key
+const stripePromise = loadStripe("pk_test_51OvlGMDJBU0mQ1ud1Clz6qb7F5JgjOVPEx3c7OIkb7W519pngt6ZCC5IiFoTfWGsaKUwXXsLtvqwpnPSvAsioXTY00LhXpvVPR");
 
 interface PaymentFormProps {
   orderId: number;

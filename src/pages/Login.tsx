@@ -47,8 +47,7 @@ const Login = () => {
         
         if (error) throw error;
         
-        toast({
-          title: "Login realizado com sucesso!",
+        toast("Login realizado com sucesso!", {
           description: "Bem-vindo de volta."
         });
         
@@ -71,8 +70,7 @@ const Login = () => {
         if (signUpError) throw signUpError;
         
         // After signup, insert user profile with full name
-        toast({
-          title: "Cadastro realizado com sucesso!",
+        toast("Cadastro realizado com sucesso!", {
           description: "Por favor, verifique seu email para confirmar a conta."
         });
         
@@ -81,8 +79,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error('Authentication error:', error);
-      toast({
-        title: "Erro",
+      toast("Erro", {
         description: error.message || "Ocorreu um erro ao processar sua solicitação.",
         variant: "destructive"
       });

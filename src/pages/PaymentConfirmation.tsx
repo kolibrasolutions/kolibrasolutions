@@ -58,7 +58,7 @@ const PaymentConfirmation = () => {
         const { data: orderData, error: orderError } = await supabase
           .from('orders')
           .select('*')
-          .eq('id', orderId)
+          .eq('id', Number(orderId))
           .single();
 
         if (orderError) {
@@ -75,7 +75,7 @@ const PaymentConfirmation = () => {
             *,
             services (name)
           `)
-          .eq('order_id', orderId);
+          .eq('order_id', Number(orderId));
 
         if (!itemsError && itemsData) {
           const items = itemsData.map(item => ({
@@ -94,7 +94,7 @@ const PaymentConfirmation = () => {
           const { data: filesData } = await supabase
             .functions
             .invoke('get-delivery-files', { 
-              body: { order_id: orderId }
+              body: { order_id: Number(orderId) }
             });
           
           if (filesData && filesData.files) {
