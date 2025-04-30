@@ -50,48 +50,10 @@ const Services = () => {
           
         if (error) throw error;
 
-        // Temporarily modify data for the new service categories
-        // This is just for display until the database is updated
-        const modifiedData = data.map(service => {
-          // Map old categories to new ones
-          let newCategory = service.category;
-          if (service.category === 'Paisagismo Residencial') newCategory = 'Branding';
-          if (service.category === 'Manutenção de Jardins') newCategory = 'Web';
-          if (service.category === 'Sistemas de Irrigação') newCategory = 'Marketing';
-          
-          // Update service names based on category
-          let newName = service.name;
-          if (newCategory === 'Branding') {
-            if (service.name.includes('Jardim')) newName = 'Naming e Identidade Verbal';
-            if (service.name.includes('Plantas')) newName = 'Logo e Identidade Visual';
-            if (service.name.includes('Grama')) newName = 'Guia de Marca Completo';
-          }
-          if (newCategory === 'Web') {
-            if (service.name.includes('Corte')) newName = 'Site Básico';
-            if (service.name.includes('Fertilização')) newName = 'Site Institucional';
-            if (service.name.includes('Poda')) newName = 'E-commerce Completo';
-          }
-          if (newCategory === 'Marketing') {
-            if (service.name.includes('Sistema')) newName = 'Gestão de Redes Sociais';
-            if (service.name.includes('Irrigação')) newName = 'Google Ads';
-            if (service.name.includes('Manutenção')) newName = 'SEO Otimização';
-          }
-          
-          // Update service description
-          let newDescription = "Descrição do serviço a ser customizada para KOLIBRA SOLUTIONS.";
-          
-          return {
-            ...service,
-            category: newCategory,
-            name: newName,
-            description: newDescription
-          };
-        });
-
-        setServices(modifiedData);
+        setServices(data);
         
         // Extract unique categories
-        const uniqueCategories = Array.from(new Set(modifiedData.map(service => service.category)));
+        const uniqueCategories = Array.from(new Set(data.map(service => service.category)));
         setCategories(uniqueCategories);
       } catch (error) {
         console.error('Error fetching services:', error);
