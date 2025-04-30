@@ -61,6 +61,7 @@ export const ProfileContent: React.FC<ProfileContentProps> = ({
         onViewDetails={(order) => setViewOrderDetails(order)}
         onPayFinal={handlePayFinalAmount}
         onPayInitial={handlePayInitialAmount}
+        onRefreshOrders={onRefreshOrders}
       />
       
       {/* Order Details Dialog */}
@@ -77,6 +78,10 @@ export const ProfileContent: React.FC<ProfileContentProps> = ({
         onPayInitialAmount={(order) => {
           handlePayInitialAmount(order);
           setViewOrderDetails(null);
+        }}
+        onRefreshOrders={() => {
+          setViewOrderDetails(null);
+          onRefreshOrders();
         }}
       />
       

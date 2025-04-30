@@ -6,7 +6,6 @@ import { toast } from '@/components/ui/sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { PortfolioProject, convertPortfolioProjectImages } from '@/types/orders';
-import { Json } from '@/integrations/supabase/types';
 import { RichTextContent } from '@/components/common/RichTextContent';
 
 const Portfolio = () => {

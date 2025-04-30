@@ -16,6 +16,7 @@ type OrderDetailsDialogProps = {
   onOpenChange: (open: boolean) => void;
   onPayFinalAmount: (order: Order) => void;
   onPayInitialAmount: (order: Order) => void;
+  onRefreshOrders?: () => void;
 };
 
 export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
@@ -24,6 +25,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
   onOpenChange,
   onPayFinalAmount,
   onPayInitialAmount,
+  onRefreshOrders
 }) => {
   if (!order) {
     return null;
@@ -50,6 +52,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
             order={order}
             onPayInitialAmount={onPayInitialAmount}
             onPayFinalAmount={onPayFinalAmount}
+            onRefreshOrders={onRefreshOrders}
           />
         </div>
       </DialogContent>

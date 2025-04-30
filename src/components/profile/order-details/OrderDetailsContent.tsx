@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Order } from '@/types/orders';
 import OrderStatusProgress from './OrderStatusProgress';
 import OrderSummary from './OrderSummary';
+import { RichTextContent } from '@/components/common/RichTextContent';
 
 type OrderDetailsContentProps = {
   order: Order;
@@ -34,7 +35,11 @@ const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({ order }) => {
             {order.order_items.map((item) => (
               <TableRow key={item.id}>
                 <TableCell className="font-medium">{item.service?.name || 'N/A'}</TableCell>
-                <TableCell>{item.service?.description || 'Sem descrição'}</TableCell>
+                <TableCell>
+                  {item.service?.description ? (
+                    <RichTextContent content={item.service.description} />
+                  ) : 'Sem descrição'}
+                </TableCell>
                 <TableCell>{item.quantity}</TableCell>
                 <TableCell className="text-right">{formatCurrency(item.price_at_order * item.quantity)}</TableCell>
               </TableRow>

@@ -13,6 +13,7 @@ type OrdersListProps = {
   onViewDetails: (order: Order) => void;
   onPayFinal: (order: Order) => void;
   onPayInitial: (order: Order) => void;
+  onRefreshOrders?: () => void;
 };
 
 export const OrdersList: React.FC<OrdersListProps> = ({ 
@@ -20,7 +21,8 @@ export const OrdersList: React.FC<OrdersListProps> = ({
   loading, 
   onViewDetails, 
   onPayFinal,
-  onPayInitial
+  onPayInitial,
+  onRefreshOrders
 }) => {
   const navigate = useNavigate();
   

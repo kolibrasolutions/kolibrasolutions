@@ -26,7 +26,7 @@ export const OrderActionButtons: React.FC<OrderActionButtonsProps> = ({
   return (
     <div className="flex flex-wrap gap-2 justify-between">
       {/* Left side: Delete button */}
-      {canDelete && orderStatus === 'Pendente' && (
+      {canDelete && (
         <Button 
           variant="destructive"
           onClick={onDelete}
