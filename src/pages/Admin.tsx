@@ -30,7 +30,8 @@ const Admin = () => {
     setViewOrderDetails,
     fetchOrders,
     updateOrderStatus,
-    recordManualPayment
+    recordManualPayment,
+    deleteOrder
   } = useAdminOrders();
 
   // Check if user is admin
@@ -138,6 +139,7 @@ const Admin = () => {
               }}
               updateOrderStatus={updateOrderStatus}
               recordManualPayment={recordManualPayment}
+              deleteOrder={deleteOrder}
             />
           </TabsContent>
           

@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { formatCurrency } from '@/lib/utils';
 import { OrderType } from '@/types/admin';
+import { Trash2 } from 'lucide-react';
 
 type OrderDetailsDialogProps = {
   order: OrderType | null;
@@ -35,6 +36,7 @@ type OrderDetailsDialogProps = {
   onOpenChange: (open: boolean) => void;
   updateOrderStatus: (orderId: number, newStatus: string) => void;
   recordManualPayment?: (orderId: number, paymentType: 'initial' | 'final', paymentMethod: string) => void;
+  deleteOrder?: (orderId: number) => void;
 };
 
 export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
@@ -43,10 +45,12 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
   onOpenChange,
   updateOrderStatus,
   recordManualPayment,
+  deleteOrder,
 }) => {
   const [manualPaymentType, setManualPaymentType] = useState<'initial' | 'final' | null>(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("Dinheiro");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   
   // Payment methods options
   const paymentMethods = ["Dinheiro", "PIX", "Transferência bancária", "Outro"];
@@ -66,6 +70,18 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
     if (order && manualPaymentType && recordManualPayment) {
       recordManualPayment(order.id, manualPaymentType, selectedPaymentMethod);
       setConfirmDialogOpen(false);
+    }
+  };
+  
+  const handleDeleteOrder = () => {
+    setDeleteDialogOpen(true);
+  };
+  
+  const confirmDeleteOrder = () => {
+    if (order && deleteOrder) {
+      deleteOrder(order.id);
+      setDeleteDialogOpen(false);
+      onOpenChange(false);
     }
   };
 
@@ -144,61 +160,75 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
               </Table>
             </div>
             
-            <div className="flex flex-wrap gap-2 justify-end">
-              {/* Status update buttons */}
-              {order.status === 'Pendente' && (
+            <div className="flex flex-wrap gap-2 justify-between">
+              {/* Left side: Delete button */}
+              {deleteOrder && order.status === 'Pendente' && (
                 <Button 
-                  onClick={() => {
-                    updateOrderStatus(order.id, 'Aceito');
-                    onOpenChange(false);
-                  }}
-                  className="bg-blue-500 hover:bg-blue-600"
+                  variant="destructive"
+                  onClick={handleDeleteOrder}
+                  className="flex items-center gap-2"
                 >
-                  Aceitar Pedido
+                  <Trash2 className="h-4 w-4" />
+                  Excluir Pedido
                 </Button>
               )}
               
-              {order.status === 'Aceito' && recordManualPayment && !order.initial_payment_amount && (
-                <Button
-                  onClick={() => handleManualPayment('initial')}
-                  className="bg-green-500 hover:bg-green-600"
-                >
-                  Registrar Pagamento Inicial Manual
-                </Button>
-              )}
-              
-              {order.status === 'Aceito' && (
-                <Button 
-                  onClick={() => {
-                    updateOrderStatus(order.id, 'Em Andamento');
-                    onOpenChange(false);
-                  }}
-                  className="bg-purple-500 hover:bg-purple-600"
-                >
-                  Iniciar Trabalho
-                </Button>
-              )}
-              
-              {order.status === 'Em Andamento' && (
-                <Button 
-                  onClick={() => {
-                    updateOrderStatus(order.id, 'Finalizado');
-                    onOpenChange(false);
-                  }}
-                  className="bg-green-500 hover:bg-green-600"
-                >
-                  Finalizar Pedido
-                </Button>
-              )}
-              
-              {order.status === 'Finalizado' && recordManualPayment && !order.final_payment_amount && (
-                <Button
-                  onClick={() => handleManualPayment('final')}
-                  className="bg-green-500 hover:bg-green-600"
-                >
-                  Registrar Pagamento Final Manual
-                </Button>
-              )}
+              {/* Right side: Status update buttons */}
+              <div className="flex flex-wrap gap-2">
+                {order.status === 'Pendente' && (
+                  <Button 
+                    onClick={() => {
+                      updateOrderStatus(order.id, 'Aceito');
+                      onOpenChange(false);
+                    }}
+                    className="bg-blue-500 hover:bg-blue-600"
+                  >
+                    Aceitar Pedido
+                  </Button>
+                )}
+                
+                {order.status === 'Aceito' && recordManualPayment && !order.initial_payment_amount && (
+                  <Button
+                    onClick={() => handleManualPayment('initial')}
+                    className="bg-green-500 hover:bg-green-600"
+                  >
+                    Registrar Pagamento Inicial Manual
+                  </Button>
+                )}
+                
+                {order.status === 'Aceito' && (
+                  <Button 
+                    onClick={() => {
+                      updateOrderStatus(order.id, 'Em Andamento');
+                      onOpenChange(false);
+                    }}
+                    className="bg-purple-500 hover:bg-purple-600"
+                  >
+                    Iniciar Trabalho
+                  </Button>
+                )}
+                
+                {order.status === 'Em Andamento' && (
+                  <Button 
+                    onClick={() => {
+                      updateOrderStatus(order.id, 'Finalizado');
+                      onOpenChange(false);
+                    }}
+                    className="bg-green-500 hover:bg-green-600"
+                  >
+                    Finalizar Pedido
+                  </Button>
+                )}
+                
+                {order.status === 'Finalizado' && recordManualPayment && !order.final_payment_amount && (
+                  <Button
+                    onClick={() => handleManualPayment('final')}
+                    className="bg-green-500 hover:bg-green-600"
+                  >
+                    Registrar Pagamento Final Manual
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </DialogContent>
@@ -234,6 +264,28 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={confirmManualPayment}>Confirmar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      {/* Delete Order Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Você está prestes a excluir o pedido #{order.id}. Esta ação não pode ser desfeita.
+              
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-800">
+                <p>Atenção: A exclusão do pedido removerá permanentemente todos os dados associados a este pedido.</p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteOrder} className="bg-red-500 hover:bg-red-600">
+              Excluir Pedido
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

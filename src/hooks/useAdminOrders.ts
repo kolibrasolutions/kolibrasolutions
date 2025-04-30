@@ -84,6 +84,37 @@ export function useAdminOrders() {
     }
   };
 
+  // Delete an order
+  const deleteOrder = async (orderId: number) => {
+    try {
+      // First delete related order_items to prevent foreign key constraint issues
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .delete()
+        .eq('order_id', orderId);
+      
+      if (itemsError) throw itemsError;
+      
+      // Then delete the order itself
+      const { error: orderError } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', orderId);
+      
+      if (orderError) throw orderError;
+      
+      // Update local state
+      setOrders(orders.filter(order => order.id !== orderId));
+      
+      toast("Pedido excluído", { 
+        description: `Pedido #${orderId} foi excluído com sucesso` 
+      });
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      toast("Erro", { description: "Não foi possível excluir o pedido" });
+    }
+  };
+
   // Handle finalization of an order
   const finalizeOrder = async (orderId: number) => {
     try {
@@ -206,6 +237,7 @@ export function useAdminOrders() {
     setViewOrderDetails,
     fetchOrders,
     updateOrderStatus,
-    recordManualPayment
+    recordManualPayment,
+    deleteOrder
   };
 }

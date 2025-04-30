@@ -11,21 +11,24 @@ const StatsCounter = () => {
       icon: <Package className="h-8 w-8 text-kolibra-orange" />,
       value: stats.totalProjects,
       label: 'Projetos Entregues',
-      isLoading: loading
+      isLoading: loading,
+      isEmpty: stats.totalProjects === 0
     },
     {
       icon: <Award className="h-8 w-8 text-kolibra-orange" />,
       value: stats.satisfactionRate,
       label: 'Satisfação dos Clientes',
       suffix: '%',
-      isLoading: loading
+      isLoading: loading,
+      isEmpty: !stats.hasRatings
     },
     {
       icon: <Star className="h-8 w-8 text-kolibra-orange" />,
       value: stats.averageRating,
       label: 'Avaliação Média',
       suffix: '/5',
-      isLoading: loading
+      isLoading: loading,
+      isEmpty: !stats.hasRatings
     }
   ];
 
@@ -40,6 +43,10 @@ const StatsCounter = () => {
             <div className="text-2xl font-bold text-white">
               {item.isLoading ? (
                 <div className="h-8 w-16 bg-white/20 rounded animate-pulse"></div>
+              ) : item.isEmpty ? (
+                <span className="text-white/60 text-lg">
+                  {index === 0 ? '0' : 'Sem dados'}
+                </span>
               ) : (
                 <>
                   {item.value}{item.suffix || ''}

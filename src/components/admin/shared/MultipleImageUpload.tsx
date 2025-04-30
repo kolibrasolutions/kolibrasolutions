@@ -8,12 +8,14 @@ interface MultipleImageUploadProps {
   currentImages: string[];
   onFilesChange: (files: File[]) => void;
   onRemoveImage: (index: number) => void;
+  disabled?: boolean; // Added the disabled property
 }
 
 export const MultipleImageUpload: React.FC<MultipleImageUploadProps> = ({ 
   currentImages, 
   onFilesChange,
-  onRemoveImage 
+  onRemoveImage,
+  disabled = false // Set default value to false
 }) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   
@@ -86,7 +88,7 @@ export const MultipleImageUpload: React.FC<MultipleImageUploadProps> = ({
                     size="icon" 
                     className="h-8 w-8"
                     onClick={() => moveImage(index, 'up')}
-                    disabled={index === 0}
+                    disabled={index === 0 || disabled}
                   >
                     <MoveUp className="h-4 w-4" />
                   </Button>
@@ -95,7 +97,7 @@ export const MultipleImageUpload: React.FC<MultipleImageUploadProps> = ({
                     size="icon" 
                     className="h-8 w-8"
                     onClick={() => moveImage(index, 'down')}
-                    disabled={index === currentImages.length - 1}
+                    disabled={index === currentImages.length - 1 || disabled}
                   >
                     <MoveDown className="h-4 w-4" />
                   </Button>
@@ -104,6 +106,7 @@ export const MultipleImageUpload: React.FC<MultipleImageUploadProps> = ({
                     size="icon"
                     className="h-8 w-8"
                     onClick={() => onRemoveImage(index)}
+                    disabled={disabled}
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -130,6 +133,7 @@ export const MultipleImageUpload: React.FC<MultipleImageUploadProps> = ({
                   size="icon"
                   className="h-8 w-8"
                   onClick={() => removeFile(index)}
+                  disabled={disabled}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -143,10 +147,14 @@ export const MultipleImageUpload: React.FC<MultipleImageUploadProps> = ({
       )}
       
       {/* Upload Area */}
-      <div className="border-2 border-dashed rounded-md p-6 text-center bg-gray-50">
-        <ImagePlus className="mx-auto h-10 w-10 text-gray-400" />
-        <p className="mt-2 text-sm text-gray-500">Clique para adicionar imagens</p>
-        <p className="text-xs text-gray-400 mt-1">JPG, PNG ou WebP (máx. 4MB por imagem)</p>
+      <div className={`border-2 border-dashed rounded-md p-6 text-center ${disabled ? 'bg-gray-100' : 'bg-gray-50'}`}>
+        <ImagePlus className={`mx-auto h-10 w-10 ${disabled ? 'text-gray-300' : 'text-gray-400'}`} />
+        <p className={`mt-2 text-sm ${disabled ? 'text-gray-400' : 'text-gray-500'}`}>
+          {disabled ? 'Upload de imagens desativado' : 'Clique para adicionar imagens'}
+        </p>
+        <p className={`text-xs ${disabled ? 'text-gray-300' : 'text-gray-400'} mt-1`}>
+          JPG, PNG ou WebP (máx. 4MB por imagem)
+        </p>
       </div>
       
       <div>
@@ -157,6 +165,7 @@ export const MultipleImageUpload: React.FC<MultipleImageUploadProps> = ({
           accept="image/jpeg, image/png, image/webp"
           onChange={handleFileChange}
           multiple
+          disabled={disabled}
         />
         <label htmlFor="images-upload">
           <Button 
@@ -164,6 +173,7 @@ export const MultipleImageUpload: React.FC<MultipleImageUploadProps> = ({
             variant="outline" 
             className="w-full"
             onClick={() => document.getElementById('images-upload')?.click()}
+            disabled={disabled}
           >
             Adicionar Imagens
           </Button>
