@@ -8,6 +8,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  console.log(`[PAYMENT-INTENT] ${step}${detailsStr}`);
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -15,10 +20,12 @@ serve(async (req) => {
   }
 
   try {
-    console.log("Processing payment intent creation request");
+    logStep("Processing payment intent creation request");
     
     // Get request body
     const { order_id, payment_type, price_id, amount } = await req.json();
+    
+    logStep("Request parameters", { order_id, payment_type, price_id });
     
     if (!order_id || !payment_type) {
       return new Response(
@@ -41,7 +48,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Processing ${payment_type} payment for order ${order_id}`);
+    logStep(`Processing ${payment_type} payment for order ${order_id}`);
 
     // Initialize Supabase client (client using anon key for auth)
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
@@ -62,9 +69,12 @@ serve(async (req) => {
 
     // Get authenticated user
     const token = authHeader.replace("Bearer ", "");
+    logStep("Authenticating with token", { token: token.substring(0, 10) + '...' });
+    
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
+      logStep("Authentication failed", { error: authError?.message });
       return new Response(
         JSON.stringify({ error: "Unauthorized: Invalid token", details: authError?.message }),
         { 
@@ -74,6 +84,8 @@ serve(async (req) => {
       );
     }
 
+    logStep("User authenticated", { userId: user.id, email: user.email });
+
     // Create service role client for DB operations
     const supabaseServiceRole = createClient(
       supabaseUrl,
@@ -82,6 +94,7 @@ serve(async (req) => {
     );
     
     // Fetch the order
+    logStep("Fetching order details", { orderId: order_id });
     const { data: order, error: orderError } = await supabaseServiceRole
       .from("orders")
       .select("*")
@@ -89,7 +102,7 @@ serve(async (req) => {
       .single();
     
     if (orderError || !order) {
-      console.error("Order fetch error:", orderError);
+      logStep("Order fetch error", { error: orderError?.message });
       return new Response(
         JSON.stringify({ error: "Order not found", details: orderError?.message }),
         { 
@@ -99,10 +112,15 @@ serve(async (req) => {
       );
     }
 
-    console.log("Order fetched:", JSON.stringify(order));
+    logStep("Order fetched", { order: JSON.stringify(order) });
     
     // Verify that the order belongs to the authenticated user
     if (order.user_id !== user.id) {
+      logStep("Order ownership verification failed", { 
+        orderUserId: order.user_id,
+        currentUserId: user.id
+      });
+      
       return new Response(
         JSON.stringify({ error: "Unauthorized: Order does not belong to authenticated user" }),
         { 
@@ -116,6 +134,7 @@ serve(async (req) => {
     let paymentAmount;
     if (payment_type === "initial") {
       if (order.status !== "Aceito") {
+        logStep("Invalid order status for initial payment", { status: order.status });
         return new Response(
           JSON.stringify({ error: "Initial payment can only be processed when the order is accepted", orderStatus: order.status }),
           { 
@@ -127,6 +146,7 @@ serve(async (req) => {
       paymentAmount = order.initial_payment_amount || Math.round(order.total_price * 0.2);
     } else { // final payment
       if (order.status !== "Finalizado") {
+        logStep("Invalid order status for final payment", { status: order.status });
         return new Response(
           JSON.stringify({ error: "Final payment can only be processed when the order is finalized", orderStatus: order.status }),
           { 
@@ -138,12 +158,12 @@ serve(async (req) => {
       paymentAmount = order.final_payment_amount || (order.total_price - (order.initial_payment_amount || 0));
     }
 
-    console.log(`Payment amount: ${paymentAmount}, Price ID: ${price_id || 'not provided'}`);
+    logStep("Payment amount determined", { paymentAmount, priceId: price_id || 'not provided' });
 
     // Initialize Stripe
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeSecretKey) {
-      console.error("Missing STRIPE_SECRET_KEY environment variable");
+      logStep("Missing STRIPE_SECRET_KEY environment variable");
       return new Response(
         JSON.stringify({ error: "Server configuration error: Missing Stripe secret key" }),
         { 
@@ -155,7 +175,11 @@ serve(async (req) => {
 
     // Validate that the stripe key is a secret key (should start with "sk_")
     if (!stripeSecretKey.startsWith("sk_")) {
-      console.error("Invalid STRIPE_SECRET_KEY format - must use secret key, not publishable key");
+      logStep("Invalid STRIPE_SECRET_KEY format", { 
+        keyStartsWith: stripeSecretKey.substring(0, 3),
+        keyLength: stripeSecretKey.length
+      });
+      
       return new Response(
         JSON.stringify({ 
           error: "Server configuration error: Invalid Stripe key format (must use secret key)", 
@@ -168,8 +192,7 @@ serve(async (req) => {
       );
     }
 
-    // Chave secreta que será atualizada no Supabase edge function secrets
-    // A chave atual deve ser substituída por: sk_test_51RIrnHKdm53njwNEfgtFWjXnwz1woesgnI5uVFphU0fMWjqsp9tNUa9GjRBxcqeGBYvB6L220hKXPtbK3cF8AS2T00Q6dhWNAk
+    logStep("Stripe key validation passed");
 
     // Initialize Stripe properly without the problematic Deno.createFetch() option
     const stripe = new Stripe(stripeSecretKey, {
@@ -187,14 +210,18 @@ serve(async (req) => {
       }
     };
 
-    console.log("Creating payment intent with data:", JSON.stringify(paymentIntentData));
+    logStep("Creating payment intent", { data: paymentIntentData });
     
     try {
       // Create the payment intent
       const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
-      console.log("Payment intent created:", paymentIntent.id);
+      logStep("Payment intent created successfully", { 
+        paymentIntentId: paymentIntent.id,
+        status: paymentIntent.status
+      });
       
       // Record the payment intent in the database
+      logStep("Recording payment intent in database");
       const { error: paymentInsertError } = await supabaseServiceRole
         .from("payments")
         .insert({
@@ -206,7 +233,7 @@ serve(async (req) => {
         });
 
       if (paymentInsertError) {
-        console.error("Payment insert error:", paymentInsertError);
+        logStep("Payment insert error", { error: paymentInsertError.message });
         // We'll continue even if recording fails, as the payment intent was created successfully
       }
 
@@ -219,7 +246,12 @@ serve(async (req) => {
         }
       );
     } catch (stripeError) {
-      console.error("Stripe error:", stripeError);
+      logStep("Stripe error", { 
+        error: stripeError.message,
+        type: stripeError.type,
+        code: stripeError.code
+      });
+      
       let errorMessage = "Failed to create payment intent";
       let statusCode = 500;
 
@@ -247,7 +279,11 @@ serve(async (req) => {
     }
     
   } catch (error) {
-    console.error("Unexpected error:", error);
+    logStep("Unexpected error", { 
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    
     return new Response(
       JSON.stringify({ 
         error: "Internal server error", 
