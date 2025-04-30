@@ -1,4 +1,3 @@
-
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { OrderType } from "@/types/admin";
@@ -86,12 +85,13 @@ export const finalizeOrderProcess = async (orderId: number) => {
   }
 };
 
-// Delete an order
+// Delete an order - completely refactored for better error handling and sequential operations
 export const deleteOrderFromDB = async (orderId: number) => {
   try {
     console.log("Starting admin order deletion for order ID:", orderId);
     
-    // Delete order items first due to foreign key constraints
+    // Step 1: Begin by deleting order items
+    console.log("Deleting order items...");
     const { error: itemsError } = await supabase
       .from('order_items')
       .delete()
@@ -99,11 +99,13 @@ export const deleteOrderFromDB = async (orderId: number) => {
     
     if (itemsError) {
       console.error("Error deleting order items:", itemsError);
-      throw itemsError;
+      toast.error('Erro ao excluir itens do pedido');
+      return false;
     }
     console.log("Order items deleted successfully");
     
-    // Delete any ratings related to this order
+    // Step 2: Delete any ratings related to this order
+    console.log("Deleting ratings...");
     const { error: ratingsError } = await supabase
       .from('project_ratings')
       .delete()
@@ -111,11 +113,13 @@ export const deleteOrderFromDB = async (orderId: number) => {
     
     if (ratingsError) {
       console.error("Error deleting ratings:", ratingsError);
-      throw ratingsError;
+      toast.error('Erro ao excluir avaliações do pedido');
+      return false;
     }
     console.log("Ratings deleted successfully");
       
-    // Delete any payments related to this order
+    // Step 3: Delete any payments related to this order
+    console.log("Deleting payments...");
     const { error: paymentsError } = await supabase
       .from('payments')
       .delete()
@@ -123,11 +127,13 @@ export const deleteOrderFromDB = async (orderId: number) => {
     
     if (paymentsError) {
       console.error("Error deleting payments:", paymentsError);
-      throw paymentsError;
+      toast.error('Erro ao excluir pagamentos do pedido');
+      return false;
     }
     console.log("Payments deleted successfully");
     
-    // Finally delete the order
+    // Step 4: Finally delete the order itself
+    console.log("Deleting order...");
     const { error } = await supabase
       .from('orders')
       .delete()
@@ -135,7 +141,8 @@ export const deleteOrderFromDB = async (orderId: number) => {
     
     if (error) {
       console.error("Error deleting order:", error);
-      throw error;
+      toast.error('Erro ao excluir pedido');
+      return false;
     }
     console.log("Order deleted successfully");
     

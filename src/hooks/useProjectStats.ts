@@ -21,20 +21,29 @@ export const useProjectStats = () => {
   const fetchStats = async () => {
     setLoading(true);
     try {
+      console.log("Fetching project stats...");
+      
       // Fetch total number of completed projects (status = 'Finalizado')
+      // Use the public client without auth - this will work even when not logged in
       const { count: projectsCount, error: projectsError } = await supabase
         .from('orders')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'Finalizado');
 
-      if (projectsError) throw projectsError;
+      if (projectsError) {
+        console.error("Error fetching projects count:", projectsError);
+        throw projectsError;
+      }
 
       // Fetch all ratings data for satisfaction rate and average calculation
       const { data: ratingsData, error: ratingsError } = await supabase
         .from('project_ratings')
         .select('rating');
 
-      if (ratingsError) throw ratingsError;
+      if (ratingsError) {
+        console.error("Error fetching ratings:", ratingsError);
+        throw ratingsError;
+      }
       
       const totalProjects = projectsCount || 0;
       let averageRating = null; 

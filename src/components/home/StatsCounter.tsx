@@ -32,6 +32,8 @@ const StatsCounter = () => {
     }
   ];
 
+  console.log("Rendering StatsCounter with stats:", stats);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-8">
       {statItems.map((item, index) => (
