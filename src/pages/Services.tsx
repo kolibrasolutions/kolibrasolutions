@@ -9,28 +9,52 @@ import { useServices } from '@/hooks/useServices';
 import FeaturedBanner from '@/components/services/FeaturedBanner';
 import ServicesList from '@/components/services/ServicesList';
 import CartSummary from '@/components/services/CartSummary';
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Services = () => {
   const [user, setUser] = useState<any>(null);
+  const [userLoading, setUserLoading] = useState(true);
   const { cartItems, addToCart, removeFromCart, getTotal, clearCart } = useCart();
   const navigate = useNavigate();
   const { servicesByCategory, loading, error } = useServices();
 
   // Get user session
   useEffect(() => {
+    let isMounted = true;
+    
     const checkUser = async () => {
-      const { data } = await supabase.auth.getSession();
-      setUser(data.session?.user || null);
+      try {
+        setUserLoading(true);
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Auth session error:", error);
+          return;
+        }
+        
+        if (!isMounted) return;
+        setUser(data.session?.user || null);
+      } catch (err) {
+        console.error("Session check error:", err);
+      } finally {
+        if (isMounted) {
+          setUserLoading(false);
+        }
+      }
     };
     
     checkUser();
     
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
       setUser(session?.user || null);
     });
     
     return () => {
-      authListener.subscription.unsubscribe();
+      isMounted = false;
+      if (authListener && authListener.subscription) {
+        authListener.subscription.unsubscribe();
+      }
     };
   }, []);
 
@@ -115,27 +139,35 @@ const Services = () => {
         
         <FeaturedBanner />
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Services Accordion */}
-          <div className="lg:w-2/3">
-            <ServicesList 
-              servicesByCategory={servicesByCategory} 
-              loading={loading} 
-              error={error} 
-              onAddToCart={addToCart} 
-            />
+        {loading ? (
+          <div className="space-y-6">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-64 w-full" />
           </div>
-          
-          {/* Cart Summary */}
-          <div className="lg:w-1/3">
-            <CartSummary 
-              cartItems={cartItems} 
-              getTotal={getTotal} 
-              removeFromCart={removeFromCart} 
-              onCheckout={handleCheckout} 
-            />
+        ) : (
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Services Accordion */}
+            <div className="lg:w-2/3">
+              <ServicesList 
+                servicesByCategory={servicesByCategory} 
+                loading={false} 
+                error={error} 
+                onAddToCart={addToCart} 
+              />
+            </div>
+            
+            {/* Cart Summary */}
+            <div className="lg:w-1/3">
+              <CartSummary 
+                cartItems={cartItems} 
+                getTotal={getTotal} 
+                removeFromCart={removeFromCart} 
+                onCheckout={handleCheckout} 
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </Layout>
   );

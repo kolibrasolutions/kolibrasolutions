@@ -14,11 +14,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { cartItems } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
@@ -27,20 +29,48 @@ const Header = () => {
   const closeMenu = () => setIsMenuOpen(false);
   
   useEffect(() => {
+    let isMounted = true;
+    
     const checkUser = async () => {
-      const { data } = await supabase.auth.getSession();
-      setUser(data.session?.user || null);
-      
-      // Check if the user is an admin
-      if (data.session?.user) {
-        const { data: userData, error } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', data.session.user.id)
-          .single();
-          
-        if (!error && userData) {
-          setIsAdmin(userData.role === 'admin');
+      try {
+        setIsLoading(true);
+        
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Auth session error:", error);
+          return;
+        }
+        
+        if (!isMounted) return;
+        
+        setUser(data.session?.user || null);
+        
+        // Check if the user is an admin
+        if (data.session?.user) {
+          try {
+            const { data: userData, error: userError } = await supabase
+              .from('users')
+              .select('role')
+              .eq('id', data.session.user.id)
+              .single();
+              
+            if (userError) {
+              console.error("User role error:", userError);
+              return;
+            }
+            
+            if (!isMounted) return;
+            setIsAdmin(userData?.role === 'admin' || false);
+          } catch (err) {
+            console.error("Error checking admin status:", err);
+          }
+        }
+      } catch (err) {
+        console.error("Session check error:", err);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
         }
       }
     };
@@ -48,18 +78,26 @@ const Header = () => {
     checkUser();
     
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isMounted) return;
+      
       setUser(session?.user || null);
       
       // Check admin status on auth state change
       if (session?.user) {
-        const { data: userData, error } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
+        try {
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+            
+          if (!isMounted) return;
           
-        if (!error && userData) {
-          setIsAdmin(userData.role === 'admin');
+          if (!userError && userData) {
+            setIsAdmin(userData.role === 'admin');
+          }
+        } catch (err) {
+          console.error("Error checking admin status on auth change:", err);
         }
       } else {
         setIsAdmin(false);
@@ -67,20 +105,41 @@ const Header = () => {
     });
     
     return () => {
-      authListener.subscription.unsubscribe();
+      isMounted = false;
+      if (authListener && authListener.subscription) {
+        authListener.subscription.unsubscribe();
+      }
     };
   }, []);
   
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast("Logout realizado com sucesso", {
-      description: "Você foi desconectado da sua conta."
-    });
-    navigate('/');
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Logout error:", error);
+        toast("Erro ao sair", {
+          description: "Houve um problema ao desconectar sua conta.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      toast("Logout realizado com sucesso", {
+        description: "Você foi desconectado da sua conta."
+      });
+      navigate('/');
+    } catch (err) {
+      console.error("Logout exception:", err);
+      toast("Erro ao sair", {
+        description: "Houve um problema ao desconectar sua conta.",
+        variant: "destructive"
+      });
+    }
   };
   
   return (
-    <header className="shadow-sm py-4 px-6 bg-kolibra-blue">
+    <header className="shadow-sm py-4 px-6 bg-white">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="flex items-center">
           <img src="/lovable-uploads/4d763971-e656-4bc1-9de1-3a0f1ae9f985.png" alt="KOLIBRA SOLUTIONS" className="h-10 object-fill" />
@@ -93,7 +152,9 @@ const Header = () => {
           <Link to="/portfolio" className={`text-gray-800 hover:text-kolibra-blue ${location.pathname === '/portfolio' ? 'font-semibold text-kolibra-blue' : ''}`}>PORTFOLIO</Link>
           <Link to="/blog" className={`text-gray-800 hover:text-kolibra-blue ${location.pathname === '/blog' ? 'font-semibold text-kolibra-blue' : ''}`}>BLOG</Link>
           
-          {user ? (
+          {isLoading ? (
+            <Skeleton className="h-9 w-20" />
+          ) : user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="text-gray-800 hover:text-kolibra-blue flex items-center gap-1">
@@ -161,7 +222,9 @@ const Header = () => {
             <Link to="/portfolio" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/portfolio' ? 'bg-gray-100 font-semibold text-kolibra-blue' : ''}`}>PORTFOLIO</Link>
             <Link to="/blog" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/blog' ? 'bg-gray-100 font-semibold text-kolibra-blue' : ''}`}>BLOG</Link>
             
-            {user ? (
+            {isLoading ? (
+              <Skeleton className="h-9 w-full" />
+            ) : user ? (
               <>
                 <Link to="/profile" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/profile' ? 'bg-gray-100 font-semibold text-kolibra-blue' : ''}`}>MEU PERFIL</Link>
                 
