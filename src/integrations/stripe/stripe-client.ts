@@ -2,4 +2,4 @@
 import { loadStripe } from '@stripe/stripe-js';
 
 // Initialize Stripe with your publishable key
-export const stripePromise = loadStripe("pk_test_51RIrnHKdm53njwNEpwhSRRny1gkaC8C10AGJJZOaJH7VRHsG0Cc1a8m6WeWylithw6ZqcOR1uMIRcQGXg80jPakp00mJOhAtq0");
+export const stripePromise = loadStripe("pk_live_51RIrnHKdm53njwNEnv6JKi8nlmMAoCoLKo6fdjVkdXX2RSYhvDFqD48r4PG44cafBB4S4Og4Iioa49zcVC8r3TNC00E0N0smt8");
