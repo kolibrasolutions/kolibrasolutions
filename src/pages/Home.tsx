@@ -40,7 +40,7 @@ const Home = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-gray-50 rounded-lg p-8">
-              <img src="/pencil.png" alt="Branding Profissional" className="w-full h-48 object-contain mb-6" />
+              <img src="/pencil.png" alt="Branding Profissional" className="w-full h-48 object-cover object-center mb-6" />
               <h3 className="text-xl font-bold mb-2">Branding Profissional</h3>
               <p className="text-gray-600 mb-4">Crie uma identidade visual única e memorável que comunica a essência da sua marca.</p>
               <Link to="/servicos" className="text-kolibra-orange hover:text-amber-500">
@@ -49,7 +49,7 @@ const Home = () => {
             </div>
 
             <div className="bg-gray-50 rounded-lg p-8">
-              <img src="/computer.png" alt="Web Design Responsivo" className="w-full h-48 object-contain mb-6" />
+              <img src="/computer.png" alt="Web Design Responsivo" className="w-full h-48 object-cover object-center mb-6" />
               <h3 className="text-xl font-bold mb-2">Web Design Responsivo</h3>
               <p className="text-gray-600 mb-4">Sites modernos e funcionais que proporcionam a melhor experiência em qualquer dispositivo.</p>
               <Link to="/servicos" className="text-kolibra-orange hover:text-amber-500">
@@ -58,7 +58,7 @@ const Home = () => {
             </div>
 
             <div className="bg-gray-50 rounded-lg p-8">
-              <img src="/megaphone.png" alt="Marketing Digital" className="w-full h-48 object-contain mb-6" />
+              <img src="/megaphone.png" alt="Marketing Digital" className="w-full h-48 object-cover object-center mb-6" />
               <h3 className="text-xl font-bold mb-2">Marketing Digital</h3>
               <p className="text-gray-600 mb-4">Estratégias personalizadas para alcançar seu público-alvo e converter visitantes em clientes.</p>
               <Link to="/servicos" className="text-kolibra-orange hover:text-amber-500">
