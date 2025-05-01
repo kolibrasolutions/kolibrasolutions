@@ -308,6 +308,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_order: {
+        Args: { order_id_param: number }
+        Returns: undefined
+      }
       get_user_role: {
         Args: { user_id: string }
         Returns: string

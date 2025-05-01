@@ -1,3 +1,4 @@
+
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -6,7 +7,7 @@ export const deleteOrderFromDB = async (orderId: number) => {
   try {
     console.log("Starting admin order deletion for order ID:", orderId);
     
-    // Verificar se o pedido existe antes de tentar excluir
+    // Check if the order exists before attempting to delete
     const { data: orderExists, error: checkError } = await supabase
       .from('orders')
       .select('id, status')
@@ -19,7 +20,8 @@ export const deleteOrderFromDB = async (orderId: number) => {
       return false;
     }
 
-    // Iniciar uma transação para garantir que todas as operações sejam executadas
+    // Call the delete_order RPC function with detailed error tracing
+    console.log("Calling delete_order function for order ID:", orderId);
     const { error: deleteError } = await supabase.rpc('delete_order', {
       order_id_param: orderId
     });
@@ -30,7 +32,8 @@ export const deleteOrderFromDB = async (orderId: number) => {
       return false;
     }
 
-    // Verificar se o pedido foi realmente excluído
+    // Verify the order was actually deleted
+    console.log("Verifying deletion for order ID:", orderId);
     const { data: checkDeleted, error: checkDeletedError } = await supabase
       .from('orders')
       .select('id')

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { OrderType } from '@/types/admin';
 import { 
@@ -42,11 +43,13 @@ export function useAdminOrders() {
     const success = await deleteOrderFromDB(orderId);
     
     if (success) {
-      // Atualiza o estado local
+      // Update local state first
       setOrders(orders.filter(order => order.id !== orderId));
-      // Força um recarregamento dos dados do servidor
+      // Force a reload of data from the server to ensure consistency
       await fetchOrders();
+      return true;
     }
+    return false;
   };
 
   // Record manual payment
