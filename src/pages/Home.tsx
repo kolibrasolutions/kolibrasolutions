@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -43,7 +42,7 @@ const Home = () => {
             <div className="bg-gray-50 rounded-lg overflow-hidden shadow-md">
               <div className="h-48 flex items-center justify-center bg-gray-100">
                 <img 
-                  src="/lovable-uploads/491b7839-0e61-4312-917f-a94ed29a1adc.png" 
+                  src="/pencil.png" 
                   alt="Branding Profissional" 
                   className="h-32 w-auto object-contain"
                 />
@@ -60,7 +59,7 @@ const Home = () => {
             <div className="bg-gray-50 rounded-lg overflow-hidden shadow-md">
               <div className="h-48 flex items-center justify-center bg-gray-100">
                 <img 
-                  src="/lovable-uploads/a3b97e35-db7a-432d-82ef-0d87f9d7b00f.png" 
+                  src="/computer.png" 
                   alt="Web Design Responsivo" 
                   className="h-32 w-auto object-contain"
                 />
@@ -77,7 +76,7 @@ const Home = () => {
             <div className="bg-gray-50 rounded-lg overflow-hidden shadow-md">
               <div className="h-48 flex items-center justify-center bg-gray-100">
                 <img 
-                  src="/lovable-uploads/8e4dfdb1-bbe9-4bbe-ae7c-2166a099dcac.png" 
+                  src="/megaphone.png" 
                   alt="Marketing Digital" 
                   className="h-32 w-auto object-contain"
                 />
