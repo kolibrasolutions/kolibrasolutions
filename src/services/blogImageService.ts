@@ -6,7 +6,7 @@ import { compressImageIfNeeded } from '@/utils/imageUtils';
 /**
  * Constants for configuration
  */
-export const IMAGE_UPLOAD_TIMEOUT = 180000; // 3 minutes timeout
+export const IMAGE_UPLOAD_TIMEOUT = 300000; // 5 minutes timeout
 
 /**
  * Service for handling blog image uploads

@@ -35,6 +35,13 @@ export const ProgressIndicator = ({
     return "";
   };
 
+  // Get estimated time based on content size
+  const getEstimatedTime = () => {
+    if (isVeryLargeContent) return "Conteúdos muito grandes podem levar até 5 minutos";
+    if (isLargeContent) return "Conteúdos grandes podem levar até 2 minutos";
+    return "Isso pode levar alguns instantes";
+  };
+
   return (
     <div className="py-2">
       <Progress value={progress} className="h-2 mb-2" />
@@ -47,9 +54,12 @@ export const ProgressIndicator = ({
         </p>
       </div>
       <p className="text-xs text-center text-muted-foreground mt-1">
-        {isVeryLargeContent ? 'Conteúdos muito grandes podem levar até 10 minutos' : 
-         isLargeContent ? 'Conteúdos grandes podem levar até 2 minutos' : 
-         'Isso pode levar alguns instantes'}
+        {getEstimatedTime()}
+        {saving && (
+          <span className="block mt-1">
+            Por favor, aguarde. Não feche a janela durante o salvamento.
+          </span>
+        )}
       </p>
     </div>
   );

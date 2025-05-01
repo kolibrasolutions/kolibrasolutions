@@ -6,7 +6,7 @@ import { BlogPost } from '@/types/blog';
  * Constants for configuration
  */
 export const MAX_CONTENT_SIZE = 10000000; // Approximate max size for saving at once
-export const SAVE_TIMEOUT = 120000; // 120 seconds (2 minutes) timeout for saving
+export const SAVE_TIMEOUT = 300000; // 300 seconds (5 minutes) timeout for saving
 
 /**
  * Service for handling blog posts CRUD operations
