@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -28,7 +27,8 @@ export const useProjectStats = () => {
         const { count: totalProjects, error: countError } = await supabase
           .from('orders')
           .select('*', { count: 'exact', head: true })
-          .eq('status', 'Finalizado');
+          .eq('status', 'Finalizado')
+          .is('deleted_at', null);
         
         if (countError) {
           console.error("Error fetching total projects:", countError);
@@ -38,7 +38,8 @@ export const useProjectStats = () => {
         // Get ratings data - also using a public query
         const { data: ratings, error: ratingsError } = await supabase
           .from('project_ratings')
-          .select('rating, comment');
+          .select('rating, comment')
+          .is('deleted_at', null);
         
         if (ratingsError) {
           console.error("Error fetching ratings:", ratingsError);
