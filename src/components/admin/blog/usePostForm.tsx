@@ -146,7 +146,7 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
       const { error: uploadError, data } = await supabase.storage
         .from('blog_images')
         .upload(filePath, optimizedFile, {
-          abortSignal: signal,
+          signal: signal, // Corrected property name from abortSignal to signal
           cacheControl: '3600',
         });
       
