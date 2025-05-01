@@ -47,8 +47,9 @@ export class BlogImageService {
       onProgress(30);
       
       // Upload the image to Supabase storage
+      // Corrigindo o nome do bucket para "Blog Images" em vez de "blog_images"
       const { error: uploadError, data } = await supabase.storage
-        .from('blog_images')
+        .from('Blog Images')
         .upload(filePath, optimizedFile, {
           cacheControl: '3600',
         });
@@ -60,7 +61,7 @@ export class BlogImageService {
       
       // Get the public URL of the uploaded image
       const { data: urlData } = supabase.storage
-        .from('blog_images')
+        .from('Blog Images')
         .getPublicUrl(filePath);
       
       onProgress(100);
