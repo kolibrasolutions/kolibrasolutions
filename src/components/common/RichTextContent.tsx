@@ -7,8 +7,9 @@ interface RichTextContentProps {
 }
 
 export const RichTextContent: React.FC<RichTextContentProps> = ({ content, className = '' }) => {
-  const renderRichText = () => {
-    let html = content || '';
+  // Process the Markdown-like content to HTML
+  const renderContent = () => {
+    let html = content;
     
     // Escape HTML but preserve formatting tags
     html = html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -26,52 +27,56 @@ export const RichTextContent: React.FC<RichTextContentProps> = ({ content, class
     html = html.replace(/^## (.*?)$/gm, '<h2 class="text-2xl font-bold my-4">$1</h2>');
     html = html.replace(/^### (.*?)$/gm, '<h3 class="text-xl font-bold my-3">$1</h3>');
     html = html.replace(/^\> (.*?)$/gm, '<blockquote class="border-l-4 border-gray-300 pl-4 italic my-4">$1</blockquote>');
+    html = html.replace(/^\- (.*?)$/gm, '<li class="list-disc ml-6">$1</li>');
+    html = html.replace(/^[0-9]+\. (.*?)$/gm, '<li class="list-decimal ml-6">$1</li>');
+    html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-blue-600 underline">$1</a>');
     
-    // Handle lists
+    // Wrap lists in ul/ol tags
     let inList = false;
-    const lines = html.split('\n');
-    
-    html = lines.map((line, index) => {
-      if (line.match(/^\- /)) {
-        if (!inList) {
+    let listType = '';
+    html = html.split('\n').map(line => {
+      if (line.includes('<li class="list-disc')) {
+        if (!inList || listType !== 'ul') {
+          // Close previous list if needed
+          const prefix = inList ? '</'+listType+'>\n<ul>' : '<ul>';
           inList = true;
-          return `<ul class="list-disc ml-6 my-4">\n<li>${line.substring(2)}</li>`;
+          listType = 'ul';
+          return prefix + line;
         }
-        return `<li>${line.substring(2)}</li>`;
-      } else if (line.match(/^[0-9]+\. /)) {
-        if (!inList) {
+        return line;
+      } else if (line.includes('<li class="list-decimal')) {
+        if (!inList || listType !== 'ol') {
+          // Close previous list if needed
+          const prefix = inList ? '</'+listType+'>\n<ol>' : '<ol>';
           inList = true;
-          return `<ol class="list-decimal ml-6 my-4">\n<li>${line.replace(/^[0-9]+\. /, '')}</li>`;
+          listType = 'ol';
+          return prefix + line;
         }
-        return `<li>${line.replace(/^[0-9]+\. /, '')}</li>`;
-      } else if (inList) {
+        return line;
+      } else if (inList && (line.trim() === '' || line.includes('<h') || line.includes('<blockquote'))) {
         inList = false;
-        if (index > 0 && (lines[index - 1].match(/^\- /) || lines[index - 1].match(/^[0-9]+\. /))) {
-          return `</ul>\n${line}`;
-        }
+        return '</'+listType+'>\n' + line;
       }
       return line;
     }).join('\n');
     
+    // Close any open list at the end
     if (inList) {
-      html += '\n</ul>';
+      html += '\n</'+listType+'>';
     }
     
-    // Handle links
-    html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-blue-600 underline">$1</a>');
-    
-    // Convert line breaks to paragraphs
+    // Convert line breaks to paragraphs for remaining content
     html = html.split('\n').map(line => {
       if (line && 
           !line.includes('<h2') && 
           !line.includes('<h3') && 
           !line.includes('<li') && 
-          !line.includes('<ul') && 
-          !line.includes('</ul') && 
-          !line.includes('<ol') && 
-          !line.includes('</ol') && 
           !line.includes('<blockquote') && 
-          !line.includes('<div class="bg-')) {
+          !line.includes('<div class="bg-') &&
+          !line.includes('<ul') &&
+          !line.includes('<ol') &&
+          !line.includes('</ul') &&
+          !line.includes('</ol')) {
         return `<p class="my-2">${line}</p>`;
       }
       return line;
@@ -82,8 +87,8 @@ export const RichTextContent: React.FC<RichTextContentProps> = ({ content, class
 
   return (
     <div 
-      className={`prose max-w-none ${className}`}
-      dangerouslySetInnerHTML={renderRichText()} 
+      className={`prose prose-lg max-w-none ${className}`}
+      dangerouslySetInnerHTML={renderContent()} 
     />
   );
 };

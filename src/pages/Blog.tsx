@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Calendar } from 'lucide-react';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 type BlogPost = {
@@ -25,6 +25,7 @@ type BlogPost = {
 const Blog = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
   
   useEffect(() => {
     const fetchPosts = async () => {
@@ -47,6 +48,22 @@ const Blog = () => {
     };
     fetchPosts();
   }, []);
+
+  const handleImageError = (postId: string) => {
+    setImageErrors(prev => ({
+      ...prev,
+      [postId]: true
+    }));
+  };
+
+  // Função para limpar o conteúdo de markdown para exibição de preview
+  const cleanContentForPreview = (content: string) => {
+    return content
+      .replace(/:::\s*\w+\s*\n|:::/g, '') // Remove section markers
+      .replace(/\*\*|\*|__|_|##|###|>|\[.*?\]\(.*?\)/g, '') // Remove markdown syntax
+      .replace(/\n/g, ' ') // Replace line breaks with spaces
+      .trim();
+  };
   
   return <Layout>
       <div className="container mx-auto px-4 py-12">
@@ -65,15 +82,16 @@ const Blog = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.map(post => (
-              <Card key={post.id} className="overflow-hidden flex flex-col h-full">
+              <Card key={post.id} className="overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow">
                 <div className="bg-gray-100">
                   <AspectRatio ratio={16/9}>
-                    {post.image_url ? (
+                    {post.image_url && !imageErrors[post.id] ? (
                       <img 
                         src={post.image_url} 
                         alt={post.title} 
                         className="w-full h-full object-cover" 
                         loading="lazy"
+                        onError={() => handleImageError(post.id)}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -83,19 +101,22 @@ const Blog = () => {
                   </AspectRatio>
                 </div>
                 <CardContent className="p-6 flex-grow flex flex-col">
-                  <h2 className="text-xl font-semibold mb-1">{post.title}</h2>
+                  <h2 className="text-xl font-semibold mb-1 line-clamp-2">{post.title}</h2>
                   
-                  {post.subtitle && <p className="text-gray-600 mb-2 italic">{post.subtitle}</p>}
+                  {post.subtitle && <p className="text-gray-600 mb-2 italic line-clamp-2">{post.subtitle}</p>}
                   
-                  <p className="text-sm text-gray-500 mb-4">
-                    Publicado há {formatDistanceToNow(new Date(post.created_at), {
-                      locale: ptBR,
-                      addSuffix: false
-                    })}
+                  <p className="text-sm text-gray-500 mb-4 flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    <span>
+                      {formatDistanceToNow(new Date(post.created_at), {
+                        locale: ptBR,
+                        addSuffix: true
+                      })}
+                    </span>
                   </p>
                   
                   <div className="text-gray-700 mb-4">
-                    <p className="line-clamp-4">{post.content.replace(/:::\s*\w+\s*\n|:::/g, '').replace(/[*_#>\[\]]/g, '')}</p>
+                    <p className="line-clamp-3">{cleanContentForPreview(post.content)}</p>
                   </div>
                   
                   <div className="mt-auto pt-4 border-t">

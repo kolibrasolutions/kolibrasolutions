@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
@@ -82,15 +82,16 @@ const BlogPost = () => {
             
             {post.subtitle && <h2 className="text-2xl text-gray-600 mb-4">{post.subtitle}</h2>}
             
-            <p className="text-gray-500 mb-6">
-              Publicado em {format(new Date(post.created_at), 'dd MMMM yyyy', {
+            <div className="flex items-center gap-1 text-gray-500 mb-6">
+              <Calendar className="h-4 w-4" />
+              <span>Publicado em {format(new Date(post.created_at), 'dd MMMM yyyy', {
                 locale: ptBR
-              })}
-            </p>
+              })}</span>
+            </div>
             
             {post.image_url && !imageError && (
               <div className="mb-8">
-                <AspectRatio ratio={16/9}>
+                <AspectRatio ratio={16/9} className="bg-gray-100 rounded-lg overflow-hidden">
                   <img 
                     src={post.image_url} 
                     alt={post.title} 
@@ -102,7 +103,9 @@ const BlogPost = () => {
               </div>
             )}
             
-            <RichTextContent content={post.content} className="prose-green" />
+            <article className="prose-img:mx-auto prose-img:rounded-lg">
+              <RichTextContent content={post.content} className="prose-green" />
+            </article>
           </div>
         )}
       </div>
