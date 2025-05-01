@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
@@ -121,6 +120,17 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
     
     setUploading(true);
     setProgress(10);
+    
+    // Criar um novo AbortController
+    abortController.current = new AbortController();
+    
+    // Configurar um timeout
+    const timeoutId = setTimeout(() => {
+      if (abortController.current) {
+        abortController.current.abort();
+      }
+    }, IMAGE_UPLOAD_TIMEOUT);
+    
     try {
       // Comprimir imagem se necessário
       const optimizedFile = await compressImageIfNeeded(imageFile);
@@ -130,23 +140,13 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
       const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = `${fileName}`;
       
-      // Criar um novo AbortController
-      abortController.current = new AbortController();
-      const signal = abortController.current.signal;
-      
-      // Configurar um timeout
-      const timeoutId = setTimeout(() => {
-        if (abortController.current) {
-          abortController.current.abort();
-        }
-      }, IMAGE_UPLOAD_TIMEOUT);
-      
       setProgress(30);
       
+      // Usando o upload sem passar o signal diretamente na opção
+      // já que o tipo FileOptions não suporta essa propriedade
       const { error: uploadError, data } = await supabase.storage
         .from('blog_images')
         .upload(filePath, optimizedFile, {
-          signal: signal, // Corrected property name from abortSignal to signal
           cacheControl: '3600',
         });
       
