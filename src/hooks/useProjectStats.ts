@@ -24,7 +24,22 @@ export const useProjectStats = () => {
         console.log("Iniciando busca de estatísticas...");
         setLoading(true);
         
-        // Buscar pedidos finalizados (removido verificação de deleted_at que causava erro)
+        // Tenta usar a Edge Function pública primeiro (funciona para usuários anônimos e logados)
+        const { data: publicStats, error: publicStatsError } = await supabase.functions.invoke('get-public-stats');
+        
+        if (!publicStatsError && publicStats) {
+          console.log("Estatísticas carregadas via função pública:", publicStats);
+          setStats(publicStats);
+          setLoading(false);
+          return;
+        }
+        
+        if (publicStatsError) {
+          console.warn("Não foi possível carregar via função pública, tentando consulta direta:", publicStatsError);
+        }
+        
+        // Fallback: consulta direta às tabelas (funcionará apenas para usuários autenticados com permissões)
+        // Buscar pedidos finalizados
         const { data: orders, error: ordersError } = await supabase
           .from('orders')
           .select('id')

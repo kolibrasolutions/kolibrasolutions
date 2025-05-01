@@ -13,6 +13,9 @@ verify_jwt = false
 [functions.get-delivery-files]
 verify_jwt = true
 
+[functions.get-public-stats]
+verify_jwt = false
+
 [api]
 enabled = true
 port = 54321
