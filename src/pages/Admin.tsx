@@ -38,13 +38,17 @@ const Admin = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       try {
+        console.log("Verificando sessão e permissões de admin...");
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session) {
+          console.log("Nenhuma sessão encontrada, redirecionando para login");
           toast("Acesso restrito", { description: "Faça login para acessar esta página" });
           navigate('/login?returnUrl=/admin');
           return;
         }
+        
+        console.log("Sessão encontrada para o usuário:", session.user.email);
         
         // Check user role
         const { data: userData, error } = await supabase
@@ -53,12 +57,23 @@ const Admin = () => {
           .eq('id', session.user.id)
           .single();
         
-        if (error || !userData || userData.role !== 'admin') {
+        if (error) {
+          console.error("Erro ao buscar papel do usuário:", error);
+          toast("Erro de verificação", { description: "Não foi possível verificar suas permissões" });
+          navigate('/');
+          return;
+        }
+        
+        console.log("Papel do usuário:", userData?.role);
+        
+        if (!userData || userData.role !== 'admin') {
+          console.log("Usuário não é admin, redirecionando");
           toast("Acesso negado", { description: "Você não tem permissão para acessar esta página" });
           navigate('/');
           return;
         }
         
+        console.log("Verificação de admin concluída com sucesso");
         setIsAdmin(true);
       } finally {
         setAuthChecked(true);
