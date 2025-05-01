@@ -20,29 +20,38 @@ export const useProjectStats = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        console.log("Fetching project stats...");
+        console.log("Iniciando busca de estatísticas...");
         setLoading(true);
         
-        // Get completed projects count - using a public query without RLS restrictions
-        const { count: totalProjects, error: countError } = await supabase
+        // Primeiro, vamos buscar todos os pedidos finalizados para debug
+        const { data: allOrders, error: ordersError } = await supabase
           .from('orders')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'Finalizado')
-          .is('deleted_at', null);
+          .select('id, status, deleted_at')
+          .eq('status', 'Finalizado');
         
-        if (countError) {
-          console.error("Error fetching total projects:", countError);
-          throw countError;
+        console.log("Todos os pedidos finalizados:", allOrders);
+        
+        if (ordersError) {
+          console.error("Erro ao buscar pedidos:", ordersError);
+          throw ordersError;
         }
+
+        // Agora vamos filtrar apenas os não deletados
+        const activeOrders = allOrders?.filter(order => !order.deleted_at) || [];
+        console.log("Pedidos ativos (não deletados):", activeOrders);
+        
+        const totalProjects = activeOrders.length;
+        console.log("Total de projetos ativos:", totalProjects);
         
         // Get ratings data - also using a public query
         const { data: ratings, error: ratingsError } = await supabase
           .from('project_ratings')
-          .select('rating, comment')
-          .is('deleted_at', null);
+          .select('rating, comment');
+        
+        console.log("Avaliações encontradas:", ratings);
         
         if (ratingsError) {
-          console.error("Error fetching ratings:", ratingsError);
+          console.error("Erro ao buscar avaliações:", ratingsError);
           throw ratingsError;
         }
         
@@ -64,16 +73,16 @@ export const useProjectStats = () => {
         }
         
         const newStats = {
-          totalProjects: totalProjects || 0,
+          totalProjects,
           satisfactionRate: hasRatings ? Math.round(satisfactionRate!) : null,
           averageRating: hasRatings ? parseFloat(averageRating!.toFixed(1)) : null,
           hasRatings
         };
         
-        console.log("Stats loaded:", newStats);
+        console.log("Estatísticas calculadas:", newStats);
         setStats(newStats);
       } catch (error) {
-        console.error("Error fetching project stats:", error);
+        console.error("Erro ao buscar estatísticas:", error);
       } finally {
         setLoading(false);
       }
