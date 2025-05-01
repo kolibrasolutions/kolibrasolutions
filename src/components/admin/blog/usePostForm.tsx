@@ -1,89 +1,34 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { BlogPost } from '@/types/blog';
-import { BlogImageService } from '@/services/blogImageService';
-import { BlogPostService, SAVE_TIMEOUT } from '@/services/blogPostService';
+import { useImageUpload } from './hooks/useImageUpload';
+import { usePostSave } from './hooks/usePostSave';
+import { usePostFormState } from './hooks/usePostFormState';
 
 export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
-  // Form state
-  const [title, setTitle] = useState('');
-  const [subtitle, setSubtitle] = useState('');
-  const [content, setContent] = useState('');
-  const [published, setPublished] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  
-  // Operation state
-  const [uploading, setUploading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [errorMessage, setErrorMessage] = useState('');
-  
-  // References
-  const abortController = useRef<AbortController | null>(null);
+  // Use our smaller hooks
   const { user } = useAuth();
+  const imageUpload = useImageUpload();
+  const postSave = usePostSave();
+  const formState = usePostFormState(post);
   
-  // Initialize form with post data if editing
-  useEffect(() => {
-    if (post) {
-      setTitle(post.title);
-      setSubtitle(post.subtitle || '');
-      setContent(post.content);
-      setPublished(post.published);
-      setImageUrl(post.image_url);
-    } else {
-      setTitle('');
-      setSubtitle('');
-      setContent('');
-      setPublished(false);
-      setImageUrl(null);
-    }
-    setImageFile(null);
-    setProgress(0);
-    setErrorMessage('');
-  }, [post]);
+  // Initialize the image URL when the post changes
+  if (post?.image_url !== undefined && imageUpload.imageUrl !== post?.image_url) {
+    imageUpload.resetImageState(post?.image_url);
+  }
   
-  // Handle image selection
-  const handleImageChange = (file: File | null) => {
-    setImageFile(file);
-  };
+  // Combined error message from both operations
+  const errorMessage = imageUpload.errorMessage || postSave.errorMessage;
   
-  // Upload image to Supabase storage
-  const uploadImage = async (): Promise<string | null> => {
-    if (!imageFile) return imageUrl;
-    
-    setUploading(true);
-    setProgress(10);
-    
-    try {
-      const url = await BlogImageService.uploadImage(
-        imageFile,
-        abortController,
-        setProgress
-      );
-      return url;
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
-        console.error('Upload aborted by timeout');
-        setErrorMessage('The image upload took too long and was canceled. Try a smaller image.');
-        toast.error('Time limit exceeded when uploading image. Try a smaller image.');
-      } else {
-        console.error('Error uploading image:', error);
-        setErrorMessage(`Error uploading image: ${error.message || 'Unknown error'}`);
-        toast.error('Error uploading image');
-      }
-      return null;
-    } finally {
-      setUploading(false);
-    }
-  };
+  // Combined progress from both operations
+  const progress = imageUpload.uploading ? imageUpload.progress : postSave.progress;
   
   // Save blog post (create or update)
   const handleSave = async () => {
     // Validate required fields
-    if (!title.trim() || !content.trim()) {
+    if (!formState.isFormValid()) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -94,110 +39,66 @@ export const usePostForm = (post: BlogPost | null, onSuccess: () => void) => {
       return;
     }
     
-    // Reset state
-    setErrorMessage('');
-    setSaving(true);
-    setProgress(0);
+    // Reset errors
+    imageUpload.setErrorMessage('');
+    postSave.setErrorMessage('');
     
-    try {
-      // Upload image first if present
-      let finalImageUrl = imageUrl;
-      if (imageFile) {
-        finalImageUrl = await uploadImage();
-        if (!finalImageUrl && imageFile) {
-          setSaving(false);
-          return; // If upload failed and there was a file, abort saving
-        }
+    // Upload image first if present
+    let finalImageUrl = imageUpload.imageUrl;
+    if (imageUpload.imageFile) {
+      finalImageUrl = await imageUpload.uploadImage();
+      if (!finalImageUrl && imageUpload.imageFile) {
+        return; // If upload failed and there was a file, abort saving
       }
-      
-      setProgress(40);
-      
-      // Create or update post
-      let success = false;
-      if (post) {
-        // Update existing post
-        setProgress(60);
-        success = await BlogPostService.updatePost(
-          post.id,
-          {
-            title,
-            subtitle: subtitle || null,
-            content,
-            image_url: finalImageUrl,
-            published,
-          },
-          abortController
-        );
-        setProgress(100);
-        if (success) {
-          toast.success('Post updated successfully');
-        }
-      } else {
-        // Create new post
-        setProgress(60);
-        success = await BlogPostService.createPost(
-          {
-            title,
-            subtitle: subtitle || null,
-            content,
-            image_url: finalImageUrl,
-            published,
-          },
-          user.id,
-          abortController
-        );
-        setProgress(100);
-        if (success) {
-          toast.success('Post created successfully');
-        }
-      }
-      
-      if (success) {
-        onSuccess();
-      }
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
-        console.error('Save aborted by timeout');
-        setErrorMessage('The save took too long and was canceled. Try shorter content or split into multiple posts.');
-        toast.error('Time limit exceeded when saving post. Try shorter content.');
-      } else {
-        console.error('Error saving blog post:', error);
-        setErrorMessage(`Error saving post: ${error.message || 'Unknown error'}`);
-        toast.error('Error saving post');
-      }
-    } finally {
-      setSaving(false);
-      abortController.current = null;
+    }
+    
+    // Create or update post
+    const success = await postSave.savePost(
+      post?.id || null,
+      {
+        title: formState.title,
+        subtitle: formState.subtitle || null,
+        content: formState.content,
+        image_url: finalImageUrl,
+        published: formState.published,
+      },
+      user.id
+    );
+    
+    if (success) {
+      onSuccess();
     }
   };
   
   // Cancel ongoing operations
   const cancelOperation = () => {
-    if (abortController.current) {
-      abortController.current.abort();
-      abortController.current = null;
-      setSaving(false);
-      setUploading(false);
-      toast.info('Operation canceled');
-    }
+    imageUpload.cancelOperation();
+    postSave.cancelOperation();
   };
   
   return {
-    title,
-    setTitle,
-    subtitle,
-    setSubtitle,
-    content,
-    setContent,
-    published,
-    setPublished,
-    imageUrl,
-    imageFile,
-    uploading,
-    saving,
+    // Form state properties
+    title: formState.title,
+    setTitle: formState.setTitle,
+    subtitle: formState.subtitle,
+    setSubtitle: formState.setSubtitle,
+    content: formState.content,
+    setContent: formState.setContent,
+    published: formState.published,
+    setPublished: formState.setPublished,
+    
+    // Image properties
+    imageUrl: imageUpload.imageUrl,
+    imageFile: imageUpload.imageFile,
+    handleImageChange: imageUpload.handleImageChange,
+    
+    // Operation state
+    uploading: imageUpload.uploading,
+    saving: postSave.saving,
     progress,
     errorMessage,
-    handleImageChange,
+    
+    // Actions
     handleSave,
     cancelOperation
   };
