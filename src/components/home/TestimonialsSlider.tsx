@@ -77,7 +77,7 @@ const TestimonialsSlider = () => {
           {testimonials.map((testimonial) => (
             <CarouselItem key={testimonial.id} className="md:basis-1/1 lg:basis-1/1">
               <div className="p-1">
-                <Card>
+                <Card className="transition-all duration-300 hover:shadow-lg hover:scale-105 hover:border-kolibra-orange">
                   <CardContent className="flex flex-col items-center justify-center p-6">
                     <div className="flex items-center mb-4">
                       {Array.from({ length: 5 }).map((_, index) => (
@@ -100,8 +100,8 @@ const TestimonialsSlider = () => {
           ))}
         </CarouselContent>
         <div className="flex justify-center gap-2 mt-4">
-          <CarouselPrevious className="relative static" />
-          <CarouselNext className="relative static" />
+          <CarouselPrevious className="relative static transition-all hover:scale-110" />
+          <CarouselNext className="relative static transition-all hover:scale-110" />
         </div>
       </Carousel>
     </div>

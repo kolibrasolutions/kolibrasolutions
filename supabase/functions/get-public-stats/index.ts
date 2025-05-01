@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -91,7 +90,7 @@ async function handleGetTestimonials(supabase, corsHeaders) {
     // Buscar nome do usuário
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('full_name')
+      .select('full_name, email')
       .eq('id', rating.user_id)
       .single();
       
@@ -99,11 +98,22 @@ async function handleGetTestimonials(supabase, corsHeaders) {
       console.warn("Erro ao buscar nome do usuário:", userError);
     }
     
+    // Se o full_name não existir, extrair nome do email (parte antes do @)
+    let displayName = 'Cliente';
+    if (userData?.full_name) {
+      displayName = userData.full_name;
+    } else if (userData?.email) {
+      // Extrair a parte antes do @ do email
+      displayName = userData.email.split('@')[0];
+      // Capitalizar a primeira letra
+      displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+    }
+    
     return {
       id: rating.id,
       comment: rating.comment,
       rating: rating.rating,
-      user_name: userData?.full_name || 'Cliente'
+      user_name: displayName
     };
   }));
   
@@ -121,7 +131,7 @@ async function handleGetTestimonials(supabase, corsHeaders) {
   );
 }
 
-async function handleGetStats(supabase, corsHeaders) {
+function handleGetStats(supabase, corsHeaders) {
   console.log("Iniciando busca de estatísticas públicas...");
 
   // Buscar pedidos finalizados

@@ -16,7 +16,7 @@ const ServiceCard = ({ service, onAddToCart }: ServiceCardProps) => {
   const finalPayment = service.price * 0.8;
 
   return (
-    <div className="border border-gray-200 rounded-md p-4 hover:shadow-md transition-shadow">
+    <div className="border border-gray-200 rounded-md p-4 transition-all duration-300 hover:shadow-lg hover:scale-102 hover:border-kolibra-orange">
       <div className="flex justify-between">
         <div>
           <h3 className="font-bold text-lg">{service.name}</h3>
@@ -36,7 +36,7 @@ const ServiceCard = ({ service, onAddToCart }: ServiceCardProps) => {
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  className="mt-2 border-kolibra-orange text-kolibra-orange hover:bg-kolibra-orange hover:text-white"
+                  className="mt-2 border-kolibra-orange text-kolibra-orange hover:bg-kolibra-orange hover:text-white transition-all duration-300"
                   onClick={() => onAddToCart(service)}
                 >
                   <Plus size={16} className="mr-1" /> Adicionar
