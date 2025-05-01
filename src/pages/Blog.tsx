@@ -77,7 +77,7 @@ const Blog = () => {
                   
                   <div className="mt-auto pt-4 border-t">
                     <Link to={`/blog/${post.id}`}>
-                      <Button variant="ghost" className="text-green-700 hover:bg-green-50 font-medium flex items-center gap-1 px-0">
+                      <Button variant="ghost" className="hover:bg-green-50 font-medium flex items-center gap-1 px-0 text-kolibra-blue">
                         Ler mais <ChevronRight className="h-4 w-4" />
                       </Button>
                     </Link>
