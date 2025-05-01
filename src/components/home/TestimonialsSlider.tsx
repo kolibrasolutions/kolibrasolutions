@@ -21,11 +21,15 @@ type Testimonial = {
 const TestimonialsSlider = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
         setLoading(true);
+        setError(null);
+        
+        console.log("Iniciando busca de depoimentos...");
         
         // Primeiro, obtemos as avaliações que têm comentários
         const { data: projectRatings, error } = await supabase
@@ -35,6 +39,7 @@ const TestimonialsSlider = () => {
 
         if (error) {
           console.error("Erro ao buscar depoimentos:", error);
+          setError("Não foi possível carregar os depoimentos no momento.");
           throw error;
         }
 
@@ -47,6 +52,7 @@ const TestimonialsSlider = () => {
         }
       } catch (error) {
         console.error("Erro ao buscar depoimentos:", error);
+        setError("Ocorreu um erro ao buscar os depoimentos.");
         setTestimonials([]);
       } finally {
         setLoading(false);
@@ -65,6 +71,7 @@ const TestimonialsSlider = () => {
     );
   }
 
+  // Não renderize nada se não houver depoimentos
   if (testimonials.length === 0) {
     return null;
   }
