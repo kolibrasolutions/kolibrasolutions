@@ -18,7 +18,7 @@ const Header = () => {
     <header className="shadow-sm py-4 px-6 bg-kolibra-blue text-white">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="flex items-center">
-          <img src="/lovable-uploads/7a9495a3-2a31-472d-9899-a8313ad339ca.png" alt="KOLIBRA SOLUTIONS" className="h-20 object-fill" />
+          <img src="/lovable-uploads/a544935d-30bc-4cbe-b588-c420c26cd6fb.png" alt="KOLIBRA SOLUTIONS" className="h-20 object-fill" />
         </Link>
         
         {/* Desktop Navigation */}
