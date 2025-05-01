@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -23,12 +24,11 @@ export const useProjectStats = () => {
         console.log("Iniciando busca de estatísticas...");
         setLoading(true);
         
-        // Buscar pedidos finalizados e não deletados
+        // Buscar pedidos finalizados (removido verificação de deleted_at que causava erro)
         const { data: orders, error: ordersError } = await supabase
           .from('orders')
           .select('id')
-          .eq('status', 'Finalizado')
-          .is('deleted_at', null);
+          .eq('status', 'Finalizado');
         
         if (ordersError) {
           console.error("Erro ao buscar pedidos:", ordersError);
@@ -38,7 +38,7 @@ export const useProjectStats = () => {
         const totalProjects = orders?.length || 0;
         console.log("Total de projetos finalizados:", totalProjects);
         
-        // Buscar avaliações de pedidos não deletados
+        // Buscar avaliações de pedidos
         const { data: ratings, error: ratingsError } = await supabase
           .from('project_ratings')
           .select('rating, comment, order_id')

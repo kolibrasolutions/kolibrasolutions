@@ -94,13 +94,13 @@ const Home = () => {
               <p className="text-gray-700 mb-6 font-semibold">
                 Somos a KOLIBRA SOLUTIONS — A solução certa para crescer
               </p>
-              <Button variant="outline" className="border-kolibra-orange text-kolibra-orange hover:bg-kolibra-orange hover:text-white">
+              <Button variant="outline" className="border-kolibra-orange text-kolibra-orange hover:bg-kolibra-orange hover:text-white mb-10">
                 Conheça Nossa História
               </Button>
             </div>
           </div>
           
-          {/* Testimonials Slider */}
+          {/* Testimonials Slider - Moved here so it appears right after "Conheça Nossa História" */}
           <TestimonialsSlider />
         </div>
       </section>

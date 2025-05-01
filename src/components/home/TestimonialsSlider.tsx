@@ -15,6 +15,7 @@ type Testimonial = {
   id: string;
   comment: string | null;
   rating: number;
+  user_name: string | null;
 };
 
 const TestimonialsSlider = () => {
@@ -25,9 +26,18 @@ const TestimonialsSlider = () => {
     const fetchTestimonials = async () => {
       try {
         setLoading(true);
+        
+        // Buscar avaliações juntamente com nomes de usuários
         const { data, error } = await supabase
           .from('project_ratings')
-          .select('id, comment, rating')
+          .select(`
+            id, 
+            comment, 
+            rating,
+            user_id,
+            orders!inner(id),
+            users:user_id(full_name)
+          `)
           .not('comment', 'is', null)
           .order('created_at', { ascending: false });
 
@@ -36,7 +46,16 @@ const TestimonialsSlider = () => {
           throw error;
         }
 
-        setTestimonials(data || []);
+        // Processar os dados para extrair os nomes dos usuários
+        const processedData = data?.map(item => ({
+          id: item.id,
+          comment: item.comment,
+          rating: item.rating,
+          user_name: item.users?.full_name || 'Cliente'
+        })) || [];
+
+        console.log("Testimonials with user names:", processedData);
+        setTestimonials(processedData);
       } catch (error) {
         console.error("Error in testimonials fetch:", error);
       } finally {
@@ -80,9 +99,10 @@ const TestimonialsSlider = () => {
                         />
                       ))}
                     </div>
-                    <blockquote className="text-center italic text-gray-700">
+                    <blockquote className="text-center italic text-gray-700 mb-4">
                       "{testimonial.comment}"
                     </blockquote>
+                    <p className="font-semibold text-kolibra-blue">- {testimonial.user_name}</p>
                   </CardContent>
                 </Card>
               </div>
