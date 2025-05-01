@@ -100,7 +100,7 @@ export const BlogPostDialog = ({ open, onOpenChange, post, onSuccess }: BlogPost
               {uploading ? 'Enviando imagem...' : 'Salvando postagem...'}
             </p>
             <p className="text-xs text-center text-muted-foreground">
-              Isso pode levar até 2 minutos para conteúdos grandes
+              Isso pode levar até 5 minutos para conteúdos grandes
             </p>
           </div>
         )}
