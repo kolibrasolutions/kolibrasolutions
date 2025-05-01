@@ -39,12 +39,12 @@ const Portfolio = () => {
   }, []);
   return <Layout>
       <div className="container mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold mb-6 text-kolibra-orange">Nosso Portfólio</h1>
+        <h1 className="text-4xl font-bold mb-6 text-kolibra-blue">Nosso Portfólio</h1>
         
         {loading ? <div className="flex justify-center my-8">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"></div>
-          </div> : projects.length === 0 ? <div className="p-8 rounded-lg text-center bg-orange-500">
-            <p className="text-xl text-gray-700">
+          </div> : projects.length === 0 ? <div className="p-8 rounded-lg text-center bg-kolibra-blue">
+            <p className="text-xl text-white">
               Em breve, mostraremos nossos melhores projetos aqui.
             </p>
           </div> : <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
