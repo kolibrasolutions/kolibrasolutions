@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -8,18 +7,7 @@ import { BlogPostForm } from './BlogPostForm';
 import { usePostForm } from './usePostForm';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-
-type BlogPost = {
-  id: string;
-  title: string;
-  subtitle: string | null;
-  content: string;
-  image_url: string | null;
-  published: boolean;
-  created_at: string;
-  updated_at: string;
-  author_id: string;
-};
+import { BlogPost } from '@/types/blog';
 
 type BlogPostDialogProps = {
   open: boolean;
