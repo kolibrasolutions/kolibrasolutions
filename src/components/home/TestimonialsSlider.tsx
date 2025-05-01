@@ -27,51 +27,27 @@ const TestimonialsSlider = () => {
       try {
         setLoading(true);
         
-        // We're using a different approach - first getting the ratings with order_id
-        const { data, error } = await supabase
-          .from('project_ratings')
-          .select(`
-            id, 
-            comment, 
-            rating,
-            user_id,
-            order_id
-          `)
-          .not('comment', 'is', null)
-          .order('created_at', { ascending: false });
+        // Primeiro, obtemos as avaliações que têm comentários
+        const { data: projectRatings, error } = await supabase
+          .functions.invoke('get-public-stats', {
+            body: { action: 'get-testimonials' }
+          });
 
         if (error) {
-          console.error("Error fetching testimonials:", error);
+          console.error("Erro ao buscar depoimentos:", error);
           throw error;
         }
 
-        // Then, for each rating, we'll get the user's name separately
-        const processedData = await Promise.all(
-          (data || []).map(async (item) => {
-            // Get user name from the users table using user_id
-            const { data: userData, error: userError } = await supabase
-              .from('users')
-              .select('full_name')
-              .eq('id', item.user_id)
-              .single();
-            
-            if (userError) {
-              console.warn("Error fetching user name:", userError);
-            }
-            
-            return {
-              id: item.id,
-              comment: item.comment,
-              rating: item.rating,
-              user_name: userData?.full_name || 'Cliente'
-            };
-          })
-        );
-
-        console.log("Testimonials with user names:", processedData);
-        setTestimonials(processedData);
+        if (projectRatings && projectRatings.testimonials) {
+          console.log("Depoimentos carregados:", projectRatings.testimonials);
+          setTestimonials(projectRatings.testimonials);
+        } else {
+          console.log("Nenhum depoimento encontrado");
+          setTestimonials([]);
+        }
       } catch (error) {
-        console.error("Error in testimonials fetch:", error);
+        console.error("Erro ao buscar depoimentos:", error);
+        setTestimonials([]);
       } finally {
         setLoading(false);
       }
@@ -116,7 +92,7 @@ const TestimonialsSlider = () => {
                     <blockquote className="text-center italic text-gray-700 mb-4">
                       "{testimonial.comment}"
                     </blockquote>
-                    <p className="font-semibold text-kolibra-blue">- {testimonial.user_name}</p>
+                    <p className="font-semibold text-kolibra-blue">- {testimonial.user_name || "Cliente"}</p>
                   </CardContent>
                 </Card>
               </div>
