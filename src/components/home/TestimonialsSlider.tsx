@@ -27,7 +27,7 @@ const TestimonialsSlider = () => {
       try {
         setLoading(true);
         
-        // Buscar avaliações juntamente com nomes de usuários
+        // We're using a different approach - first getting the ratings with order_id
         const { data, error } = await supabase
           .from('project_ratings')
           .select(`
@@ -35,8 +35,7 @@ const TestimonialsSlider = () => {
             comment, 
             rating,
             user_id,
-            orders!inner(id),
-            users:user_id(full_name)
+            order_id
           `)
           .not('comment', 'is', null)
           .order('created_at', { ascending: false });
@@ -46,13 +45,28 @@ const TestimonialsSlider = () => {
           throw error;
         }
 
-        // Processar os dados para extrair os nomes dos usuários
-        const processedData = data?.map(item => ({
-          id: item.id,
-          comment: item.comment,
-          rating: item.rating,
-          user_name: item.users?.full_name || 'Cliente'
-        })) || [];
+        // Then, for each rating, we'll get the user's name separately
+        const processedData = await Promise.all(
+          (data || []).map(async (item) => {
+            // Get user name from the users table using user_id
+            const { data: userData, error: userError } = await supabase
+              .from('users')
+              .select('full_name')
+              .eq('id', item.user_id)
+              .single();
+            
+            if (userError) {
+              console.warn("Error fetching user name:", userError);
+            }
+            
+            return {
+              id: item.id,
+              comment: item.comment,
+              rating: item.rating,
+              user_name: userData?.full_name || 'Cliente'
+            };
+          })
+        );
 
         console.log("Testimonials with user names:", processedData);
         setTestimonials(processedData);
