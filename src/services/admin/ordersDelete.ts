@@ -1,4 +1,3 @@
-
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -6,6 +5,19 @@ import { supabase } from "@/integrations/supabase/client";
 export const deleteOrderFromDB = async (orderId: number) => {
   try {
     console.log("Starting admin order deletion for order ID:", orderId);
+    
+    // Verificar se o pedido existe antes de tentar excluir
+    const { data: orderExists, error: checkError } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('id', orderId)
+      .single();
+    
+    if (checkError || !orderExists) {
+      console.error("Order not found or error checking order:", checkError);
+      toast.error('Pedido não encontrado ou já foi excluído');
+      return false;
+    }
     
     // Step 1: Begin by deleting order items
     console.log("Deleting order items...");
@@ -63,7 +75,24 @@ export const deleteOrderFromDB = async (orderId: number) => {
     }
     console.log("Order deleted successfully");
     
-    toast.success('Pedido excluído com sucesso');
+    // Verificar se o pedido foi realmente excluído
+    const { data: checkDeleted, error: checkDeletedError } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('id', orderId)
+      .single();
+    
+    if (checkDeletedError?.code === 'PGRST116') {
+      // Este erro específico indica que nenhum registro foi encontrado, o que é o que queremos
+      console.log("Verified: Order was successfully deleted");
+      toast.success('Pedido excluído com sucesso');
+      return true;
+    } else if (checkDeleted) {
+      console.error("Order still exists after deletion attempt");
+      toast.error('Erro ao excluir pedido: O pedido ainda existe no banco de dados');
+      return false;
+    }
+    
     return true;
   } catch (error) {
     console.error('Error in deleteOrderFromDB:', error);

@@ -42,8 +42,10 @@ export function useAdminOrders() {
     const success = await deleteOrderFromDB(orderId);
     
     if (success) {
-      // Update local state
+      // Atualiza o estado local
       setOrders(orders.filter(order => order.id !== orderId));
+      // Força um recarregamento dos dados do servidor
+      await fetchOrders();
     }
   };
 
