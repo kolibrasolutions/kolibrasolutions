@@ -1,9 +1,11 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Layout from '@/components/Layout';
 import { ChevronRight } from 'lucide-react';
 import StatsCounter from '@/components/home/StatsCounter';
+import TestimonialsSlider from '@/components/home/TestimonialsSlider';
 
 const Home = () => {
   return (
@@ -97,6 +99,9 @@ const Home = () => {
               </Button>
             </div>
           </div>
+          
+          {/* Testimonials Slider */}
+          <TestimonialsSlider />
         </div>
       </section>
     </Layout>

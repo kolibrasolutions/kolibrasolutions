@@ -38,7 +38,12 @@ const Footer = () => {
             </div>
             <div className="mt-4 space-x-4">
               <a href="http://wa.me/5535999796570" target="_blank" rel="noopener noreferrer" className="hover:text-kolibra-orange flex items-center gap-1">
-                <MessageSquare className="h-5 w-5 text-green-400" /> WhatsApp
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-green-400">
+                  <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" />
+                  <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1Z" />
+                  <path d="M14 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1Z" />
+                  <path d="M9.5 13.5h5" />
+                </svg> WhatsApp
               </a>
               <a href="https://www.tiktok.com/@kolibrasolutions" target="_blank" rel="noopener noreferrer" className="hover:text-kolibra-orange flex items-center gap-1">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">

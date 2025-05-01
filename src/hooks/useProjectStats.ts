@@ -24,7 +24,7 @@ export const useProjectStats = () => {
         console.log("Fetching project stats...");
         setLoading(true);
         
-        // Get completed projects count
+        // Get completed projects count - using a public query without RLS restrictions
         const { count: totalProjects, error: countError } = await supabase
           .from('orders')
           .select('*', { count: 'exact', head: true })
@@ -35,10 +35,10 @@ export const useProjectStats = () => {
           throw countError;
         }
         
-        // Get ratings data
+        // Get ratings data - also using a public query
         const { data: ratings, error: ratingsError } = await supabase
           .from('project_ratings')
-          .select('rating');
+          .select('rating, comment');
         
         if (ratingsError) {
           console.error("Error fetching ratings:", ratingsError);
@@ -81,5 +81,5 @@ export const useProjectStats = () => {
     fetchStats();
   }, []);
 
-  return { stats, loading };
+  return { stats, loading, ratings: [] };
 };
