@@ -9,6 +9,9 @@ type ProfileHeaderProps = {
   orders: Order[];
 };
 
+// Log fora do componente para garantir que o arquivo está sendo carregado
+console.log("ProfileHeader carregado!");
+
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, orders }) => {
   // Log para descobrir os campos do usuário
   console.log("Usuário no perfil:", user);
