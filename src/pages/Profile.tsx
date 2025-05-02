@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -25,8 +24,24 @@ const Profile = () => {
         navigate('/login?returnUrl=/profile');
         return;
       }
+
+      // Buscar dados adicionais do usuário incluindo a role
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      if (error) {
+        console.error("Erro ao buscar dados do usuário:", error);
+      } else {
+        console.log("Dados completos do usuário:", userData);
+        // Combinar os dados da sessão com os dados do banco
+        setUser({ ...session.user, ...userData });
+      }
       
-      setUser(session.user);
+      console.log("Sessão do usuário:", session.user);
+      console.log("Role do usuário:", userData?.role);
     };
     
     checkAuth();
@@ -46,6 +61,11 @@ const Profile = () => {
       </Layout>
     );
   }
+
+  // Log para debug
+  console.log("Renderizando Profile com user:", user);
+  console.log("User role:", user.role);
+  console.log("Deve mostrar botão de parceiro:", user.role !== 'partner');
 
   return (
     <Layout>

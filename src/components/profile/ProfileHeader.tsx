@@ -37,12 +37,6 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, orders }) =>
               <p className="text-sm text-gray-500">Telefone</p>
               <p className="font-medium">{user.user_metadata?.phone || 'Não informado'}</p>
             </div>
-            {/* Botão "Seja um Parceiro" */}
-            {user.role !== 'partner' && (
-              <Link to="/parceiros">
-                <Button variant="outline" className="w-full">Seja um Parceiro</Button>
-              </Link>
-            )}
           </div>
         </CardContent>
       </Card>
