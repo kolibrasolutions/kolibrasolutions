@@ -32,7 +32,7 @@ export function useCheckout() {
       const orderItems = cartItems.map(item => ({
         service_id: item.id,
         quantity: item.quantity,
-        price_at_order: item.price
+        price_at_order: item.service ? item.service.price : (item.price || 0)
       }));
       
       const totalPrice = getTotal();

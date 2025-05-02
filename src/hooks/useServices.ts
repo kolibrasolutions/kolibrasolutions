@@ -32,11 +32,17 @@ export const useServices = () => {
         if (isMounted) {
           console.log('Services fetched successfully:', data);
           // Make sure component is still mounted before updating state
-          setServices(data || []);
+          // Convert API response to match our Service type (name -> title)
+          const formattedServices = data?.map(service => ({
+            ...service,
+            title: service.name, // Map name to title for compatibility
+          })) || [];
+          
+          setServices(formattedServices);
           
           // Extract unique categories
-          const uniqueCategories = Array.from(new Set((data || []).map(service => service.category)));
-          setCategories(uniqueCategories);
+          const uniqueCategories = Array.from(new Set((formattedServices || []).map(service => service.category)));
+          setCategories(uniqueCategories as string[]);
         }
       } catch (error) {
         console.error('Error fetching services:', error);
