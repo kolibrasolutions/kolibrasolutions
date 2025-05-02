@@ -10,6 +10,9 @@ type ProfileHeaderProps = {
 };
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, orders }) => {
+  // Log para descobrir os campos do usuário
+  console.log("Usuário no perfil:", user);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
       <Card className="col-span-1">
