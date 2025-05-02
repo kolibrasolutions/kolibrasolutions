@@ -1,5 +1,7 @@
 
 import React from "react";
+console.log('React@App:', React.version, React);
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -36,6 +38,7 @@ const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CartProvider>
+          <ToastProvider />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/servicos" element={<Services />} />
@@ -53,7 +56,6 @@ const App: React.FC = () => {
             <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <ToastProvider />
         </CartProvider>
       </TooltipProvider>
     </QueryClientProvider>

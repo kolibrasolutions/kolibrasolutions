@@ -44,6 +44,8 @@ export default defineConfig(({ mode }) => ({
           'ui': ['@/components/ui/index.ts'],
         },
       },
+      // Force React and React DOM to be loaded externally
+      external: ['react', 'react-dom']
     },
   },
   optimizeDeps: {
