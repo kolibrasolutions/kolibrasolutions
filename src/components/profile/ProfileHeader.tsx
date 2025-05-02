@@ -1,4 +1,5 @@
-
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Order } from '@/types/orders';
@@ -29,6 +30,12 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, orders }) =>
               <p className="text-sm text-gray-500">Telefone</p>
               <p className="font-medium">{user.user_metadata?.phone || 'Não informado'}</p>
             </div>
+            {/* Botão "Seja um Parceiro" */}
+            {!user.isPartner && (
+              <Link to="/parceiros">
+                <Button variant="outline">Seja um Parceiro</Button>
+              </Link>
+            )}
           </div>
         </CardContent>
       </Card>

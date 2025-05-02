@@ -1,4 +1,5 @@
-
+import { PartnersManagement } from '@/components/admin/partners/PartnersManagement';
+import { Users } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -127,6 +128,11 @@ const Admin = () => {
               <FileBox className="h-4 w-4" />
               <span>Portfólio</span>
             </TabsTrigger>
+            {/* Nova aba de parceiros */}
+            <TabsTrigger value="partners" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              <span>Parceiros</span>
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="orders" className="mt-0">
@@ -164,6 +170,11 @@ const Admin = () => {
           
           <TabsContent value="portfolio" className="mt-0">
             <PortfolioProjectsList />
+          </TabsContent>
+
+          {/* Conteúdo da nova aba de parceiros */}
+          <TabsContent value="partners" className="mt-0">
+            <PartnersManagement />
           </TabsContent>
         </Tabs>
       </div>
