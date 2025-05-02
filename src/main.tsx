@@ -15,9 +15,5 @@ if (!rootElement) {
 // Create root with ReactDOM.createRoot
 const root = ReactDOM.createRoot(rootElement);
 
-// Render application with explicit React import
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+// Render application WITHOUT React.StrictMode since it's already in App.tsx
+root.render(<App />);
