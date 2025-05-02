@@ -15,7 +15,7 @@ if (!rootElement) {
 // Create root with ReactDOM.createRoot
 const root = ReactDOM.createRoot(rootElement);
 
-// Render application - put back React.StrictMode since removing it caused issues
+// Render application
 root.render(
   <React.StrictMode>
     <App />

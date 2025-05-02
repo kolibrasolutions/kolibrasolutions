@@ -34,11 +34,10 @@ const queryClient = new QueryClient({
 
 const App = () => {
   return (
-    // Remove the duplicate React.StrictMode since it's now in main.tsx
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <CartProvider>
-          <BrowserRouter>
+      <BrowserRouter>
+        <TooltipProvider>
+          <CartProvider>
             <Toaster />
             <Sonner />
             <Routes>
@@ -58,9 +57,9 @@ const App = () => {
               <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </CartProvider>
-      </TooltipProvider>
+          </CartProvider>
+        </TooltipProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 };
