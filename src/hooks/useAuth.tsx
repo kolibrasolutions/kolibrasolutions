@@ -33,7 +33,7 @@ export const useAuth = () => {
           try {
             const { data: userData, error: userError } = await supabase
               .from('users')
-              .select('role')
+              .select('role, full_name, phone')
               .eq('id', data.session.user.id)
               .single();
               
@@ -43,7 +43,17 @@ export const useAuth = () => {
             }
             
             if (!isMounted) return;
-            setIsAdmin(userData?.role === 'admin' || false);
+            
+            // Update the user object with profile data
+            if (userData) {
+              setUser(prev => ({
+                ...prev,
+                full_name: userData.full_name,
+                phone: userData.phone,
+                role: userData.role
+              }));
+              setIsAdmin(userData.role === 'admin' || false);
+            }
           } catch (err) {
             console.error("Error checking admin status:", err);
           }
@@ -64,18 +74,25 @@ export const useAuth = () => {
       
       setUser(session?.user || null);
       
-      // Check admin status on auth state change
+      // Check admin status and get profile data on auth state change
       if (session?.user) {
         try {
           const { data: userData, error: userError } = await supabase
             .from('users')
-            .select('role')
+            .select('role, full_name, phone')
             .eq('id', session.user.id)
             .single();
             
           if (!isMounted) return;
           
           if (!userError && userData) {
+            // Update the user object with profile data
+            setUser(prev => ({
+              ...prev,
+              full_name: userData.full_name,
+              phone: userData.phone,
+              role: userData.role
+            }));
             setIsAdmin(userData.role === 'admin');
           }
         } catch (err) {
