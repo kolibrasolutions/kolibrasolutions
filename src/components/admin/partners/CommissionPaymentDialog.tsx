@@ -25,15 +25,17 @@ import { cn } from '@/lib/utils';
 type CommissionPaymentDialogProps = {
   commission: any | null;
   onClose: () => void;
-  onMarkAsPaid: (paymentDate: string) => void;
+  onPayment: () => void;
   onCancel: () => void;
+  open: boolean;
 };
 
 export const CommissionPaymentDialog = ({
   commission,
   onClose,
-  onMarkAsPaid,
-  onCancel
+  onPayment,
+  onCancel,
+  open
 }: CommissionPaymentDialogProps) => {
   const [paymentDate, setPaymentDate] = useState<Date | undefined>(new Date());
   
@@ -65,12 +67,12 @@ export const CommissionPaymentDialog = ({
 
   const handleMarkAsPaid = () => {
     if (paymentDate) {
-      onMarkAsPaid(paymentDate.toISOString());
+      onPayment();
     }
   };
 
   return (
-    <Dialog open={!!commission} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>

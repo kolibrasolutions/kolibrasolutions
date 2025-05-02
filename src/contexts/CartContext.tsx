@@ -49,7 +49,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: `${service.name} adicionado ao carrinho.`
         });
         
-        return [...prevItems, { ...service, quantity: 1 }];
+        // Create a new cart item with proper structure
+        const newItem: CartItem = { 
+          id: service.id, 
+          service: service, 
+          quantity: 1,
+          price: service.price,
+          name: service.name,
+          title: service.title,
+          description: service.description
+        };
+        
+        return [...prevItems, newItem];
       }
     });
   };
@@ -61,7 +72,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (itemToRemove) {
         toast({
           title: "Serviço removido",
-          description: `${itemToRemove.name} removido do carrinho.`
+          description: `${itemToRemove.name || itemToRemove.service.name} removido do carrinho.`
         });
       }
       
@@ -70,7 +81,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
   
   const getTotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return cartItems.reduce((total, item) => {
+      const price = item.price || (item.service ? item.service.price : 0);
+      return total + (price * item.quantity);
+    }, 0);
   };
   
   const clearCart = () => {

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getCouponUses, updateCouponUseStatus } from '@/services/partners/couponService';
@@ -31,6 +32,17 @@ export const PartnerCommissionsTable = ({ couponId }: CommissionsProp) => {
     }
   };
 
+  const handleCancelCommission = async () => {
+    if (selectedCommission) {
+      const success = await updateCouponUseStatus(selectedCommission.id, 'cancelado');
+      
+      if (success) {
+        queryClient.invalidateQueries({ queryKey: ['partner-commissions', couponId] });
+        setShowPaymentDialog(false);
+      }
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pendente':
@@ -47,7 +59,7 @@ export const PartnerCommissionsTable = ({ couponId }: CommissionsProp) => {
   return (
     <div>
       <CommissionPaymentDialog
-        isOpen={showPaymentDialog}
+        open={showPaymentDialog}
         commission={selectedCommission}
         onClose={() => {
           setShowPaymentDialog(false);
@@ -58,6 +70,7 @@ export const PartnerCommissionsTable = ({ couponId }: CommissionsProp) => {
             handlePayCommission(selectedCommission.id);
           }
         }}
+        onCancel={handleCancelCommission}
       />
 
       {isLoading ? (

@@ -1,39 +1,59 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PartnerApplicationsTable } from './PartnerApplicationsTable';
-import { PartnerCouponsTable } from './PartnerCouponsTable';
-import { PartnerCommissionsTable } from './PartnerCommissionsTable';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PartnerApplicationsTable } from '@/components/admin/partners/PartnerApplicationsTable';
+import { PartnerCommissionsTable } from '@/components/admin/partners/PartnerCommissionsTable';
+import { PartnerCouponsTable } from '@/components/admin/partners/PartnerCouponsTable';
 
 export const PartnersManagement = () => {
+  // State to track the selected partner/coupon for viewing commissions
+  const [selectedCouponId, setSelectedCouponId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("applications");
 
+  // Function to handle selecting a coupon from PartnerCouponsTable
+  const handleSelectCoupon = (couponId: string) => {
+    setSelectedCouponId(couponId);
+    setActiveTab("commissions");
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Gerenciamento de Parceiros</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="applications">Solicitações</TabsTrigger>
-            <TabsTrigger value="coupons">Cupons</TabsTrigger>
-            <TabsTrigger value="commissions">Comissões</TabsTrigger>
-          </TabsList>
-          <div className="mt-6">
-            <TabsContent value="applications">
-              <PartnerApplicationsTable />
-            </TabsContent>
-            <TabsContent value="coupons">
-              <PartnerCouponsTable />
-            </TabsContent>
-            <TabsContent value="commissions">
-              <PartnerCommissionsTable />
-            </TabsContent>
-          </div>
-        </Tabs>
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-4">
+          <TabsTrigger value="applications">Solicitações</TabsTrigger>
+          <TabsTrigger value="coupons">Cupons</TabsTrigger>
+          <TabsTrigger value="commissions">Comissões</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="applications" className="space-y-6">
+          <PartnerApplicationsTable />
+        </TabsContent>
+
+        <TabsContent value="coupons" className="space-y-6">
+          <PartnerCouponsTable onViewCommissions={handleSelectCoupon} />
+        </TabsContent>
+
+        <TabsContent value="commissions" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Comissões de Parceiros</CardTitle>
+              <CardDescription>
+                Gerencie as comissões a serem pagas aos parceiros.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedCouponId ? (
+                <PartnerCommissionsTable couponId={selectedCouponId} />
+              ) : (
+                <div className="text-center py-8 bg-gray-50 rounded-lg text-muted-foreground">
+                  Selecione um cupom na aba "Cupons" para ver suas comissões.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
