@@ -28,9 +28,9 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Ensure React and ReactDOM are loaded from a single location
-      "react": path.resolve(__dirname, "./node_modules/react"),
-      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
+      // Use exact module matching with $ to prevent partial matches
+      "react$": path.resolve(__dirname, "./node_modules/react"),
+      "react-dom$": path.resolve(__dirname, "./node_modules/react-dom"),
     },
     // Explicitly dedupe React to prevent multiple instances
     dedupe: ['react', 'react-dom'],
@@ -48,5 +48,6 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     include: ['react', 'react-dom'],
+    force: true, // Force optimization to ensure consistent versions
   },
 }));
