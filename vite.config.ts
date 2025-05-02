@@ -29,13 +29,15 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    // Add extensions to improve module resolution
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
   },
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
           'vendor': ['react', 'react-dom'],
-          'ui': ['@/components/ui'],
+          'ui': ['@/components/ui/index.ts'], // Use the index file instead of the directory
         },
       },
     },
