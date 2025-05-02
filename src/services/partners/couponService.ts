@@ -81,7 +81,7 @@ export async function createCoupon(partnerId: string, discountPercent: number, c
 export async function getCouponUses(couponId: string) {
   try {
     const { data, error } = await supabase
-      .from("partner_coupon_uses")
+      .from("coupon_uses")
       .select("*")
       .eq("coupon_id", couponId)
       .order("created_at", { ascending: false });
@@ -101,7 +101,7 @@ export async function getCouponUses(couponId: string) {
 export async function updateCouponUseStatus(couponUseId: string, status: string) {
   try {
     const { error } = await supabase
-      .from("partner_coupon_uses")
+      .from("coupon_uses")
       .update({ status: status })
       .eq("id", couponUseId);
     

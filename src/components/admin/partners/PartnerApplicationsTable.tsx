@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getUserApplications, reviewApplication } from '@/services/partners/applicationService';
@@ -20,15 +19,11 @@ export const PartnerApplicationsTable = () => {
 
   const handleApprove = async (application: any) => {
     // Primeiro aprova a solicitação
-    const success = await reviewApplication(application.id, 'aprovado');
+    const success = await reviewApplication(application.id, 'aprovado', '');
     
     if (success) {
-      // Gera o código do cupom baseado no nome do usuário ou email
-      const baseCode = application.user_id.substring(0, 6).toUpperCase();
-      const couponCode = `KOLIBRA${baseCode}`;
-      
-      // Cria o cupom para o parceiro
-      await createCoupon(application.user_id, couponCode);
+      // Create coupon for the partner with default values
+      await createCoupon(application.user_id, 10, 10);
       
       // Atualiza a lista de solicitações
       queryClient.invalidateQueries({ queryKey: ['partner-applications'] });
@@ -36,7 +31,7 @@ export const PartnerApplicationsTable = () => {
   };
 
   const handleReject = async (application: any, notes?: string) => {
-    const success = await reviewApplication(application.id, 'rejeitado', notes);
+    const success = await reviewApplication(application.id, 'rejeitado', notes || '');
     
     if (success) {
       queryClient.invalidateQueries({ queryKey: ['partner-applications'] });
