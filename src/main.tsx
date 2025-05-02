@@ -11,4 +11,8 @@ if (!rootElement) {
 }
 
 // Create root and render
-ReactDOM.createRoot(rootElement).render(<App />);
+ReactDOM.createRoot(rootElement).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
