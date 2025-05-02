@@ -1,12 +1,11 @@
 import { PartnersManagement } from '@/components/admin/partners';
-import { Users } from 'lucide-react';
+import { Users, FileBox, Inbox, PenTool } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileBox, Inbox, PenTool } from 'lucide-react';
 import { OrdersTable } from '@/components/admin/OrdersTable';
 import { OrderDetailsDialog } from '@/components/admin/OrderDetailsDialog';
 import { OrderFilters } from '@/components/admin/OrderFilters';
@@ -83,6 +82,11 @@ const Admin = () => {
     
     checkAdmin();
   }, [navigate]);
+
+  // Log para debug
+  console.log("Estado atual da aba:", activeTab);
+  console.log("isAdmin:", isAdmin);
+  console.log("authChecked:", authChecked);
 
   if (!authChecked) {
     return (

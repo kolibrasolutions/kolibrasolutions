@@ -1,17 +1,16 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PartnerApplicationsTable } from '@/components/admin/partners/PartnerApplicationsTable';
-import { PartnerCommissionsTable } from '@/components/admin/partners/PartnerCommissionsTable';
-import { PartnerCouponsTable } from '@/components/admin/partners/PartnerCouponsTable';
+import { PartnerApplicationsTable } from './PartnerApplicationsTable';
+import { PartnerCommissionsTable } from './PartnerCommissionsTable';
+import { PartnerCouponsTable } from './PartnerCouponsTable';
 
 // Define the props for PartnerCouponsTable
 interface PartnerCouponsTableProps {
   onViewCommissions?: (couponId: string) => void;
 }
 
-export const PartnersManagement = () => {
+const PartnersManagement = () => {
   // State to track the selected partner/coupon for viewing commissions
   const [selectedCouponId, setSelectedCouponId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("applications");
@@ -62,3 +61,5 @@ export const PartnersManagement = () => {
     </div>
   );
 };
+
+export default PartnersManagement;
