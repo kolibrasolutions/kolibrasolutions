@@ -3,9 +3,9 @@ import React from 'react';
 console.log('React@main:', React.version, React);
 
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 import './index.css';
+import { BrowserRouter } from 'react-router-dom';
 
 // Get the root element
 const rootElement = document.getElementById('root');

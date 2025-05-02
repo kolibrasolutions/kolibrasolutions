@@ -40,11 +40,10 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          'vendor': ['react', 'react-dom'],
+          // Remove react from manualChunks since it's now external
           'ui': ['@/components/ui/index.ts'],
         },
       },
-      // Force React and React DOM to be loaded externally
       external: ['react', 'react-dom']
     },
   },

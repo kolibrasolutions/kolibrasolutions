@@ -37,8 +37,8 @@ const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <ToastProvider />
         <CartProvider>
-          <ToastProvider />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/servicos" element={<Services />} />
