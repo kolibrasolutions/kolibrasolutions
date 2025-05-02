@@ -1,6 +1,5 @@
-
 import React from 'react';
-console.log('React@main:', React.version, React);
+console.log('React@main:', React);
 
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';

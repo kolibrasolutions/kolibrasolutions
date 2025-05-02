@@ -1,6 +1,5 @@
-
 import React from 'react';
-console.log('React@ToastProvider:', React.version, React);
+console.log('React@ToastProvider:', React);
 
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";

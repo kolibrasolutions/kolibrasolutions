@@ -1,4 +1,3 @@
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
@@ -41,7 +40,7 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            return 'vendor';  // All node_modules (including React) go in the vendor chunk
+            return 'vendor';
           }
         }
       }
