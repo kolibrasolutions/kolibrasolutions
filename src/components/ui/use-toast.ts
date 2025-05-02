@@ -1,5 +1,5 @@
 
-// Direto do hooks/use-toast.ts - evitando importação circular
+// Reexportando o hook do seu local original para evitar importações circulares
 import { useToast, toast } from "@/hooks/use-toast";
 
 export { useToast, toast };

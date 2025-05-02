@@ -1,7 +1,7 @@
 
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
 import { ToastProvider } from "@/components/ui/ToastProvider";
@@ -34,30 +34,28 @@ const queryClient = new QueryClient({
 const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <TooltipProvider>
-          <CartProvider>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/servicos" element={<Services />} />
-              <Route path="/serviços" element={<Services />} />
-              <Route path="/solucoes" element={<Services />} />
-              <Route path="/soluções" element={<Services />} />
-              <Route path="/portfolio" element={<Portfolio />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:id" element={<BlogPost />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/payment-confirmation" element={<PaymentConfirmation />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/parceiros" element={<BecomePartner />} />
-              <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <ToastProvider />
-          </CartProvider>
-        </TooltipProvider>
-      </BrowserRouter>
+      <TooltipProvider>
+        <CartProvider>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/servicos" element={<Services />} />
+            <Route path="/serviços" element={<Services />} />
+            <Route path="/solucoes" element={<Services />} />
+            <Route path="/soluções" element={<Services />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:id" element={<BlogPost />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/payment-confirmation" element={<PaymentConfirmation />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/parceiros" element={<BecomePartner />} />
+            <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <ToastProvider />
+        </CartProvider>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 };

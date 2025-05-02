@@ -28,7 +28,11 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "react": path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
+    // Garantindo que apenas uma instância de React seja usada
+    dedupe: ['react', 'react-dom'],
     // Add extensions to improve module resolution
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
   },
