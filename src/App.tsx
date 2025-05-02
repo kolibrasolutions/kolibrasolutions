@@ -17,6 +17,8 @@ import NotFound from "./pages/NotFound";
 import PaymentConfirmation from "./pages/PaymentConfirmation";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
+import BecomePartner from "./pages/BecomePartner";
+import PartnerDashboard from "./pages/PartnerDashboard";
 
 // Create a new QueryClient with custom error handling
 const queryClient = new QueryClient({
@@ -49,6 +51,8 @@ const App = () => (
             <Route path="/payment-confirmation" element={<PaymentConfirmation />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/parceiros" element={<BecomePartner />} />
+            <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

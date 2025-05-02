@@ -45,6 +45,54 @@ export type Database = {
         }
         Relationships: []
       }
+      coupon_uses: {
+        Row: {
+          commission_amount: number
+          coupon_id: string
+          created_at: string | null
+          id: string
+          order_id: number
+          payment_date: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          commission_amount: number
+          coupon_id: string
+          created_at?: string | null
+          id?: string
+          order_id: number
+          payment_date?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          commission_amount?: number
+          coupon_id?: string
+          created_at?: string | null
+          id?: string
+          order_id?: number
+          payment_date?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_uses_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "partner_coupons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_uses_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           id: number
@@ -86,8 +134,10 @@ export type Database = {
       }
       orders: {
         Row: {
+          coupon_id: string | null
           created_at: string | null
           delivery_date: string | null
+          discount_amount: number | null
           final_payment_amount: number | null
           id: number
           initial_payment_amount: number | null
@@ -97,8 +147,10 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          coupon_id?: string | null
           created_at?: string | null
           delivery_date?: string | null
+          discount_amount?: number | null
           final_payment_amount?: number | null
           id?: number
           initial_payment_amount?: number | null
@@ -108,8 +160,10 @@ export type Database = {
           user_id: string
         }
         Update: {
+          coupon_id?: string | null
           created_at?: string | null
           delivery_date?: string | null
+          discount_amount?: number | null
           final_payment_amount?: number | null
           id?: number
           initial_payment_amount?: number | null
@@ -120,6 +174,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "orders_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "partner_coupons"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "orders_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -127,6 +188,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      partner_applications: {
+        Row: {
+          application_date: string | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          review_date: string | null
+          reviewer_id: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          application_date?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          review_date?: string | null
+          reviewer_id?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          application_date?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          review_date?: string | null
+          reviewer_id?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      partner_coupons: {
+        Row: {
+          code: string
+          commission_percent: number
+          created_at: string | null
+          discount_percent: number
+          id: string
+          is_active: boolean
+          partner_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          commission_percent?: number
+          created_at?: string | null
+          discount_percent?: number
+          id?: string
+          is_active?: boolean
+          partner_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          commission_percent?: number
+          created_at?: string | null
+          discount_percent?: number
+          id?: string
+          is_active?: boolean
+          partner_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       payments: {
         Row: {
@@ -314,6 +444,14 @@ export type Database = {
       }
       get_user_role: {
         Args: { user_id: string }
+        Returns: string
+      }
+      is_partner: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
+      is_valid_coupon: {
+        Args: { coupon_code: string }
         Returns: string
       }
       sync_user_profile_data: {
