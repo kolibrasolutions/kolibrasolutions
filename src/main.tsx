@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Create root element
+// Get the root element
 const rootElement = document.getElementById('root');
 
 // Check if root element exists
@@ -15,7 +15,7 @@ if (!rootElement) {
 // Create root with ReactDOM.createRoot
 const root = ReactDOM.createRoot(rootElement);
 
-// Render application
+// Render application with explicit React import
 root.render(
   <React.StrictMode>
     <App />
