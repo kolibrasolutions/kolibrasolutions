@@ -6,6 +6,11 @@ import { PartnerApplicationsTable } from '@/components/admin/partners/PartnerApp
 import { PartnerCommissionsTable } from '@/components/admin/partners/PartnerCommissionsTable';
 import { PartnerCouponsTable } from '@/components/admin/partners/PartnerCouponsTable';
 
+// Define the props for PartnerCouponsTable
+interface PartnerCouponsTableProps {
+  onViewCommissions?: (couponId: string) => void;
+}
+
 export const PartnersManagement = () => {
   // State to track the selected partner/coupon for viewing commissions
   const [selectedCouponId, setSelectedCouponId] = useState<string | null>(null);
@@ -31,7 +36,7 @@ export const PartnersManagement = () => {
         </TabsContent>
 
         <TabsContent value="coupons" className="space-y-6">
-          <PartnerCouponsTable onViewCommissions={handleSelectCoupon} />
+          <PartnerCouponsTable />
         </TabsContent>
 
         <TabsContent value="commissions" className="space-y-6">

@@ -38,27 +38,25 @@ const App = () => {
       <TooltipProvider>
         <CartProvider>
           <BrowserRouter>
-            <div>
-              <Toaster />
-              <Sonner />
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/servicos" element={<Services />} />
-                <Route path="/serviços" element={<Services />} />  {/* Alternative route with accent */}
-                <Route path="/solucoes" element={<Services />} />  {/* Alternative route without accent */}
-                <Route path="/soluções" element={<Services />} />  {/* Alternative route with accent */}
-                <Route path="/portfolio" element={<Portfolio />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:id" element={<BlogPost />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/payment-confirmation" element={<PaymentConfirmation />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/parceiros" element={<BecomePartner />} />
-                <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
+            <Toaster />
+            <Sonner />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/servicos" element={<Services />} />
+              <Route path="/serviços" element={<Services />} />  {/* Alternative route with accent */}
+              <Route path="/solucoes" element={<Services />} />  {/* Alternative route without accent */}
+              <Route path="/soluções" element={<Services />} />  {/* Alternative route with accent */}
+              <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:id" element={<BlogPost />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/payment-confirmation" element={<PaymentConfirmation />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/parceiros" element={<BecomePartner />} />
+              <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </BrowserRouter>
         </CartProvider>
       </TooltipProvider>
