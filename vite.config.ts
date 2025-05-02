@@ -39,12 +39,12 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Remove react from manualChunks since it's now external
-          'ui': ['@/components/ui/index.ts'],
-        },
-      },
-      external: ['react', 'react-dom']
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor';  // All node_modules (including React) go in the vendor chunk
+          }
+        }
+      }
     },
   },
   optimizeDeps: {
