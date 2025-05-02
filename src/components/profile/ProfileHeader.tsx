@@ -4,17 +4,18 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Order } from '@/types/orders';
 
+// Log fora do componente para garantir que o arquivo está sendo carregado
+console.log("ProfileHeader carregado!");
+
 type ProfileHeaderProps = {
   user: any;
   orders: Order[];
 };
 
-// Log fora do componente para garantir que o arquivo está sendo carregado
-console.log("ProfileHeader carregado!");
-
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, orders }) => {
   // Log para descobrir os campos do usuário
   console.log("Usuário no perfil:", user);
+  console.log("Role do usuário:", user?.role);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
@@ -37,9 +38,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, orders }) =>
               <p className="font-medium">{user.user_metadata?.phone || 'Não informado'}</p>
             </div>
             {/* Botão "Seja um Parceiro" */}
-            {!user.isPartner && (
+            {user.role !== 'partner' && (
               <Link to="/parceiros">
-                <Button variant="outline">Seja um Parceiro</Button>
+                <Button variant="outline" className="w-full">Seja um Parceiro</Button>
               </Link>
             )}
           </div>
@@ -81,5 +82,4 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, orders }) =>
   );
 };
 
-// Adicione esta linha no final do arquivo
 export default ProfileHeader;
