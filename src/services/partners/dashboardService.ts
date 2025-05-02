@@ -40,11 +40,11 @@ export async function getPartnerStats(partnerId: string): Promise<PartnerStats> 
 
     const totalCouponUses = usesData?.length || 0;
     const totalOrders = new Set(usesData?.map(use => use.order_id)).size;
-    const totalCommission = usesData?.reduce((sum, use) => sum + parseFloat(use.commission_amount), 0) || 0;
+    const totalCommission = usesData?.reduce((sum, use) => sum + (parseFloat(use.commission_amount) || 0), 0) || 0;
     const paidCommission = usesData?.filter(use => use.status === 'pago')
-      .reduce((sum, use) => sum + parseFloat(use.commission_amount), 0) || 0;
+      .reduce((sum, use) => sum + (parseFloat(use.commission_amount) || 0), 0) || 0;
     const pendingCommission = usesData?.filter(use => use.status === 'pendente')
-      .reduce((sum, use) => sum + parseFloat(use.commission_amount), 0) || 0;
+      .reduce((sum, use) => sum + (parseFloat(use.commission_amount) || 0), 0) || 0;
 
     return {
       totalCommission,
@@ -102,7 +102,7 @@ export async function getMonthlyCommissionStats(partnerId: string): Promise<{
         monthlyStats[monthYear] = 0;
       }
       
-      monthlyStats[monthYear] += parseFloat(use.commission_amount);
+      monthlyStats[monthYear] += parseFloat(use.commission_amount) || 0;
     });
 
     // Converter para o formato de array para retorno

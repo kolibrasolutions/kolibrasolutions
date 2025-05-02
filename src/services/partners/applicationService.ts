@@ -16,10 +16,21 @@ export type PartnerApplication = {
 
 export async function submitPartnerApplication(notes: string): Promise<boolean> {
   try {
+    // Get current user session
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData.session?.user?.id;
+    
+    if (!userId) {
+      toast("Erro", {
+        description: "Você precisa estar logado para enviar uma solicitação de parceria."
+      });
+      return false;
+    }
+
     const { data: existingApplication, error: checkError } = await supabase
       .from("partner_applications")
       .select("*")
-      .eq("user_id", supabase.auth.getSession().then(res => res.data.session?.user?.id))
+      .eq("user_id", userId)
       .eq("status", "pendente")
       .maybeSingle();
 
@@ -36,7 +47,8 @@ export async function submitPartnerApplication(notes: string): Promise<boolean> 
     }
 
     const { error } = await supabase.from("partner_applications").insert({
-      notes,
+      user_id: userId,
+      notes
     });
 
     if (error) {
@@ -52,8 +64,7 @@ export async function submitPartnerApplication(notes: string): Promise<boolean> 
   } catch (error) {
     console.error("Erro ao enviar solicitação de parceria:", error);
     toast("Erro", {
-      description: "Não foi possível enviar sua solicitação. Por favor, tente novamente.",
-      variant: "destructive"
+      description: "Não foi possível enviar sua solicitação. Por favor, tente novamente."
     });
     return false;
   }
@@ -61,9 +72,18 @@ export async function submitPartnerApplication(notes: string): Promise<boolean> 
 
 export async function getUserApplications(): Promise<PartnerApplication[]> {
   try {
+    // Get current user session
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData.session?.user?.id;
+    
+    if (!userId) {
+      return [];
+    }
+
     const { data, error } = await supabase
       .from("partner_applications")
       .select("*")
+      .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -102,12 +122,23 @@ export async function reviewApplication(
   reviewerNotes?: string
 ): Promise<boolean> {
   try {
+    // Get current user session
+    const { data: sessionData } = await supabase.auth.getSession();
+    const reviewerId = sessionData.session?.user?.id;
+    
+    if (!reviewerId) {
+      toast("Erro", {
+        description: "Você precisa estar logado para revisar uma solicitação."
+      });
+      return false;
+    }
+
     const { error } = await supabase
       .from("partner_applications")
       .update({
         status,
         review_date: new Date().toISOString(),
-        reviewer_id: supabase.auth.getSession().then(res => res.data.session?.user?.id),
+        reviewer_id: reviewerId,
         notes: reviewerNotes ? reviewerNotes : undefined
       })
       .eq("id", id);
@@ -142,8 +173,7 @@ export async function reviewApplication(
   } catch (error) {
     console.error(`Erro ao ${status === 'aprovado' ? 'aprovar' : 'rejeitar'} solicitação:`, error);
     toast("Erro", {
-      description: `Não foi possível ${status === 'aprovado' ? 'aprovar' : 'rejeitar'} a solicitação.`,
-      variant: "destructive"
+      description: `Não foi possível ${status === 'aprovado' ? 'aprovar' : 'rejeitar'} a solicitação.`
     });
     return false;
   }

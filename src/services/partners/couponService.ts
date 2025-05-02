@@ -24,69 +24,23 @@ export type CouponUse = {
   updated_at: string;
 };
 
-export async function createCoupon(
-  partnerId: string,
-  code: string,
-  discountPercent: number = 10,
-  commissionPercent: number = 10
-): Promise<string | null> {
+/**
+ * Obtém o cupom do parceiro atual
+ */
+export async function getPartnerCoupon(): Promise<PartnerCoupon | null> {
   try {
-    // Verificar se já existe um cupom com esse código
-    const { data: existingCoupon, error: checkError } = await supabase
-      .from("partner_coupons")
-      .select("*")
-      .eq("code", code)
-      .maybeSingle();
-
-    if (checkError) {
-      console.error("Erro ao verificar código existente:", checkError);
-      throw checkError;
-    }
-
-    if (existingCoupon) {
-      toast("Código já existe", {
-        description: "Este código de cupom já está em uso. Por favor, escolha outro."
-      });
+    // Get current user session
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData.session?.user?.id;
+    
+    if (!userId) {
       return null;
     }
 
-    // Criar o novo cupom
-    const { data, error } = await supabase
-      .from("partner_coupons")
-      .insert({
-        partner_id: partnerId,
-        code,
-        discount_percent: discountPercent,
-        commission_percent: commissionPercent
-      })
-      .select()
-      .single();
-
-    if (error) {
-      throw error;
-    }
-
-    toast("Cupom criado", {
-      description: "O cupom de parceiro foi criado com sucesso."
-    });
-    
-    return data.id;
-  } catch (error) {
-    console.error("Erro ao criar cupom:", error);
-    toast("Erro", {
-      description: "Não foi possível criar o cupom de parceiro.",
-      variant: "destructive"
-    });
-    return null;
-  }
-}
-
-export async function getPartnerCoupon(partnerId: string): Promise<PartnerCoupon | null> {
-  try {
     const { data, error } = await supabase
       .from("partner_coupons")
       .select("*")
-      .eq("partner_id", partnerId)
+      .eq("partner_id", userId)
       .maybeSingle();
 
     if (error) {
@@ -95,92 +49,97 @@ export async function getPartnerCoupon(partnerId: string): Promise<PartnerCoupon
 
     return data;
   } catch (error) {
-    console.error("Erro ao buscar cupom de parceiro:", error);
+    console.error("Erro ao buscar cupom do parceiro:", error);
     return null;
   }
 }
 
-export async function toggleCouponStatus(couponId: string, isActive: boolean): Promise<boolean> {
+/**
+ * Cria um novo cupom para um parceiro
+ */
+export async function createCoupon(
+  partnerId: string, 
+  code: string, 
+  discountPercent: number = 10, 
+  commissionPercent: number = 10
+): Promise<boolean> {
   try {
-    const { error } = await supabase
-      .from("partner_coupons")
-      .update({ is_active: isActive })
-      .eq("id", couponId);
+    const { error } = await supabase.from("partner_coupons").insert({
+      partner_id: partnerId,
+      code,
+      discount_percent: discountPercent,
+      commission_percent: commissionPercent
+    });
 
     if (error) {
       throw error;
     }
 
-    toast(isActive ? "Cupom ativado" : "Cupom desativado", {
-      description: isActive 
-        ? "O cupom está ativo e pode ser utilizado." 
-        : "O cupom foi desativado e não pode mais ser utilizado."
+    toast("Cupom criado", {
+      description: `O cupom ${code} foi criado com sucesso para o parceiro.`
     });
     
     return true;
   } catch (error) {
-    console.error("Erro ao atualizar status do cupom:", error);
+    console.error("Erro ao criar cupom:", error);
     toast("Erro", {
-      description: "Não foi possível atualizar o status do cupom.",
-      variant: "destructive"
+      description: "Não foi possível criar o cupom para o parceiro."
     });
     return false;
   }
 }
 
-export async function validateCoupon(code: string): Promise<{
-  valid: boolean;
-  couponId?: string;
-  discountPercent?: number;
-}> {
+/**
+ * Atualiza um cupom existente
+ */
+export async function updateCoupon(
+  id: string,
+  isActive: boolean,
+  discountPercent?: number,
+  commissionPercent?: number
+): Promise<boolean> {
   try {
-    const { data, error } = await supabase.rpc('is_valid_coupon', {
-      coupon_code: code
-    });
+    const updates: any = { is_active: isActive };
+    
+    if (discountPercent !== undefined) {
+      updates.discount_percent = discountPercent;
+    }
+    
+    if (commissionPercent !== undefined) {
+      updates.commission_percent = commissionPercent;
+    }
+    
+    const { error } = await supabase
+      .from("partner_coupons")
+      .update(updates)
+      .eq("id", id);
 
     if (error) {
       throw error;
     }
 
-    if (!data) {
-      return { valid: false };
-    }
-
-    // Buscar informações adicionais do cupom
-    const { data: couponData, error: couponError } = await supabase
-      .from("partner_coupons")
-      .select("discount_percent")
-      .eq("id", data)
-      .single();
-
-    if (couponError) {
-      throw couponError;
-    }
-
-    return { 
-      valid: true, 
-      couponId: data,
-      discountPercent: couponData.discount_percent
-    };
+    toast("Cupom atualizado", {
+      description: "O cupom foi atualizado com sucesso."
+    });
+    
+    return true;
   } catch (error) {
-    console.error("Erro ao validar cupom:", error);
-    return { valid: false };
+    console.error("Erro ao atualizar cupom:", error);
+    toast("Erro", {
+      description: "Não foi possível atualizar o cupom."
+    });
+    return false;
   }
 }
 
+/**
+ * Obtém os usos de um cupom
+ */
 export async function getCouponUses(couponId: string): Promise<CouponUse[]> {
   try {
     const { data, error } = await supabase
       .from("coupon_uses")
-      .select(`
-        *,
-        orders (
-          id,
-          total_price,
-          status,
-          created_at
-        )
-      `)
+      .select("*")
       .eq("coupon_id", couponId)
       .order("created_at", { ascending: false });
 
@@ -195,34 +154,39 @@ export async function getCouponUses(couponId: string): Promise<CouponUse[]> {
   }
 }
 
+/**
+ * Atualiza o status de um uso de cupom
+ */
 export async function updateCouponUseStatus(
-  useId: string, 
-  status: 'pendente' | 'pago' | 'cancelado',
+  id: string,
+  status: "pendente" | "pago" | "cancelado",
   paymentDate?: string
 ): Promise<boolean> {
   try {
+    const updates: any = { status };
+    
+    if (paymentDate) {
+      updates.payment_date = paymentDate;
+    }
+    
     const { error } = await supabase
       .from("coupon_uses")
-      .update({
-        status,
-        payment_date: status === 'pago' ? paymentDate || new Date().toISOString() : null,
-      })
-      .eq("id", useId);
+      .update(updates)
+      .eq("id", id);
 
     if (error) {
       throw error;
     }
 
     toast("Status atualizado", {
-      description: `O status da comissão foi atualizado para ${status}.`
+      description: `O status da comissão foi alterado para ${status}.`
     });
     
     return true;
   } catch (error) {
     console.error("Erro ao atualizar status do uso de cupom:", error);
     toast("Erro", {
-      description: "Não foi possível atualizar o status da comissão.",
-      variant: "destructive"
+      description: "Não foi possível atualizar o status da comissão."
     });
     return false;
   }
