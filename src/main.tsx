@@ -12,7 +12,7 @@ if (!rootElement) {
   throw new Error('Root element not found');
 }
 
-// Create root
+// Create root with ReactDOM.createRoot
 const root = ReactDOM.createRoot(rootElement);
 
 // Render application
