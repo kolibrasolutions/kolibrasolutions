@@ -28,12 +28,12 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Ensure React and ReactDOM are loaded from a single location
       "react": path.resolve(__dirname, "./node_modules/react"),
       "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
-    // Garantindo que apenas uma instância de React seja usada
+    // Explicitly dedupe React to prevent multiple instances
     dedupe: ['react', 'react-dom'],
-    // Add extensions to improve module resolution
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
   },
   build: {
@@ -41,7 +41,7 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks: {
           'vendor': ['react', 'react-dom'],
-          'ui': ['@/components/ui/index.ts'], // Use the index file instead of the directory
+          'ui': ['@/components/ui/index.ts'],
         },
       },
     },

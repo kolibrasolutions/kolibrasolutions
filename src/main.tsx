@@ -11,7 +11,7 @@ if (!rootElement) {
   throw new Error('Root element not found');
 }
 
-// Create root and render with StrictMode restaurado e BrowserRouter movido para cá
+// Create root and render with StrictMode
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter>
