@@ -77,3 +77,6 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, orders }) =>
     </div>
   );
 };
+
+// Adicione esta linha no final do arquivo
+export default ProfileHeader;
