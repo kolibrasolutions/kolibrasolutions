@@ -50,3 +50,65 @@ export async function toggleCouponStatus(couponId: string, isActive: boolean): P
     return false;
   }
 }
+
+export async function createCoupon(partnerId: string, discountPercent: number, commissionPercent: number) {
+  try {
+    // Generate a unique coupon code (partner ID prefix + random characters)
+    const prefix = partnerId.substring(0, 4).toUpperCase();
+    const randomChars = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const code = `${prefix}-${randomChars}`;
+    
+    const { data, error } = await supabase
+      .from("partner_coupons")
+      .insert({
+        partner_id: partnerId,
+        code: code,
+        discount_percent: discountPercent,
+        commission_percent: commissionPercent,
+        is_active: true
+      })
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error creating coupon:", error);
+    return null;
+  }
+}
+
+export async function getCouponUses(couponId: string) {
+  try {
+    const { data, error } = await supabase
+      .from("partner_coupon_uses")
+      .select("*")
+      .eq("coupon_id", couponId)
+      .order("created_at", { ascending: false });
+    
+    if (error) {
+      console.error("Error fetching coupon uses:", error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error("Exception fetching coupon uses:", error);
+    return [];
+  }
+}
+
+export async function updateCouponUseStatus(couponUseId: string, status: string) {
+  try {
+    const { error } = await supabase
+      .from("partner_coupon_uses")
+      .update({ status: status })
+      .eq("id", couponUseId);
+    
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error("Error updating coupon use status:", error);
+    return false;
+  }
+}

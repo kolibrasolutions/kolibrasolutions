@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -32,33 +33,35 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <CartProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/servicos" element={<Services />} />
-            <Route path="/serviços" element={<Services />} />  {/* Alternative route with accent */}
-            <Route path="/solucoes" element={<Services />} />  {/* Alternative route without accent */}
-            <Route path="/soluções" element={<Services />} />  {/* Alternative route with accent */}
-            <Route path="/portfolio" element={<Portfolio />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:id" element={<BlogPost />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/payment-confirmation" element={<PaymentConfirmation />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/parceiros" element={<BecomePartner />} />
-            <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </CartProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <CartProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/servicos" element={<Services />} />
+              <Route path="/serviços" element={<Services />} />  {/* Alternative route with accent */}
+              <Route path="/solucoes" element={<Services />} />  {/* Alternative route without accent */}
+              <Route path="/soluções" element={<Services />} />  {/* Alternative route with accent */}
+              <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:id" element={<BlogPost />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/payment-confirmation" element={<PaymentConfirmation />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/parceiros" element={<BecomePartner />} />
+              <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </CartProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </React.StrictMode>
 );
 
 export default App;

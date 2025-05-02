@@ -15,6 +15,8 @@ export type CartItem = {
   id: number;
   service: Service;
   quantity: number;
-  name?: string; // Added for compatibility with existing code
+  title?: string; // Added for compatibility with the service title
+  description?: string; // Added for compatibility
   price?: number; // Added for compatibility with existing code
+  name?: string; // Added for compatibility with existing code
 };
