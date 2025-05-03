@@ -73,13 +73,13 @@ export const getPartnerCoupons = async (): Promise<PartnerCoupon[]> => {
       let partnerData = coupon.partner;
       
       // Garante que partner seja um objeto e não um array
-      if (Array.isArray(partnerData)) {
-        partnerData = partnerData[0] || null;
+      if (Array.isArray(partnerData) && partnerData.length > 0) {
+        partnerData = partnerData[0];
       }
       
       return {
         ...coupon,
-        partner: partnerData
+        partner: partnerData || null
       };
     });
   } catch (error) {
@@ -121,11 +121,11 @@ export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
         let partnerData = commission.coupon.partner;
         
         // Garante que partner seja um objeto e não um array
-        if (Array.isArray(partnerData)) {
-          partnerData = partnerData[0] || null;
+        if (Array.isArray(partnerData) && partnerData.length > 0) {
+          partnerData = partnerData[0];
         }
         
-        commission.coupon.partner = partnerData;
+        commission.coupon.partner = partnerData || null;
       }
       
       return commission;
