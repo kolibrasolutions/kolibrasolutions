@@ -74,7 +74,7 @@ export const getUserApplications = async (): Promise<PartnerApplication[]> => {
       return [];
     }
 
-    return data || [];
+    return data as PartnerApplication[] || [];
   } catch (error) {
     console.error('Erro ao buscar solicitações:', error);
     return [];
