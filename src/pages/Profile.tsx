@@ -77,13 +77,9 @@ const Profile = () => {
           <h1 className="text-3xl font-bold">Minha Conta</h1>
           
           <div className="flex gap-3">
-            {userRole === 'partner' ? (
-              <PartnerDashboardButton />
-            ) : !isAdmin && userRole !== 'partner' ? (
-              <BecomePartnerButton />
-            ) : null}
-            
-            {isAdmin && (
+            {!roleLoading && userRole === 'partner' && <PartnerDashboardButton />}
+            {!roleLoading && !isAdmin && <BecomePartnerButton />}
+            {!roleLoading && isAdmin && (
               <Button 
                 onClick={() => navigate('/admin')}
                 variant="outline"
