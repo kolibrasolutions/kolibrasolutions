@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
+import { PartnerCoupon, CouponUse } from "@/types/partners";
 
 export const getPartnerApplications = async () => {
   try {
@@ -50,7 +51,7 @@ export const getPartners = async () => {
   }
 };
 
-export const getPartnerCoupons = async () => {
+export const getPartnerCoupons = async (): Promise<PartnerCoupon[]> => {
   try {
     const { data, error } = await supabase
       .from("partner_coupons")
@@ -67,7 +68,20 @@ export const getPartnerCoupons = async () => {
       throw error;
     }
 
-    return data || [];
+    // Normaliza os dados para garantir que o `partner` seja um objeto e não um array
+    return (data || []).map(coupon => {
+      let partnerData = coupon.partner;
+      
+      // Garante que partner seja um objeto e não um array
+      if (Array.isArray(partnerData)) {
+        partnerData = partnerData[0] || null;
+      }
+      
+      return {
+        ...coupon,
+        partner: partnerData
+      };
+    });
   } catch (error) {
     console.error("Erro ao buscar cupons de parceiros:", error);
     toast.error("Erro", {
@@ -77,14 +91,14 @@ export const getPartnerCoupons = async () => {
   }
 };
 
-export const getPartnerCommissions = async () => {
+export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
   try {
     const { data, error } = await supabase
       .from("coupon_uses")
       .select(`
         *,
         coupon:partner_coupons(
-          code,
+          *,
           partner:users(
             email,
             full_name
@@ -101,7 +115,21 @@ export const getPartnerCommissions = async () => {
       throw error;
     }
 
-    return data || [];
+    // Normaliza os dados para garantir que o `partner` dentro de `coupon` seja um objeto e não um array
+    return (data || []).map(commission => {
+      if (commission.coupon && commission.coupon.partner) {
+        let partnerData = commission.coupon.partner;
+        
+        // Garante que partner seja um objeto e não um array
+        if (Array.isArray(partnerData)) {
+          partnerData = partnerData[0] || null;
+        }
+        
+        commission.coupon.partner = partnerData;
+      }
+      
+      return commission;
+    });
   } catch (error) {
     console.error("Erro ao buscar comissões de parceiros:", error);
     toast.error("Erro", {
