@@ -175,9 +175,11 @@ const Admin = () => {
             <PortfolioProjectsList />
           </TabsContent>
 
-          <TabsContent value="partners" className="mt-0">
-            <PartnersManagement />
-          </TabsContent>
+          {isAdmin && (
+            <TabsContent value="partners" className="mt-0">
+              <PartnersManagement />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </Layout>
