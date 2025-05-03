@@ -22,6 +22,10 @@ export type PartnerCoupon = {
   is_active: boolean;
   created_at: string | null;
   updated_at: string | null;
+  partner?: {
+    email: string;
+    full_name: string | null;
+  };
 };
 
 export type CouponUse = {
@@ -33,6 +37,7 @@ export type CouponUse = {
   payment_date: string | null;
   created_at: string | null;
   updated_at: string | null;
+  coupon?: PartnerCoupon;
 };
 
 export type PartnerStats = {
