@@ -196,6 +196,7 @@ export type Database = {
           id: string
           notes: string | null
           review_date: string | null
+          review_notes: string | null
           reviewer_id: string | null
           status: string
           updated_at: string | null
@@ -207,6 +208,7 @@ export type Database = {
           id?: string
           notes?: string | null
           review_date?: string | null
+          review_notes?: string | null
           reviewer_id?: string | null
           status?: string
           updated_at?: string | null
@@ -218,6 +220,7 @@ export type Database = {
           id?: string
           notes?: string | null
           review_date?: string | null
+          review_notes?: string | null
           reviewer_id?: string | null
           status?: string
           updated_at?: string | null
@@ -450,6 +453,7 @@ export type Database = {
           id: string
           notes: string | null
           review_date: string | null
+          review_notes: string | null
           reviewer_id: string | null
           status: string
           updated_at: string | null

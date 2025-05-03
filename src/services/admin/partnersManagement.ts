@@ -141,7 +141,10 @@ export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
         }
         
         // Atualiza o coupon com os dados normalizados
-        result.coupon = couponData as PartnerCoupon;
+        result.coupon = {
+          ...couponData,
+          partner: couponData.partner
+        } as PartnerCoupon;
       }
       
       return result as CouponUse;
