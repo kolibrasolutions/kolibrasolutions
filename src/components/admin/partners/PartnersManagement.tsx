@@ -62,4 +62,4 @@ const PartnersManagement = () => {
   );
 };
 
-export default PartnersManagement;
+export { PartnersManagement };

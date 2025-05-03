@@ -7,11 +7,18 @@ import { toast } from '@/components/ui/sonner';
 import { ProfileContent } from '@/components/profile/ProfileContent';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrders } from '@/hooks/useOrders';
-import { LayoutDashboard, HandshakeIcon } from 'lucide-react';
+import { LayoutDashboard, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { checkUserRole } from '@/services/partners/partnerService';
+import { User } from '@supabase/supabase-js';
+
+interface ExtendedUser extends User {
+  role?: string;
+}
 
 const Profile = () => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<ExtendedUser | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
 
@@ -38,10 +45,12 @@ const Profile = () => {
         console.log("Dados completos do usuário:", userData);
         // Combinar os dados da sessão com os dados do banco
         setUser({ ...session.user, ...userData });
+        
+        // Verificar a role do usuário
+        const role = await checkUserRole(session.user.id);
+        setUserRole(role);
+        console.log("Role do usuário verificada:", role);
       }
-      
-      console.log("Sessão do usuário:", session.user);
-      console.log("Role do usuário:", userData?.role);
     };
     
     checkAuth();
@@ -62,11 +71,6 @@ const Profile = () => {
     );
   }
 
-  // Log para debug
-  console.log("Renderizando Profile com user:", user);
-  console.log("User role:", user.role);
-  console.log("Deve mostrar botão de parceiro:", user.role !== 'partner');
-
   return (
     <Layout>
       <div className="container mx-auto py-8 px-4">
@@ -74,7 +78,7 @@ const Profile = () => {
           <h1 className="text-3xl font-bold">Minha Conta</h1>
           
           <div className="flex gap-3">
-            {user.role === 'partner' ? (
+            {userRole === 'partner' ? (
               <Button 
                 asChild
                 variant="outline"
@@ -89,24 +93,18 @@ const Profile = () => {
                   Painel de Parceiro
                 </Link>
               </Button>
-            ) : (
+            ) : userRole !== null && userRole !== 'admin' ? (
               <Button 
                 asChild
                 variant="outline"
                 className="flex items-center gap-2"
               >
                 <Link to="/parceiros">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 27c-2.7 0-5.2-1-7.1-2.9s-2.9-4.4-2.9-7.1 1-5.2 2.9-7.1S11.3 7 14 7s5.2 1 7.1 2.9 2.9 4.4 2.9 7.1-1 5.2-2.9 7.1c-1.9 1.9-4.4 2.9-7.1 2.9zm11.5-3.5"></path>
-                    <path d="M22 8l1-1 1 1v4h-4V8h2"></path>
-                    <path d="M10 17v-4a2 2 0 0 1 2-2v0a2 2 0 0 1 2 2v4"></path>
-                    <path d="M14 17v-1a2 2 0 1 1 4 0v1"></path>
-                    <path d="M10 15h8"></path>
-                  </svg>
+                  <Users className="h-4 w-4" />
                   Seja um Parceiro
                 </Link>
               </Button>
-            )}
+            ) : null}
             
             {isAdmin && (
               <Button 

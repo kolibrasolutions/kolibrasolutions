@@ -1,101 +1,72 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
 
-export type PartnerApplication = {
+export interface PartnerApplication {
   id: string;
   user_id: string;
-  status: string;
+  status: 'pendente' | 'aprovado' | 'rejeitado';
+  notes: string;
+  review_notes?: string;
   application_date: string;
-  review_date: string | null;
-  reviewer_id: string | null;
-  notes: string | null;
+  review_date?: string;
   created_at: string;
   updated_at: string;
-};
-
-export async function submitPartnerApplication(notes: string): Promise<boolean> {
-  try {
-    // Get current user session
-    const { data: sessionData } = await supabase.auth.getSession();
-    const userId = sessionData.session?.user?.id;
-    
-    if (!userId) {
-      toast("Erro", {
-        description: "Você precisa estar logado para enviar uma solicitação de parceria."
-      });
-      return false;
-    }
-
-    const { data: existingApplication, error: checkError } = await supabase
-      .from("partner_applications")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("status", "pendente")
-      .maybeSingle();
-
-    if (checkError) {
-      console.error("Erro ao verificar solicitações existentes:", checkError);
-      throw checkError;
-    }
-
-    if (existingApplication) {
-      toast("Solicitação já enviada", {
-        description: "Você já possui uma solicitação de parceria em análise."
-      });
-      return false;
-    }
-
-    const { error } = await supabase.from("partner_applications").insert({
-      user_id: userId,
-      notes
-    });
-
-    if (error) {
-      console.error("Erro ao enviar solicitação:", error);
-      throw error;
-    }
-
-    toast("Solicitação enviada", {
-      description: "Sua solicitação de parceria foi enviada com sucesso e será analisada."
-    });
-    
-    return true;
-  } catch (error) {
-    console.error("Erro ao enviar solicitação de parceria:", error);
-    toast("Erro", {
-      description: "Não foi possível enviar sua solicitação. Por favor, tente novamente."
-    });
-    return false;
-  }
 }
 
-export async function getUserApplications(): Promise<PartnerApplication[]> {
+export const submitPartnerApplication = async (notes: string): Promise<boolean> => {
   try {
-    // Get current user session
-    const { data: sessionData } = await supabase.auth.getSession();
-    const userId = sessionData.session?.user?.id;
+    const { data: { session } } = await supabase.auth.getSession();
     
-    if (!userId) {
+    if (!session) {
+      console.error('Nenhuma sessão encontrada');
+      return false;
+    }
+
+    const { error } = await supabase
+      .from('partner_applications')
+      .insert({
+        user_id: session.user.id,
+        notes,
+        status: 'pendente'
+      });
+
+    if (error) {
+      console.error('Erro ao enviar solicitação:', error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Erro ao enviar solicitação:', error);
+    return false;
+  }
+};
+
+export const getUserApplications = async (): Promise<PartnerApplication[]> => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      console.error('Nenhuma sessão encontrada');
       return [];
     }
 
     const { data, error } = await supabase
-      .from("partner_applications")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
+      .from('partner_applications')
+      .select('*')
+      .order('application_date', { ascending: false });
 
     if (error) {
-      throw error;
+      console.error('Erro ao buscar solicitações:', error);
+      return [];
     }
 
     return data || [];
   } catch (error) {
-    console.error("Erro ao buscar solicitações:", error);
+    console.error('Erro ao buscar solicitações:', error);
     return [];
   }
-}
+};
 
 export async function getApplicationById(id: string): Promise<PartnerApplication | null> {
   try {
@@ -116,35 +87,24 @@ export async function getApplicationById(id: string): Promise<PartnerApplication
   }
 }
 
-export async function reviewApplication(
-  id: string, 
-  status: 'aprovado' | 'rejeitado', 
-  reviewerNotes?: string
-): Promise<boolean> {
+export const reviewApplication = async (
+  applicationId: string,
+  status: 'aprovado' | 'rejeitado',
+  notes: string
+): Promise<boolean> => {
   try {
-    // Get current user session
-    const { data: sessionData } = await supabase.auth.getSession();
-    const reviewerId = sessionData.session?.user?.id;
-    
-    if (!reviewerId) {
-      toast("Erro", {
-        description: "Você precisa estar logado para revisar uma solicitação."
-      });
-      return false;
-    }
-
     const { error } = await supabase
-      .from("partner_applications")
+      .from('partner_applications')
       .update({
         status,
-        review_date: new Date().toISOString(),
-        reviewer_id: reviewerId,
-        notes: reviewerNotes ? reviewerNotes : undefined
+        review_notes: notes,
+        review_date: new Date().toISOString()
       })
-      .eq("id", id);
+      .eq('id', applicationId);
 
     if (error) {
-      throw error;
+      console.error('Erro ao revisar solicitação:', error);
+      return false;
     }
 
     if (status === 'aprovado') {
@@ -152,7 +112,7 @@ export async function reviewApplication(
       const { data: application } = await supabase
         .from("partner_applications")
         .select("user_id")
-        .eq("id", id)
+        .eq("id", applicationId)
         .single();
         
       if (application) {
@@ -171,10 +131,10 @@ export async function reviewApplication(
     
     return true;
   } catch (error) {
-    console.error(`Erro ao ${status === 'aprovado' ? 'aprovar' : 'rejeitar'} solicitação:`, error);
+    console.error('Erro ao revisar solicitação:', error);
     toast("Erro", {
       description: `Não foi possível ${status === 'aprovado' ? 'aprovar' : 'rejeitar'} a solicitação.`
     });
     return false;
   }
-}
+};

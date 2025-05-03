@@ -1,6 +1,16 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
+
+export interface PartnerCoupon {
+  id: string;
+  partner_id: string;
+  code: string;
+  discount_percent: number;
+  commission_percent: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 export async function getPartnerCoupon(partnerId: string) {
   try {
@@ -51,64 +61,64 @@ export async function toggleCouponStatus(couponId: string, isActive: boolean): P
   }
 }
 
-export async function createCoupon(partnerId: string, discountPercent: number, commissionPercent: number) {
+export const createCoupon = async (
+  partnerId: string,
+  discountPercent: number,
+  commissionPercent: number
+): Promise<PartnerCoupon | null> => {
   try {
-    // Generate a unique coupon code (partner ID prefix + random characters)
-    const prefix = partnerId.substring(0, 4).toUpperCase();
-    const randomChars = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const code = `${prefix}-${randomChars}`;
-    
+    // Gerar código único do cupom
+    const code = `PARTNER_${partnerId}_${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
     const { data, error } = await supabase
-      .from("partner_coupons")
+      .from('partner_coupons')
       .insert({
         partner_id: partnerId,
-        code: code,
+        code,
         discount_percent: discountPercent,
         commission_percent: commissionPercent,
         is_active: true
       })
       .select()
       .single();
-    
-    if (error) throw error;
+
+    if (error) {
+      console.error('Erro ao criar cupom:', error);
+      return null;
+    }
+
     return data;
   } catch (error) {
-    console.error("Error creating coupon:", error);
+    console.error('Erro ao criar cupom:', error);
     return null;
   }
-}
+};
 
-export async function getCouponUses(couponId: string) {
-  try {
-    const { data, error } = await supabase
-      .from("coupon_uses")
-      .select("*")
-      .eq("coupon_id", couponId)
-      .order("created_at", { ascending: false });
-    
-    if (error) {
-      console.error("Error fetching coupon uses:", error);
-      return [];
-    }
-    
-    return data || [];
-  } catch (error) {
-    console.error("Exception fetching coupon uses:", error);
+export const getCouponUses = async (couponId: string) => {
+  const { data, error } = await supabase
+    .from('coupon_uses')
+    .select('*')
+    .eq('coupon_id', couponId)
+    .order('used_at', { ascending: false });
+
+  if (error) {
+    console.error('Erro ao buscar usos do cupom:', error);
     return [];
   }
-}
 
-export async function updateCouponUseStatus(couponUseId: string, status: string) {
-  try {
-    const { error } = await supabase
-      .from("coupon_uses")
-      .update({ status: status })
-      .eq("id", couponUseId);
-    
-    if (error) throw error;
-    return true;
-  } catch (error) {
-    console.error("Error updating coupon use status:", error);
+  return data;
+};
+
+export const updateCouponUseStatus = async (useId: string, status: string) => {
+  const { error } = await supabase
+    .from('coupon_uses')
+    .update({ commission_status: status })
+    .eq('id', useId);
+
+  if (error) {
+    console.error('Erro ao atualizar status do uso do cupom:', error);
     return false;
   }
-}
+
+  return true;
+};

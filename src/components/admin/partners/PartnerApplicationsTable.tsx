@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getUserApplications, reviewApplication } from '@/services/partners/applicationService';
+import { getUserApplications, reviewApplication, PartnerApplication } from '@/services/partners/applicationService';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { createCoupon } from '@/services/partners/couponService';
 import { ApplicationReviewDialog } from './ApplicationReviewDialog';
 import { ptBR } from 'date-fns/locale';
+import { toast } from '@/components/ui/sonner';
 
 export const PartnerApplicationsTable = () => {
   const queryClient = useQueryClient();
-  const [selectedApplication, setSelectedApplication] = useState<any>(null);
+  const [selectedApplication, setSelectedApplication] = useState<PartnerApplication | null>(null);
 
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ['partner-applications'],
     queryFn: getUserApplications,
   });
 
-  const handleApprove = async (application: any) => {
+  const handleApprove = async (application: PartnerApplication) => {
     // Primeiro aprova a solicitação
     const success = await reviewApplication(application.id, 'aprovado', '');
     
@@ -27,14 +28,21 @@ export const PartnerApplicationsTable = () => {
       
       // Atualiza a lista de solicitações
       queryClient.invalidateQueries({ queryKey: ['partner-applications'] });
+      
+      toast("Sucesso", {
+        description: "Solicitação aprovada e cupom criado com sucesso."
+      });
     }
   };
 
-  const handleReject = async (application: any, notes?: string) => {
+  const handleReject = async (application: PartnerApplication, notes?: string) => {
     const success = await reviewApplication(application.id, 'rejeitado', notes || '');
     
     if (success) {
       queryClient.invalidateQueries({ queryKey: ['partner-applications'] });
+      toast("Sucesso", {
+        description: "Solicitação rejeitada com sucesso."
+      });
     }
   };
 
@@ -51,28 +59,12 @@ export const PartnerApplicationsTable = () => {
     }
   };
 
+  // Separar aplicações pendentes e revisadas
   const pendingApplications = applications.filter(app => app.status === 'pendente');
   const reviewedApplications = applications.filter(app => app.status !== 'pendente');
 
   return (
-    <div className="space-y-6">
-      <ApplicationReviewDialog 
-        application={selectedApplication} 
-        onClose={() => setSelectedApplication(null)} 
-        onReject={(notes) => {
-          if (selectedApplication) {
-            handleReject(selectedApplication, notes);
-          }
-          setSelectedApplication(null);
-        }}
-        onApprove={() => {
-          if (selectedApplication) {
-            handleApprove(selectedApplication);
-          }
-          setSelectedApplication(null);
-        }}
-      />
-
+    <div className="space-y-8">
       <div>
         <h2 className="text-xl font-bold mb-4">Solicitações Pendentes</h2>
         {isLoading ? (
@@ -178,6 +170,16 @@ export const PartnerApplicationsTable = () => {
           </div>
         )}
       </div>
+
+      <ApplicationReviewDialog
+        application={selectedApplication}
+        open={!!selectedApplication}
+        onOpenChange={(open) => {
+          if (!open) setSelectedApplication(null);
+        }}
+        onApprove={() => selectedApplication && handleApprove(selectedApplication)}
+        onReject={(notes) => selectedApplication && handleReject(selectedApplication, notes)}
+      />
     </div>
   );
 };
