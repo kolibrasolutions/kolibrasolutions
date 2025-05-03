@@ -15,10 +15,16 @@ interface PartnerCommissionsTableProps {
 export const PartnerCommissionsTable: React.FC<PartnerCommissionsTableProps> = ({ couponId }) => {
   const [selectedCommission, setSelectedCommission] = useState(null);
   
-  const { data: commissions = [], isLoading } = useQuery({
+  const { data: commissions = [], isLoading, refetch } = useQuery({
     queryKey: ['partner-commissions', couponId],
     queryFn: getPartnerCommissions,
   });
+
+  // Add a function to handle payment completion
+  const handlePaymentComplete = () => {
+    setSelectedCommission(null);
+    refetch(); // Refresh the list of commissions after payment
+  };
 
   // Filtra por couponId se fornecido
   const filteredCommissions = couponId 
@@ -79,7 +85,9 @@ export const PartnerCommissionsTable: React.FC<PartnerCommissionsTableProps> = (
                     : "N/A"}
                 </td>
                 <td className="py-3">{commission.coupon?.code || "N/A"}</td>
-                <td className="py-3">{commission.coupon?.partner?.email || "N/A"}</td>
+                <td className="py-3">
+                  {commission.coupon?.partner?.full_name || commission.coupon?.partner?.email || "N/A"}
+                </td>
                 <td className="py-3">
                   {Number(commission.commission_amount).toLocaleString('pt-BR', {
                     style: 'currency',
@@ -110,6 +118,7 @@ export const PartnerCommissionsTable: React.FC<PartnerCommissionsTableProps> = (
           onOpenChange={(open) => {
             if (!open) setSelectedCommission(null);
           }}
+          onPaymentComplete={handlePaymentComplete}
         />
       )}
     </>
