@@ -7,10 +7,10 @@ export type PartnerApplication = {
   status: string;
   application_date: string;
   review_date: string | null;
-  reviewer_id: string | null;
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
+  review_notes: string | null;
+  notes: string;
+  created_at: string | null;
+  updated_at: string | null;
 };
 
 export type PartnerCoupon = {
@@ -20,8 +20,8 @@ export type PartnerCoupon = {
   discount_percent: number;
   commission_percent: number;
   is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 };
 
 export type CouponUse = {
@@ -31,8 +31,8 @@ export type CouponUse = {
   commission_amount: number;
   status: string;
   payment_date: string | null;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 };
 
 export type PartnerStats = {

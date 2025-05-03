@@ -22,7 +22,7 @@ export const getPartnerApplications = async () => {
     return data || [];
   } catch (error) {
     console.error("Erro ao buscar solicitações de parceria:", error);
-    toast("Erro", {
+    toast.error("Erro", {
       description: "Não foi possível carregar as solicitações de parceria."
     });
     return [];
@@ -43,7 +43,7 @@ export const getPartners = async () => {
     return data || [];
   } catch (error) {
     console.error("Erro ao buscar parceiros:", error);
-    toast("Erro", {
+    toast.error("Erro", {
       description: "Não foi possível carregar a lista de parceiros."
     });
     return [];
@@ -70,7 +70,7 @@ export const getPartnerCoupons = async () => {
     return data || [];
   } catch (error) {
     console.error("Erro ao buscar cupons de parceiros:", error);
-    toast("Erro", {
+    toast.error("Erro", {
       description: "Não foi possível carregar os cupons de parceiros."
     });
     return [];
@@ -104,7 +104,7 @@ export const getPartnerCommissions = async () => {
     return data || [];
   } catch (error) {
     console.error("Erro ao buscar comissões de parceiros:", error);
-    toast("Erro", {
+    toast.error("Erro", {
       description: "Não foi possível carregar as comissões de parceiros."
     });
     return [];

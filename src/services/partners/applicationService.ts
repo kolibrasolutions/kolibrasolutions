@@ -6,41 +6,54 @@ export interface PartnerApplication {
   user_id: string;
   status: 'pendente' | 'aprovado' | 'rejeitado';
   notes: string;
-  review_notes?: string;
+  review_notes: string | null;
   application_date: string;
-  review_date?: string;
-  created_at: string;
-  updated_at: string;
+  review_date: string | null;
+  reviewer_id: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export const submitPartnerApplication = async (notes: string): Promise<boolean> => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    // Get current user session
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData.session?.user?.id;
     
-    if (!session) {
-      console.error('Nenhuma sessão encontrada');
+    if (!userId) {
+      toast.error("Erro", {
+        description: "Você precisa estar logado para enviar uma solicitação de parceria."
+      });
       return false;
     }
 
-    const { error } = await supabase
-      .from('partner_applications')
-      .insert({
-        user_id: session.user.id,
-        notes,
-        status: 'pendente'
-      });
+    // Usar a função create_partner_application para criar a aplicação
+    const { data, error } = await supabase.rpc(
+      'create_partner_application',
+      { user_id: userId, notes }
+    );
 
     if (error) {
-      console.error('Erro ao enviar solicitação:', error);
+      console.error("Erro ao enviar solicitação:", error);
+      toast.error("Erro", {
+        description: error.message || "Não foi possível enviar sua solicitação. Por favor, tente novamente."
+      });
       return false;
     }
 
+    toast.success("Solicitação enviada", {
+      description: "Sua solicitação de parceria foi enviada com sucesso e será analisada."
+    });
+    
     return true;
   } catch (error) {
-    console.error('Erro ao enviar solicitação:', error);
+    console.error("Erro ao enviar solicitação de parceria:", error);
+    toast.error("Erro", {
+      description: error instanceof Error ? error.message : "Não foi possível enviar sua solicitação. Por favor, tente novamente."
+    });
     return false;
   }
-};
+}
 
 export const getUserApplications = async (): Promise<PartnerApplication[]> => {
   try {
@@ -87,54 +100,49 @@ export async function getApplicationById(id: string): Promise<PartnerApplication
   }
 }
 
-export const reviewApplication = async (
-  applicationId: string,
-  status: 'aprovado' | 'rejeitado',
-  notes: string
-): Promise<boolean> => {
+export async function reviewApplication(
+  id: string, 
+  status: 'aprovado' | 'rejeitado', 
+  reviewNotes?: string
+): Promise<boolean> {
   try {
-    const { error } = await supabase
-      .from('partner_applications')
-      .update({
-        status,
-        review_notes: notes,
-        review_date: new Date().toISOString()
-      })
-      .eq('id', applicationId);
-
-    if (error) {
-      console.error('Erro ao revisar solicitação:', error);
-      return false;
-    }
-
-    if (status === 'aprovado') {
-      // Se aprovado, atualiza o papel do usuário para parceiro
-      const { data: application } = await supabase
-        .from("partner_applications")
-        .select("user_id")
-        .eq("id", applicationId)
-        .single();
-        
-      if (application) {
-        await supabase
-          .from("users")
-          .update({ role: "partner" })
-          .eq("id", application.user_id);
-      }
-    }
-
-    toast(status === 'aprovado' ? "Solicitação aprovada" : "Solicitação rejeitada", {
-      description: status === 'aprovado' 
-        ? "O usuário agora é um parceiro Kolibra." 
-        : "A solicitação de parceria foi rejeitada."
-    });
+    let success;
     
-    return true;
+    if (status === 'aprovado') {
+      const { data, error } = await supabase.rpc(
+        'approve_partner_application',
+        { application_id: id, review_notes: reviewNotes || '' }
+      );
+      
+      if (error) throw error;
+      success = data;
+    } else {
+      const { data, error } = await supabase.rpc(
+        'reject_partner_application',
+        { application_id: id, review_notes: reviewNotes || '' }
+      );
+      
+      if (error) throw error;
+      success = data;
+    }
+
+    if (success) {
+      toast.success(
+        status === 'aprovado' ? "Solicitação aprovada" : "Solicitação rejeitada",
+        {
+          description: status === 'aprovado'
+            ? "O usuário agora é um parceiro Kolibra."
+            : "A solicitação de parceria foi rejeitada."
+        }
+      );
+    }
+
+    return success;
   } catch (error) {
     console.error('Erro ao revisar solicitação:', error);
-    toast("Erro", {
-      description: `Não foi possível ${status === 'aprovado' ? 'aprovar' : 'rejeitar'} a solicitação.`
+    toast.error("Erro", {
+      description: error instanceof Error ? error.message : `Não foi possível ${status === 'aprovado' ? 'aprovar' : 'rejeitar'} a solicitação.`
     });
     return false;
   }
-};
+}

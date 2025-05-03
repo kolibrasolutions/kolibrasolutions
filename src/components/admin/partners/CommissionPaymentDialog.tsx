@@ -9,41 +9,29 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/components/ui/sonner';
 
 type CommissionPaymentDialogProps = {
-  commission: any | null;
-  onClose: () => void;
-  onPayment: () => void;
-  onCancel: () => void;
+  commission: any;
   open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onPaymentComplete: () => void;
 };
 
-export const CommissionPaymentDialog = ({
-  commission,
-  onClose,
-  onPayment,
-  onCancel,
-  open
+export const CommissionPaymentDialog = ({ 
+  commission, 
+  open, 
+  onOpenChange, 
+  onPaymentComplete 
 }: CommissionPaymentDialogProps) => {
-  const [paymentDate, setPaymentDate] = useState<Date | undefined>(new Date());
-  
-  if (!commission) return null;
-
-  const isPending = commission.status === 'pendente';
-  const isPaid = commission.status === 'pago';
-  const isCancelled = commission.status === 'cancelado';
+  const [paymentReference, setPaymentReference] = useState('');
+  const [paymentNotes, setPaymentNotes] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { 
@@ -52,159 +40,145 @@ export const CommissionPaymentDialog = ({
     }).format(value);
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pendente':
-        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Pendente</Badge>;
-      case 'pago':
-        return <Badge variant="outline" className="bg-green-100 text-green-800">Pago</Badge>;
-      case 'cancelado':
-        return <Badge variant="outline" className="bg-red-100 text-red-800">Cancelado</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
+  const handlePayment = async () => {
+    try {
+      setIsProcessing(true);
+      
+      const { error } = await supabase
+        .from('coupon_uses')
+        .update({
+          status: 'pago',
+          payment_date: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', commission.id);
+      
+      if (error) throw error;
+      
+      toast.success("Pagamento processado", {
+        description: "O pagamento da comissão foi registrado com sucesso."
+      });
+      
+      onPaymentComplete();
+    } catch (error) {
+      console.error("Erro ao processar pagamento:", error);
+      toast.error("Erro", {
+        description: "Não foi possível processar o pagamento da comissão."
+      });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const handleMarkAsPaid = () => {
-    if (paymentDate) {
-      onPayment();
+  const handleCancel = async () => {
+    try {
+      setIsProcessing(true);
+      
+      const { error } = await supabase
+        .from('coupon_uses')
+        .update({
+          status: 'cancelado',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', commission.id);
+      
+      if (error) throw error;
+      
+      toast.success("Comissão cancelada", {
+        description: "A comissão foi cancelada com sucesso."
+      });
+      
+      onPaymentComplete();
+    } catch (error) {
+      console.error("Erro ao cancelar comissão:", error);
+      toast.error("Erro", {
+        description: "Não foi possível cancelar a comissão."
+      });
+    } finally {
+      setIsProcessing(false);
     }
   };
+
+  if (!commission) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>
-            {isPending ? 'Gerenciar Comissão' : 'Detalhes da Comissão'}
-          </DialogTitle>
+          <DialogTitle>Processar Pagamento de Comissão</DialogTitle>
           <DialogDescription>
-            {isPending 
-              ? 'Marque esta comissão como paga ou cancele-a.' 
-              : 'Informações sobre a comissão processada.'}
+            Registre o pagamento da comissão para o parceiro.
           </DialogDescription>
         </DialogHeader>
-
         <div className="py-4">
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-muted-foreground mb-1 block">Data do Uso</Label>
+                <Label className="text-muted-foreground mb-1 block">Data</Label>
                 <p className="font-medium">
                   {commission.created_at 
-                    ? format(new Date(commission.created_at), "dd/MM/yyyy", { locale: ptBR })
+                    ? format(new Date(commission.created_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
                     : "N/A"}
-                </p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground mb-1 block">Status</Label>
-                <p>{getStatusBadge(commission.status)}</p>
-              </div>
-            </div>
-
-            <div>
-              <Label className="text-muted-foreground mb-1 block">Parceiro</Label>
-              <p className="font-medium">
-                {commission.coupon?.partner?.full_name || commission.coupon?.partner?.email || commission.coupon_id}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-muted-foreground mb-1 block">Código do Cupom</Label>
-                <p>
-                  <code className="bg-gray-100 px-2 py-1 rounded font-mono">
-                    {commission.coupon?.code || "N/A"}
-                  </code>
                 </p>
               </div>
               <div>
                 <Label className="text-muted-foreground mb-1 block">Pedido</Label>
-                <p>#{commission.order_id}</p>
+                <p className="font-medium">#{commission.order_id}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-muted-foreground mb-1 block">Valor da Comissão</Label>
-                <p className="font-semibold text-lg">
-                  {formatCurrency(commission.commission_amount)}
-                </p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground mb-1 block">Valor do Pedido</Label>
-                <p>
-                  {commission.order?.total_price 
-                    ? formatCurrency(commission.order.total_price) 
-                    : "N/A"}
-                </p>
-              </div>
+            <div>
+              <Label className="text-muted-foreground mb-1 block">Cupom</Label>
+              <p className="font-mono text-sm bg-gray-50 p-2 rounded">{commission.coupon?.code || 'N/A'}</p>
             </div>
 
-            {(isPaid || isCancelled) && (
-              <div className="pt-2">
-                <Label className="text-muted-foreground mb-1 block">
-                  {isPaid ? 'Data do Pagamento' : 'Data do Cancelamento'}
-                </Label>
-                <p className="font-medium">
-                  {commission.payment_date 
-                    ? format(new Date(commission.payment_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
-                    : "N/A"}
-                </p>
-              </div>
-            )}
+            <div>
+              <Label className="text-muted-foreground mb-1 block">Parceiro</Label>
+              <p className="font-medium">{commission.coupon?.partner?.full_name || commission.coupon?.partner?.email || 'N/A'}</p>
+            </div>
 
-            {isPending && (
-              <div className="pt-4 space-y-4">
-                <div className="space-y-2">
-                  <Label>Data do Pagamento</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !paymentDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {paymentDate ? format(paymentDate, "dd/MM/yyyy", { locale: ptBR }) : "Selecione uma data"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={paymentDate}
-                        onSelect={setPaymentDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                
-                <div className="pt-4 flex gap-4 flex-col sm:flex-row">
-                  <Button 
-                    className="w-full bg-green-600 hover:bg-green-700"
-                    onClick={handleMarkAsPaid}
-                  >
-                    Marcar como Pago
-                  </Button>
-                  <Button 
-                    variant="destructive" 
-                    className="w-full"
-                    onClick={onCancel}
-                  >
-                    Cancelar Comissão
-                  </Button>
-                </div>
-              </div>
-            )}
+            <div>
+              <Label className="text-muted-foreground mb-1 block">Valor da Comissão</Label>
+              <p className="text-lg font-bold text-green-700">{formatCurrency(commission.commission_amount)}</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="paymentReference">Referência do Pagamento</Label>
+              <Input
+                id="paymentReference"
+                placeholder="Ex: PIX, transferência, ID da transação..."
+                value={paymentReference}
+                onChange={(e) => setPaymentReference(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="paymentNotes">Observações (opcional)</Label>
+              <Input
+                id="paymentNotes"
+                placeholder="Observações sobre o pagamento..."
+                value={paymentNotes}
+                onChange={(e) => setPaymentNotes(e.target.value)}
+              />
+            </div>
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Fechar
+        <DialogFooter className="flex flex-col sm:flex-row gap-2">
+          <Button 
+            variant="destructive"
+            onClick={handleCancel}
+            disabled={isProcessing}
+            className="w-full sm:w-auto"
+          >
+            Cancelar Comissão
+          </Button>
+          <Button 
+            onClick={handlePayment} 
+            disabled={isProcessing || !paymentReference}
+            className="w-full sm:w-auto"
+          >
+            {isProcessing ? "Processando..." : "Confirmar Pagamento"}
           </Button>
         </DialogFooter>
       </DialogContent>

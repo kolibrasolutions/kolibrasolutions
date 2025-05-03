@@ -112,7 +112,7 @@ export const getCouponUses = async (couponId: string) => {
 export const updateCouponUseStatus = async (useId: string, status: string) => {
   const { error } = await supabase
     .from('coupon_uses')
-    .update({ commission_status: status })
+    .update({ status })
     .eq('id', useId);
 
   if (error) {

@@ -1,5 +1,5 @@
 import { PartnersManagement } from '@/components/admin/partners';
-import { Users, FileBox, Inbox, PenTool } from 'lucide-react';
+import { Users, FileBox, Inbox, PenTool, HandshakeIcon } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -132,7 +132,6 @@ const Admin = () => {
               <FileBox className="h-4 w-4" />
               <span>Portfólio</span>
             </TabsTrigger>
-            {/* Nova aba de parceiros */}
             <TabsTrigger value="partners" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               <span>Parceiros</span>
@@ -176,7 +175,6 @@ const Admin = () => {
             <PortfolioProjectsList />
           </TabsContent>
 
-          {/* Conteúdo da nova aba de parceiros */}
           <TabsContent value="partners" className="mt-0">
             <PartnersManagement />
           </TabsContent>

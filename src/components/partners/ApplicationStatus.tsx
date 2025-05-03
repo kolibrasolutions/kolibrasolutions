@@ -87,10 +87,10 @@ export const ApplicationStatus = ({ userId }: ApplicationStatusProps) => {
               <span>{format(new Date(application.review_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</span>
             </div>
           )}
-          {application.notes && (
+          {application.review_notes && (
             <div className="pt-2">
               <p className="font-medium mb-1">Observações:</p>
-              <p className="text-gray-600">{application.notes}</p>
+              <p className="text-gray-600">{application.review_notes}</p>
             </div>
           )}
           {application.status === 'pendente' && (
