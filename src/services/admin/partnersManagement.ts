@@ -119,11 +119,16 @@ export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
 
     // Normaliza os dados para garantir que o `partner` dentro de `coupon` seja um objeto e não um array
     return (data || []).map(commission => {
-      if (commission.coupon) {
-        let couponData = { ...commission.coupon };
-        let partnerData = null;
+      // Crie uma cópia do item para não modificar o original diretamente
+      const result = { ...commission };
+      
+      if (result.coupon) {
+        const couponData = { ...result.coupon };
         
+        // Normalizar o partner dentro do coupon
         if (couponData.partner) {
+          let partnerData = null;
+          
           // Verifica e normaliza os dados do partner
           if (Array.isArray(couponData.partner) && couponData.partner.length > 0) {
             partnerData = couponData.partner[0];
@@ -131,13 +136,15 @@ export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
             partnerData = couponData.partner;
           }
           
+          // Atualiza o partner com os dados normalizados
           couponData.partner = partnerData;
         }
         
-        commission.coupon = couponData;
+        // Atualiza o coupon com os dados normalizados
+        result.coupon = couponData as PartnerCoupon;
       }
       
-      return commission;
+      return result as CouponUse;
     });
   } catch (error) {
     console.error("Erro ao buscar comissões de parceiros:", error);
