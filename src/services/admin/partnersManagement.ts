@@ -70,16 +70,18 @@ export const getPartnerCoupons = async (): Promise<PartnerCoupon[]> => {
 
     // Normaliza os dados para garantir que o `partner` seja um objeto e não um array
     return (data || []).map(coupon => {
-      let partnerData = coupon.partner;
+      let partnerData = null;
       
-      // Garante que partner seja um objeto e não um array
-      if (Array.isArray(partnerData) && partnerData.length > 0) {
-        partnerData = partnerData[0];
+      // Verifica e normaliza os dados do partner
+      if (coupon.partner && Array.isArray(coupon.partner) && coupon.partner.length > 0) {
+        partnerData = coupon.partner[0];
+      } else if (coupon.partner && !Array.isArray(coupon.partner)) {
+        partnerData = coupon.partner;
       }
       
       return {
         ...coupon,
-        partner: partnerData || null
+        partner: partnerData
       };
     });
   } catch (error) {
@@ -117,15 +119,22 @@ export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
 
     // Normaliza os dados para garantir que o `partner` dentro de `coupon` seja um objeto e não um array
     return (data || []).map(commission => {
-      if (commission.coupon && commission.coupon.partner) {
-        let partnerData = commission.coupon.partner;
+      if (commission.coupon) {
+        let couponData = { ...commission.coupon };
+        let partnerData = null;
         
-        // Garante que partner seja um objeto e não um array
-        if (Array.isArray(partnerData) && partnerData.length > 0) {
-          partnerData = partnerData[0];
+        if (couponData.partner) {
+          // Verifica e normaliza os dados do partner
+          if (Array.isArray(couponData.partner) && couponData.partner.length > 0) {
+            partnerData = couponData.partner[0];
+          } else if (!Array.isArray(couponData.partner)) {
+            partnerData = couponData.partner;
+          }
+          
+          couponData.partner = partnerData;
         }
         
-        commission.coupon.partner = partnerData || null;
+        commission.coupon = couponData;
       }
       
       return commission;

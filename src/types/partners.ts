@@ -25,7 +25,7 @@ export type PartnerCoupon = {
   partner?: {
     email: string;
     full_name: string | null;
-  };
+  } | null;
 };
 
 export type CouponUse = {

@@ -37,12 +37,7 @@ export const PartnerCouponsTable: React.FC<PartnerCouponsTableProps> = ({ onSele
   const getPartnerInfo = (coupon: PartnerCoupon) => {
     if (!coupon.partner) return "N/A";
     
-    // Verifica se partner é um objeto com as propriedades esperadas
-    if (typeof coupon.partner === 'object' && 'full_name' in coupon.partner) {
-      return coupon.partner.full_name || coupon.partner.email || "N/A";
-    }
-    
-    return "N/A";
+    return coupon.partner.full_name || coupon.partner.email || "N/A";
   };
 
   return (
