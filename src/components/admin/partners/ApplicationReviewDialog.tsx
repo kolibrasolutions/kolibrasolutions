@@ -190,7 +190,7 @@ export const ApplicationReviewDialog = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             {isReviewed ? 'Fechar' : 'Cancelar'}
           </Button>
         </DialogFooter>

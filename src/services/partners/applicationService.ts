@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
 
@@ -93,7 +94,7 @@ export async function getApplicationById(id: string): Promise<PartnerApplication
       throw error;
     }
 
-    return data;
+    return data as PartnerApplication;
   } catch (error) {
     console.error("Erro ao buscar solicitação:", error);
     return null;
