@@ -11,6 +11,9 @@ import { LayoutDashboard, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { checkUserRole } from '@/services/partners/partnerService';
 import { User } from '@supabase/supabase-js';
+import { BecomePartnerButton } from '@/components/partners/BecomePartnerButton';
+import { PartnerDashboardButton } from '@/components/partners/PartnerDashboardButton';
+import { useUserRole } from '@/hooks/useUserRole';
 
 interface ExtendedUser extends User {
   role?: string;
@@ -18,9 +21,9 @@ interface ExtendedUser extends User {
 
 const Profile = () => {
   const [user, setUser] = useState<ExtendedUser | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
+  const { userRole, isLoading: roleLoading } = useUserRole(user?.id);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -41,15 +44,11 @@ const Profile = () => {
 
       if (error) {
         console.error("Erro ao buscar dados do usuário:", error);
+        toast.error("Erro ao carregar dados do usuário");
       } else {
         console.log("Dados completos do usuário:", userData);
         // Combinar os dados da sessão com os dados do banco
         setUser({ ...session.user, ...userData });
-        
-        // Verificar a role do usuário
-        const role = await checkUserRole(session.user.id);
-        setUserRole(role);
-        console.log("Role do usuário verificada:", role);
       }
     };
     
@@ -59,7 +58,7 @@ const Profile = () => {
   // Use our custom hook to fetch orders
   const { orders, loading, refreshOrders } = useOrders(user?.id);
 
-  if (!user) {
+  if (!user || roleLoading) {
     return (
       <Layout>
         <div className="container mx-auto py-12 px-4">
@@ -79,31 +78,9 @@ const Profile = () => {
           
           <div className="flex gap-3">
             {userRole === 'partner' ? (
-              <Button 
-                asChild
-                variant="outline"
-                className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 border-blue-200"
-              >
-                <Link to="/parceiro/dashboard">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                    <line x1="12" y1="9" x2="12" y2="13"></line>
-                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                  </svg>
-                  Painel de Parceiro
-                </Link>
-              </Button>
+              <PartnerDashboardButton />
             ) : !isAdmin && userRole !== 'partner' ? (
-              <Button 
-                asChild
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Link to="/parceiros">
-                  <Users className="h-4 w-4" />
-                  Seja um Parceiro
-                </Link>
-              </Button>
+              <BecomePartnerButton />
             ) : null}
             
             {isAdmin && (
@@ -120,10 +97,10 @@ const Profile = () => {
         </div>
         
         <ProfileContent 
-          user={user} 
-          orders={orders} 
-          loading={loading} 
-          onRefreshOrders={refreshOrders} 
+          user={user}
+          orders={orders}
+          loading={loading}
+          onRefreshOrders={refreshOrders}
         />
       </div>
     </Layout>

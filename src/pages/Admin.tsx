@@ -118,67 +118,70 @@ const Admin = () => {
       <div className="container mx-auto py-8 px-4">
         <h1 className="text-3xl font-bold mb-8">Painel Administrativo</h1>
         
-        <Tabs defaultValue="orders" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-8">
             <TabsTrigger value="orders" className="flex items-center gap-2">
               <Inbox className="h-4 w-4" />
-              <span>Pedidos</span>
+              Pedidos
+            </TabsTrigger>
+            <TabsTrigger value="partners" className="flex items-center gap-2">
+              <HandshakeIcon className="h-4 w-4" />
+              Parceiros
             </TabsTrigger>
             <TabsTrigger value="blog" className="flex items-center gap-2">
               <PenTool className="h-4 w-4" />
-              <span>Blog</span>
+              Blog
             </TabsTrigger>
             <TabsTrigger value="portfolio" className="flex items-center gap-2">
               <FileBox className="h-4 w-4" />
-              <span>Portfólio</span>
-            </TabsTrigger>
-            <TabsTrigger value="partners" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span>Parceiros</span>
+              Portfólio
             </TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="orders" className="mt-0">
-            {/* Orders Tab Content */}
-            <OrderFilters 
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              statusFilter={statusFilter}
-              setStatusFilter={setStatusFilter}
-              onRefresh={fetchOrders}
-            />
-            
-            <OrdersTable 
-              orders={filteredOrders}
-              loading={loading}
-              onViewDetails={setViewOrderDetails}
-              updateOrderStatus={updateOrderStatus}
-            />
-            
-            <OrderDetailsDialog 
-              order={viewOrderDetails}
-              open={!!viewOrderDetails}
-              onOpenChange={(open) => {
-                if (!open) setViewOrderDetails(null);
-              }}
-              updateOrderStatus={updateOrderStatus}
-              recordManualPayment={recordManualPayment}
-              deleteOrder={deleteOrder}
-            />
-          </TabsContent>
-          
-          <TabsContent value="blog" className="mt-0">
-            <BlogPostsList />
-          </TabsContent>
-          
-          <TabsContent value="portfolio" className="mt-0">
-            <PortfolioProjectsList />
+
+          <TabsContent value="orders">
+            <div className="space-y-6">
+              <OrderFilters 
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                onRefresh={fetchOrders}
+              />
+              
+              <OrdersTable 
+                orders={filteredOrders}
+                loading={loading}
+                onViewDetails={setViewOrderDetails}
+                updateOrderStatus={updateOrderStatus}
+              />
+            </div>
           </TabsContent>
 
-          <TabsContent value="partners" className="mt-0">
+          <TabsContent value="partners">
             <PartnersManagement />
           </TabsContent>
+
+          <TabsContent value="blog">
+            <BlogPostsList />
+          </TabsContent>
+
+          <TabsContent value="portfolio">
+            <PortfolioProjectsList />
+          </TabsContent>
         </Tabs>
+
+        {viewOrderDetails && (
+          <OrderDetailsDialog
+            order={viewOrderDetails}
+            open={!!viewOrderDetails}
+            onOpenChange={(open) => {
+              if (!open) setViewOrderDetails(null);
+            }}
+            updateOrderStatus={updateOrderStatus}
+            recordManualPayment={recordManualPayment}
+            deleteOrder={deleteOrder}
+          />
+        )}
       </div>
     </Layout>
   );
