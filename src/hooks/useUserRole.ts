@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { checkUserRole } from '@/services/partners/partnerService';
@@ -16,6 +17,7 @@ export const useUserRole = (userId: string | undefined) => {
 
       try {
         const role = await checkUserRole(userId);
+        console.log("Fetched user role:", role);
         setUserRole(role);
       } catch (error) {
         console.error('Erro ao verificar role do usuário:', error);

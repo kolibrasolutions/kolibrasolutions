@@ -28,7 +28,8 @@ import {
 
 type ApplicationReviewDialogProps = {
   application: any | null;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onApprove: () => void;
   onReject: (notes: string) => void;
 };
@@ -40,8 +41,9 @@ const formSchema = z.object({
 });
 
 export const ApplicationReviewDialog = ({ 
-  application, 
-  onClose, 
+  application,
+  open,
+  onOpenChange,
   onApprove, 
   onReject 
 }: ApplicationReviewDialogProps) => {
@@ -74,7 +76,7 @@ export const ApplicationReviewDialog = ({
   const isReviewed = application.status !== 'pendente';
 
   return (
-    <Dialog open={!!application} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>

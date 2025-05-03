@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -78,7 +79,7 @@ const Profile = () => {
           
           <div className="flex gap-3">
             {!roleLoading && userRole === 'partner' && <PartnerDashboardButton />}
-            {!roleLoading && !isAdmin && <BecomePartnerButton />}
+            {!roleLoading && userRole !== 'partner' && !isAdmin && <BecomePartnerButton />}
             {!roleLoading && isAdmin && (
               <Button 
                 onClick={() => navigate('/admin')}
