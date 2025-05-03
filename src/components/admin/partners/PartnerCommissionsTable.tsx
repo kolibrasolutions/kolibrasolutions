@@ -1,46 +1,31 @@
 
 import React, { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getCouponUses, updateCouponUseStatus } from '@/services/partners/couponService';
+import { useQuery } from '@tanstack/react-query';
+import { getPartnerCommissions } from '@/services/admin/partnersManagement';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
-import { CommissionPaymentDialog } from './CommissionPaymentDialog';
 import { ptBR } from 'date-fns/locale';
+import { CommissionPaymentDialog } from './CommissionPaymentDialog';
 
-type CommissionsProp = {
-  couponId: string;
-};
-
-export const PartnerCommissionsTable = ({ couponId }: CommissionsProp) => {
-  const queryClient = useQueryClient();
-  const [selectedCommission, setSelectedCommission] = useState<any>(null);
-  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-
-  const { data: commissions = [], isLoading } = useQuery({
-    queryKey: ['partner-commissions', couponId],
-    queryFn: () => getCouponUses(couponId),
-    enabled: !!couponId,
+export const PartnerCommissionsTable = () => {
+  const [selectedCommission, setSelectedCommission] = useState<any | null>(null);
+  
+  const { data: commissions = [], isLoading, refetch } = useQuery({
+    queryKey: ['partner-commissions'],
+    queryFn: getPartnerCommissions,
   });
 
-  const handlePayCommission = async (commissionId: string) => {
-    const success = await updateCouponUseStatus(commissionId, 'pago');
-    
-    if (success) {
-      queryClient.invalidateQueries({ queryKey: ['partner-commissions', couponId] });
-      setShowPaymentDialog(false);
-    }
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', { 
+      style: 'currency', 
+      currency: 'BRL' 
+    }).format(value);
   };
 
-  const handleCancelCommission = async () => {
-    if (selectedCommission) {
-      const success = await updateCouponUseStatus(selectedCommission.id, 'cancelado');
-      
-      if (success) {
-        queryClient.invalidateQueries({ queryKey: ['partner-commissions', couponId] });
-        setShowPaymentDialog(false);
-      }
-    }
+  const handlePaymentComplete = () => {
+    refetch();
+    setSelectedCommission(null);
   };
 
   const getStatusBadge = (status: string) => {
@@ -57,21 +42,17 @@ export const PartnerCommissionsTable = ({ couponId }: CommissionsProp) => {
   };
 
   return (
-    <div>
-      <CommissionPaymentDialog
-        open={showPaymentDialog}
-        commission={selectedCommission}
-        onClose={() => {
-          setShowPaymentDialog(false);
-          setSelectedCommission(null);
-        }}
-        onPayment={() => {
-          if (selectedCommission) {
-            handlePayCommission(selectedCommission.id);
-          }
-        }}
-        onCancel={handleCancelCommission}
-      />
+    <div className="space-y-4">
+      {selectedCommission && (
+        <CommissionPaymentDialog
+          commission={selectedCommission}
+          open={!!selectedCommission}
+          onOpenChange={(open) => {
+            if (!open) setSelectedCommission(null);
+          }}
+          onPaymentComplete={handlePaymentComplete}
+        />
+      )}
 
       {isLoading ? (
         <div className="flex justify-center py-4">
@@ -79,15 +60,17 @@ export const PartnerCommissionsTable = ({ couponId }: CommissionsProp) => {
         </div>
       ) : commissions.length === 0 ? (
         <div className="text-center py-8 bg-gray-50 rounded-lg text-muted-foreground">
-          Nenhuma comissão registrada ainda.
+          Não há comissões de parceiros registradas.
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[600px]">
+          <table className="w-full min-w-[800px]">
             <thead>
               <tr className="border-b">
                 <th className="text-left py-3 font-medium text-muted-foreground">Data</th>
-                <th className="text-left py-3 font-medium text-muted-foreground">Serviço</th>
+                <th className="text-left py-3 font-medium text-muted-foreground">Parceiro</th>
+                <th className="text-left py-3 font-medium text-muted-foreground">Código</th>
+                <th className="text-left py-3 font-medium text-muted-foreground">Pedido</th>
                 <th className="text-left py-3 font-medium text-muted-foreground">Valor</th>
                 <th className="text-left py-3 font-medium text-muted-foreground">Status</th>
                 <th className="text-right py-3 font-medium text-muted-foreground">Ações</th>
@@ -97,26 +80,26 @@ export const PartnerCommissionsTable = ({ couponId }: CommissionsProp) => {
               {commissions.map((commission: any) => (
                 <tr key={commission.id} className="border-b">
                   <td className="py-3">
-                    {commission.created_at
+                    {commission.created_at 
                       ? format(new Date(commission.created_at), "dd/MM/yyyy", { locale: ptBR })
                       : "N/A"}
                   </td>
-                  <td className="py-3">{commission.service_id}</td>
-                  <td className="py-3">R$ {commission.commission_amount}</td>
+                  <td className="py-3">{commission.coupon?.partner?.full_name || commission.coupon?.partner?.email || 'N/A'}</td>
+                  <td className="py-3 font-mono text-sm">{commission.coupon?.code || 'N/A'}</td>
+                  <td className="py-3">#{commission.order_id}</td>
+                  <td className="py-3">{formatCurrency(commission.commission_amount)}</td>
                   <td className="py-3">{getStatusBadge(commission.status)}</td>
                   <td className="py-3 text-right">
                     <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedCommission(commission);
-                          setShowPaymentDialog(true);
-                        }}
-                        disabled={commission.status === 'pago'}
-                      >
-                        Pagar
-                      </Button>
+                      {commission.status === 'pendente' && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setSelectedCommission(commission)}
+                        >
+                          Processar
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>

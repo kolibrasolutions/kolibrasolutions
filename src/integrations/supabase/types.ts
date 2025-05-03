@@ -438,6 +438,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_partner_application: {
+        Args: { application_id: string; review_notes: string }
+        Returns: boolean
+      }
+      create_partner_application: {
+        Args: { user_id: string; notes: string }
+        Returns: {
+          application_date: string | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          review_date: string | null
+          reviewer_id: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }[]
+      }
       delete_order: {
         Args: { order_id_param: number }
         Returns: undefined
@@ -453,6 +471,10 @@ export type Database = {
       is_valid_coupon: {
         Args: { coupon_code: string }
         Returns: string
+      }
+      reject_partner_application: {
+        Args: { application_id: string; review_notes: string }
+        Returns: boolean
       }
       sync_user_profile_data: {
         Args: Record<PropertyKey, never>
