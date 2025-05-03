@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +10,7 @@ const PartnersManagement: React.FC = () => {
   const [selectedCouponId, setSelectedCouponId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("applications");
 
+  // Function to handle selecting a coupon to view its commissions
   const handleSelectCoupon = (couponId: string) => {
     setSelectedCouponId(couponId);
     setActiveTab("commissions");
@@ -28,7 +30,7 @@ const PartnersManagement: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="coupons" className="space-y-6">
-          <PartnerCouponsTable />
+          <PartnerCouponsTable onSelectCoupon={handleSelectCoupon} />
         </TabsContent>
 
         <TabsContent value="commissions" className="space-y-6">
@@ -40,13 +42,7 @@ const PartnersManagement: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {selectedCouponId ? (
-                <PartnerCommissionsTable couponId={selectedCouponId} />
-              ) : (
-                <div className="text-center py-8 bg-gray-50 rounded-lg text-muted-foreground">
-                  Selecione um cupom na aba "Cupons" para ver suas comissões.
-                </div>
-              )}
+              <PartnerCommissionsTable couponId={selectedCouponId} />
             </CardContent>
           </Card>
         </TabsContent>
