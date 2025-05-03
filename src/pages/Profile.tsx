@@ -93,7 +93,7 @@ const Profile = () => {
                   Painel de Parceiro
                 </Link>
               </Button>
-            ) : userRole !== null && userRole !== 'admin' ? (
+            ) : !isAdmin && userRole !== 'partner' ? (
               <Button 
                 asChild
                 variant="outline"
