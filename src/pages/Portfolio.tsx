@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { supabase } from '@/integrations/supabase/client';
@@ -82,7 +81,7 @@ const ProjectCard = ({
             <img 
               src={project.images[currentImageIndex]} 
               alt={project.title} 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-lg"
               loading="lazy"
             />
           ) : (
