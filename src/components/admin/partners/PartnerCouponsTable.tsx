@@ -2,11 +2,10 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getPartnerCoupons } from '@/services/admin/partnersManagement';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { PartnerCoupon } from '@/types/partners';
 
 interface PartnerCouponsTableProps {
   onSelectCoupon?: (couponId: string) => void;
@@ -34,6 +33,13 @@ export const PartnerCouponsTable: React.FC<PartnerCouponsTableProps> = ({ onSele
     );
   }
 
+  // Função para obter o nome ou email do parceiro de forma segura
+  const getPartnerInfo = (coupon: PartnerCoupon) => {
+    if (!coupon.partner) return "N/A";
+    
+    return coupon.partner.full_name || coupon.partner.email || "N/A";
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -51,7 +57,7 @@ export const PartnerCouponsTable: React.FC<PartnerCouponsTableProps> = ({ onSele
           {coupons.map((coupon) => (
             <TableRow key={coupon.id}>
               <TableCell className="font-medium">{coupon.code}</TableCell>
-              <TableCell>{coupon.partner?.full_name || coupon.partner?.email || "N/A"}</TableCell>
+              <TableCell>{getPartnerInfo(coupon)}</TableCell>
               <TableCell>{coupon.discount_percent}%</TableCell>
               <TableCell>{coupon.commission_percent}%</TableCell>
               <TableCell>

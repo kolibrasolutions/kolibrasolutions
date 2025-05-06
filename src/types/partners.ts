@@ -5,7 +5,7 @@ export type PartnerApplication = {
   id: string;
   user_id: string;
   status: string;
-  application_date: string;
+  application_date: string | null;
   review_date: string | null;
   review_notes: string | null;
   notes: string;
@@ -25,7 +25,7 @@ export type PartnerCoupon = {
   partner?: {
     email: string;
     full_name: string | null;
-  };
+  } | null;
 };
 
 export type CouponUse = {
@@ -38,6 +38,10 @@ export type CouponUse = {
   created_at: string | null;
   updated_at: string | null;
   coupon?: PartnerCoupon;
+  order?: {
+    total_price: number;
+    status: string;
+  };
 };
 
 export type PartnerStats = {

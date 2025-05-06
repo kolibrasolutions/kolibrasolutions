@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
+import { PartnerCoupon, CouponUse } from "@/types/partners";
 
 export const getPartnerApplications = async () => {
   try {
@@ -50,7 +51,7 @@ export const getPartners = async () => {
   }
 };
 
-export const getPartnerCoupons = async () => {
+export const getPartnerCoupons = async (): Promise<PartnerCoupon[]> => {
   try {
     const { data, error } = await supabase
       .from("partner_coupons")
@@ -67,7 +68,22 @@ export const getPartnerCoupons = async () => {
       throw error;
     }
 
-    return data || [];
+    // Normaliza os dados para garantir que o `partner` seja um objeto e não um array
+    return (data || []).map(coupon => {
+      let partnerData = null;
+      
+      // Verifica e normaliza os dados do partner
+      if (coupon.partner && Array.isArray(coupon.partner) && coupon.partner.length > 0) {
+        partnerData = coupon.partner[0];
+      } else if (coupon.partner && !Array.isArray(coupon.partner)) {
+        partnerData = coupon.partner;
+      }
+      
+      return {
+        ...coupon,
+        partner: partnerData
+      };
+    });
   } catch (error) {
     console.error("Erro ao buscar cupons de parceiros:", error);
     toast.error("Erro", {
@@ -77,14 +93,14 @@ export const getPartnerCoupons = async () => {
   }
 };
 
-export const getPartnerCommissions = async () => {
+export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
   try {
     const { data, error } = await supabase
       .from("coupon_uses")
       .select(`
         *,
         coupon:partner_coupons(
-          code,
+          *,
           partner:users(
             email,
             full_name
@@ -101,7 +117,38 @@ export const getPartnerCommissions = async () => {
       throw error;
     }
 
-    return data || [];
+    // Normaliza os dados para garantir que o `partner` dentro de `coupon` seja um objeto e não um array
+    return (data || []).map(commission => {
+      // Crie uma cópia do item para não modificar o original diretamente
+      const result = { ...commission };
+      
+      if (result.coupon) {
+        const couponData = { ...result.coupon };
+        
+        // Normalizar o partner dentro do coupon
+        if (couponData.partner) {
+          let partnerData = null;
+          
+          // Verifica e normaliza os dados do partner
+          if (Array.isArray(couponData.partner) && couponData.partner.length > 0) {
+            partnerData = couponData.partner[0];
+          } else if (!Array.isArray(couponData.partner)) {
+            partnerData = couponData.partner;
+          }
+          
+          // Atualiza o partner com os dados normalizados
+          couponData.partner = partnerData;
+        }
+        
+        // Atualiza o coupon com os dados normalizados
+        result.coupon = {
+          ...couponData,
+          partner: couponData.partner
+        } as PartnerCoupon;
+      }
+      
+      return result as CouponUse;
+    });
   } catch (error) {
     console.error("Erro ao buscar comissões de parceiros:", error);
     toast.error("Erro", {
