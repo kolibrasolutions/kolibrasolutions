@@ -73,16 +73,18 @@ export const getPartnerCoupons = async (): Promise<PartnerCoupon[]> => {
       let partnerData = null;
       
       // Verifica e normaliza os dados do partner
-      if (coupon.partner && Array.isArray(coupon.partner) && coupon.partner.length > 0) {
-        partnerData = coupon.partner[0];
-      } else if (coupon.partner && !Array.isArray(coupon.partner)) {
-        partnerData = coupon.partner;
+      if (coupon.partner) {
+        if (Array.isArray(coupon.partner) && coupon.partner.length > 0) {
+          partnerData = coupon.partner[0];
+        } else if (!Array.isArray(coupon.partner)) {
+          partnerData = coupon.partner;
+        }
       }
       
       return {
         ...coupon,
         partner: partnerData
-      };
+      } as PartnerCoupon;
     });
   } catch (error) {
     console.error("Erro ao buscar cupons de parceiros:", error);
@@ -119,7 +121,6 @@ export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
 
     // Normaliza os dados para garantir que o `partner` dentro de `coupon` seja um objeto e não um array
     return (data || []).map(commission => {
-      // Crie uma cópia do item para não modificar o original diretamente
       const result = { ...commission };
       
       if (result.coupon) {
@@ -141,10 +142,7 @@ export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
         }
         
         // Atualiza o coupon com os dados normalizados
-        result.coupon = {
-          ...couponData,
-          partner: couponData.partner
-        } as PartnerCoupon;
+        result.coupon = couponData as unknown as PartnerCoupon;
       }
       
       return result as CouponUse;

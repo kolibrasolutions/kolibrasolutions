@@ -13,6 +13,10 @@ export interface PartnerApplication {
   reviewer_id: string | null;
   created_at: string | null;
   updated_at: string | null;
+  user?: {
+    email: string;
+    full_name: string | null;
+  } | null;
 }
 
 export const submitPartnerApplication = async (notes: string): Promise<boolean> => {
@@ -67,7 +71,13 @@ export const getUserApplications = async (): Promise<PartnerApplication[]> => {
 
     const { data, error } = await supabase
       .from('partner_applications')
-      .select('*')
+      .select(`
+        *,
+        user:users(
+          email,
+          full_name
+        )
+      `)
       .order('application_date', { ascending: false });
 
     if (error) {
@@ -86,7 +96,13 @@ export async function getApplicationById(id: string): Promise<PartnerApplication
   try {
     const { data, error } = await supabase
       .from("partner_applications")
-      .select("*")
+      .select(`
+        *,
+        user:users(
+          email,
+          full_name
+        )
+      `)
       .eq("id", id)
       .single();
 
@@ -107,6 +123,8 @@ export async function reviewApplication(
   reviewNotes?: string
 ): Promise<boolean> {
   try {
+    console.log(`Revisando aplicação ${id} com status ${status} e notas: ${reviewNotes || 'sem notas'}`);
+    
     let success;
     
     if (status === 'aprovado') {
@@ -115,7 +133,11 @@ export async function reviewApplication(
         { application_id: id, review_notes: reviewNotes || '' }
       );
       
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao aprovar solicitação:', error);
+        throw error;
+      }
+      
       success = data;
     } else {
       const { data, error } = await supabase.rpc(
@@ -123,7 +145,11 @@ export async function reviewApplication(
         { application_id: id, review_notes: reviewNotes || '' }
       );
       
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao rejeitar solicitação:', error);
+        throw error;
+      }
+      
       success = data;
     }
 
@@ -136,6 +162,10 @@ export async function reviewApplication(
             : "A solicitação de parceria foi rejeitada."
         }
       );
+    } else {
+      toast.error("Erro na operação", {
+        description: "Não foi possível processar a solicitação. Verifique se já não foi processada anteriormente."
+      });
     }
 
     return success;

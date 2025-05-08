@@ -25,9 +25,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { PartnerApplication } from '@/services/partners/applicationService';
 
 type ApplicationReviewDialogProps = {
-  application: any | null;
+  application: PartnerApplication | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onApprove: () => void;
@@ -74,6 +75,9 @@ export const ApplicationReviewDialog = ({
   if (!application) return null;
 
   const isReviewed = application.status !== 'pendente';
+  
+  // Display user email if available, otherwise fall back to user_id
+  const userDisplay = application.user?.email || application.user?.full_name || application.user_id;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -107,8 +111,8 @@ export const ApplicationReviewDialog = ({
             </div>
 
             <div>
-              <Label className="text-muted-foreground mb-1 block">ID do Usuário</Label>
-              <p className="font-mono text-sm bg-gray-50 p-2 rounded">{application.user_id}</p>
+              <Label className="text-muted-foreground mb-1 block">Usuário</Label>
+              <p className="font-mono text-sm bg-gray-50 p-2 rounded">{userDisplay}</p>
             </div>
 
             <div>
@@ -126,11 +130,11 @@ export const ApplicationReviewDialog = ({
                     {format(new Date(application.review_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                   </p>
                 </div>
-                {application.status === 'rejeitado' && (
+                {application.status === 'rejeitado' && application.review_notes && (
                   <div>
                     <Label className="text-muted-foreground mb-1 block">Motivo da Rejeição</Label>
                     <div className="bg-red-50 p-3 rounded border border-red-100 text-sm">
-                      {application.notes || "Nenhum motivo fornecido."}
+                      {application.review_notes}
                     </div>
                   </div>
                 )}
