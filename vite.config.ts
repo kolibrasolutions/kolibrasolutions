@@ -1,3 +1,4 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
@@ -14,6 +15,14 @@ export default defineConfig(({ mode }) => ({
     headers: {
       'Cache-Control': 'public, max-age=31536000',
     },
+    // Add allowedHosts to resolve "Blocked request" errors in Lovable
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      '.lovableproject.com',
+      '.lovable.app',
+      '4cdcc636-b4e5-4741-b7ff-1020ce3ff208.lovableproject.com'
+    ],
   },
   preview: {
     port: 8080,

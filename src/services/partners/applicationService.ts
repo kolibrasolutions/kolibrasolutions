@@ -85,7 +85,18 @@ export const getUserApplications = async (): Promise<PartnerApplication[]> => {
       return [];
     }
 
-    return data as PartnerApplication[] || [];
+    // Normalize user data to handle potential errors in relationships
+    return (data || []).map(application => {
+      // Handle potential error in user relation
+      const normalizedUser = application.user && typeof application.user === 'object' && !('error' in application.user) 
+        ? application.user 
+        : null;
+      
+      return {
+        ...application,
+        user: normalizedUser
+      } as PartnerApplication;
+    });
   } catch (error) {
     console.error('Erro ao buscar solicitações:', error);
     return [];
@@ -109,8 +120,16 @@ export async function getApplicationById(id: string): Promise<PartnerApplication
     if (error) {
       throw error;
     }
-
-    return data as PartnerApplication;
+    
+    // Handle potential error in user relation
+    const normalizedUser = data.user && typeof data.user === 'object' && !('error' in data.user) 
+      ? data.user 
+      : null;
+    
+    return {
+      ...data,
+      user: normalizedUser
+    } as PartnerApplication;
   } catch (error) {
     console.error("Erro ao buscar solicitação:", error);
     return null;

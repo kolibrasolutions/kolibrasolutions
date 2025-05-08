@@ -1,6 +1,4 @@
 
-import { Json } from '@/integrations/supabase/types';
-
 export type PartnerApplication = {
   id: string;
   user_id: string;
@@ -11,6 +9,10 @@ export type PartnerApplication = {
   notes: string;
   created_at: string | null;
   updated_at: string | null;
+  user?: {
+    email: string;
+    full_name: string | null;
+  } | null;
 };
 
 export type PartnerCoupon = {

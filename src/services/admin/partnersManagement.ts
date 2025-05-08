@@ -20,7 +20,18 @@ export const getPartnerApplications = async () => {
       throw error;
     }
 
-    return data || [];
+    // Normalize user data to handle potential errors in relationships
+    return (data || []).map(application => {
+      // Handle potential error in user relation
+      const normalizedUser = application.user && typeof application.user === 'object' && !('error' in application.user) 
+        ? application.user 
+        : null;
+      
+      return {
+        ...application,
+        user: normalizedUser
+      };
+    });
   } catch (error) {
     console.error("Erro ao buscar solicitações de parceria:", error);
     toast.error("Erro", {
@@ -73,7 +84,7 @@ export const getPartnerCoupons = async (): Promise<PartnerCoupon[]> => {
       let partnerData = null;
       
       // Verifica e normaliza os dados do partner
-      if (coupon.partner) {
+      if (coupon.partner && typeof coupon.partner === 'object' && !('error' in coupon.partner)) {
         if (Array.isArray(coupon.partner) && coupon.partner.length > 0) {
           partnerData = coupon.partner[0];
         } else if (!Array.isArray(coupon.partner)) {
@@ -84,7 +95,7 @@ export const getPartnerCoupons = async (): Promise<PartnerCoupon[]> => {
       return {
         ...coupon,
         partner: partnerData
-      } as PartnerCoupon;
+      };
     });
   } catch (error) {
     console.error("Erro ao buscar cupons de parceiros:", error);
@@ -127,7 +138,7 @@ export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
         const couponData = { ...result.coupon };
         
         // Normalizar o partner dentro do coupon
-        if (couponData.partner) {
+        if (couponData.partner && typeof couponData.partner === 'object' && !('error' in couponData.partner)) {
           let partnerData = null;
           
           // Verifica e normaliza os dados do partner
@@ -139,10 +150,12 @@ export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
           
           // Atualiza o partner com os dados normalizados
           couponData.partner = partnerData;
+        } else {
+          couponData.partner = null;
         }
         
         // Atualiza o coupon com os dados normalizados
-        result.coupon = couponData as unknown as PartnerCoupon;
+        result.coupon = couponData as PartnerCoupon;
       }
       
       return result as CouponUse;
