@@ -77,7 +77,11 @@ export const ApplicationReviewDialog = ({
   const isReviewed = application.status !== 'pendente';
   
   // Display user email if available, otherwise fall back to user_id
-  const userDisplay = application.user?.email || application.user?.full_name || application.user_id;
+  const userDisplay = application.user && application.user.email 
+    ? application.user.email 
+    : application.user && application.user.full_name 
+      ? application.user.full_name 
+      : application.user_id;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -95,8 +95,8 @@ export const getPartnerCoupons = async (): Promise<PartnerCoupon[]> => {
       return {
         ...coupon,
         partner: partnerData
-      } as PartnerCoupon;
-    });
+      };
+    }) as PartnerCoupon[];
   } catch (error) {
     console.error("Erro ao buscar cupons de parceiros:", error);
     toast.error("Erro", {
@@ -155,11 +155,11 @@ export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
         }
         
         // Atualiza o coupon com os dados normalizados
-        result.coupon = couponData as PartnerCoupon;
+        result.coupon = couponData;
       }
       
-      return result as CouponUse;
-    });
+      return result;
+    }) as CouponUse[];
   } catch (error) {
     console.error("Erro ao buscar comissões de parceiros:", error);
     toast.error("Erro", {

@@ -9,17 +9,18 @@ import { format } from 'date-fns';
 import { ApplicationReviewDialog } from './ApplicationReviewDialog';
 import { ptBR } from 'date-fns/locale';
 import { toast } from '@/components/ui/sonner';
+import { PartnerApplication } from '@/types/partners';
 
 export const PartnerApplicationsTable = () => {
   const queryClient = useQueryClient();
-  const [selectedApplication, setSelectedApplication] = useState(null);
+  const [selectedApplication, setSelectedApplication] = useState<PartnerApplication | null>(null);
 
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ['partner-applications'],
     queryFn: getPartnerApplications,
   });
 
-  const handleApprove = async (application) => {
+  const handleApprove = async (application: PartnerApplication) => {
     // Approves the application and relies on the database function to create the coupon
     const success = await reviewApplication(application.id, 'aprovado', '');
     
@@ -33,7 +34,7 @@ export const PartnerApplicationsTable = () => {
     }
   };
 
-  const handleReject = async (application, notes) => {
+  const handleReject = async (application: PartnerApplication, notes: string) => {
     const success = await reviewApplication(application.id, 'rejeitado', notes || '');
     
     if (success) {
@@ -44,7 +45,7 @@ export const PartnerApplicationsTable = () => {
     }
   };
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pendente':
         return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Pendente</Badge>;
@@ -93,7 +94,7 @@ export const PartnerApplicationsTable = () => {
                         : "N/A"}
                     </td>
                     <td className="py-3">
-                      {application.user ? application.user.email : application.user_id}
+                      {application.user && application.user.email ? application.user.email : application.user_id}
                     </td>
                     <td className="py-3">{getStatusBadge(application.status)}</td>
                     <td className="py-3 text-right">
@@ -151,7 +152,7 @@ export const PartnerApplicationsTable = () => {
                         : "N/A"}
                     </td>
                     <td className="py-3">
-                      {application.user ? application.user.email : application.user_id}
+                      {application.user && application.user.email ? application.user.email : application.user_id}
                     </td>
                     <td className="py-3">{getStatusBadge(application.status)}</td>
                     <td className="py-3 text-right">
