@@ -25,7 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { PartnerApplication } from '@/services/partners/applicationService';
+import { PartnerApplication } from '@/types/partners';
 
 type ApplicationReviewDialogProps = {
   application: PartnerApplication | null;

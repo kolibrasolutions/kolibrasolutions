@@ -95,7 +95,7 @@ export const getPartnerCoupons = async (): Promise<PartnerCoupon[]> => {
       return {
         ...coupon,
         partner: partnerData
-      };
+      } as PartnerCoupon;
     });
   } catch (error) {
     console.error("Erro ao buscar cupons de parceiros:", error);

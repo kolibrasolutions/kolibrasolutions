@@ -93,7 +93,7 @@ export const PartnerApplicationsTable = () => {
                         : "N/A"}
                     </td>
                     <td className="py-3">
-                      {application.user?.email || application.user_id}
+                      {application.user ? application.user.email : application.user_id}
                     </td>
                     <td className="py-3">{getStatusBadge(application.status)}</td>
                     <td className="py-3 text-right">
@@ -151,7 +151,7 @@ export const PartnerApplicationsTable = () => {
                         : "N/A"}
                     </td>
                     <td className="py-3">
-                      {application.user?.email || application.user_id}
+                      {application.user ? application.user.email : application.user_id}
                     </td>
                     <td className="py-3">{getStatusBadge(application.status)}</td>
                     <td className="py-3 text-right">
