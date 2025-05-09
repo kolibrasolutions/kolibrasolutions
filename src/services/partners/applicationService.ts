@@ -1,23 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
-
-export interface PartnerApplication {
-  id: string;
-  user_id: string;
-  status: 'pendente' | 'aprovado' | 'rejeitado';
-  notes: string;
-  review_notes: string | null;
-  application_date: string;
-  review_date: string | null;
-  reviewer_id: string | null;
-  created_at: string | null;
-  updated_at: string | null;
-  user?: {
-    email: string;
-    full_name: string | null;
-  } | null;
-}
+import { PartnerApplication } from "@/types/partners";
 
 export const submitPartnerApplication = async (notes: string): Promise<boolean> => {
   try {
