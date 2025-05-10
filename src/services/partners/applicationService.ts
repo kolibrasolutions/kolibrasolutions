@@ -105,6 +105,10 @@ export async function getApplicationById(id: string): Promise<PartnerApplication
       throw error;
     }
     
+    if (!data) {
+      return null;
+    }
+    
     // Handle potential error in user relation
     const normalizedUser = data.user && typeof data.user === 'object' && !('error' in data.user) 
       ? data.user 

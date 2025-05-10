@@ -62,7 +62,7 @@ export const getPartners = async () => {
   }
 };
 
-export const getPartnerCoupons = async (): Promise<PartnerCoupon[]> => {
+export const getPartnerCoupons = async () => {
   try {
     const { data, error } = await supabase
       .from("partner_coupons")
@@ -80,7 +80,7 @@ export const getPartnerCoupons = async (): Promise<PartnerCoupon[]> => {
     }
 
     // Normaliza os dados para garantir que o `partner` seja um objeto e não um array
-    return (data || []).map(coupon => {
+    const normalizedCoupons = (data || []).map(coupon => {
       let partnerData = null;
       
       // Verifica e normaliza os dados do partner
@@ -96,7 +96,9 @@ export const getPartnerCoupons = async (): Promise<PartnerCoupon[]> => {
         ...coupon,
         partner: partnerData
       };
-    }) as PartnerCoupon[];
+    });
+    
+    return normalizedCoupons as PartnerCoupon[];
   } catch (error) {
     console.error("Erro ao buscar cupons de parceiros:", error);
     toast.error("Erro", {
@@ -106,7 +108,7 @@ export const getPartnerCoupons = async (): Promise<PartnerCoupon[]> => {
   }
 };
 
-export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
+export const getPartnerCommissions = async () => {
   try {
     const { data, error } = await supabase
       .from("coupon_uses")
@@ -131,7 +133,7 @@ export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
     }
 
     // Normaliza os dados para garantir que o `partner` dentro de `coupon` seja um objeto e não um array
-    return (data || []).map(commission => {
+    const normalizedCommissions = (data || []).map(commission => {
       const result = { ...commission };
       
       if (result.coupon) {
@@ -159,7 +161,9 @@ export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
       }
       
       return result;
-    }) as CouponUse[];
+    });
+    
+    return normalizedCommissions as CouponUse[];
   } catch (error) {
     console.error("Erro ao buscar comissões de parceiros:", error);
     toast.error("Erro", {
