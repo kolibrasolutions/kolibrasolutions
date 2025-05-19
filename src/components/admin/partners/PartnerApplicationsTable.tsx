@@ -62,6 +62,13 @@ export const PartnerApplicationsTable = () => {
   const pendingApplications = applications.filter(app => app.status === 'pendente');
   const reviewedApplications = applications.filter(app => app.status !== 'pendente');
 
+  // Function to display user email safely
+  const renderUserEmail = (application: PartnerApplication) => {
+    return application.user && application.user.email
+      ? application.user.email
+      : application.user_id;
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -94,7 +101,7 @@ export const PartnerApplicationsTable = () => {
                         : "N/A"}
                     </td>
                     <td className="py-3">
-                      {application.user && application.user.email ? application.user.email : application.user_id}
+                      {renderUserEmail(application)}
                     </td>
                     <td className="py-3">{getStatusBadge(application.status)}</td>
                     <td className="py-3 text-right">
@@ -152,7 +159,7 @@ export const PartnerApplicationsTable = () => {
                         : "N/A"}
                     </td>
                     <td className="py-3">
-                      {application.user && application.user.email ? application.user.email : application.user_id}
+                      {renderUserEmail(application)}
                     </td>
                     <td className="py-3">{getStatusBadge(application.status)}</td>
                     <td className="py-3 text-right">

@@ -163,7 +163,8 @@ export const getPartnerCommissions = async () => {
       return result;
     });
     
-    return normalizedCommissions as CouponUse[];
+    // Cast the normalized data to the proper type after ensuring it has the right structure
+    return normalizedCommissions as unknown as CouponUse[];
   } catch (error) {
     console.error("Erro ao buscar comissões de parceiros:", error);
     toast.error("Erro", {
