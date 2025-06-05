@@ -22,8 +22,11 @@ export const getPartnerApplications = async () => {
 
     // Normalize user data to handle potential errors in relationships
     return (data || []).map(application => {
-      // Handle potential error in user relation
-      const normalizedUser = application.user && typeof application.user === 'object' && !('error' in application.user) 
+      // Handle potential error in user relation with proper null checking
+      const normalizedUser = application.user && 
+        typeof application.user === 'object' && 
+        !('error' in application.user) && 
+        application.user !== null
         ? application.user 
         : null;
       
