@@ -72,11 +72,12 @@ export const getUserApplications = async (): Promise<PartnerApplication[]> => {
     // Normalize user data to handle potential errors in relationships
     return (data || []).map(application => {
       // Handle potential error in user relation with proper null checking
-      const normalizedUser = application.user && 
-        typeof application.user === 'object' && 
-        !('error' in application.user) && 
-        application.user !== null
-        ? application.user 
+      const userData = application.user;
+      const normalizedUser = userData && 
+        typeof userData === 'object' && 
+        !('error' in userData) && 
+        userData !== null
+        ? userData 
         : null;
       
       return {
@@ -113,11 +114,12 @@ export async function getApplicationById(id: string): Promise<PartnerApplication
     }
     
     // Handle potential error in user relation with proper null checking
-    const normalizedUser = data.user && 
-      typeof data.user === 'object' && 
-      !('error' in data.user) && 
-      data.user !== null
-      ? data.user 
+    const userData = data.user;
+    const normalizedUser = userData && 
+      typeof userData === 'object' && 
+      !('error' in userData) && 
+      userData !== null
+      ? userData 
       : null;
     
     return {
