@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getPartnerApplications } from '@/services/admin/partnersManagement';
@@ -10,6 +9,7 @@ import { ApplicationReviewDialog } from './ApplicationReviewDialog';
 import { ptBR } from 'date-fns/locale';
 import { toast } from '@/components/ui/sonner';
 import { PartnerApplication } from '@/types/partners';
+import { getUserDisplay } from '@/utils/supabaseHelpers';
 
 export const PartnerApplicationsTable = () => {
   const queryClient = useQueryClient();
@@ -62,11 +62,9 @@ export const PartnerApplicationsTable = () => {
   const pendingApplications = applications.filter(app => app.status === 'pendente');
   const reviewedApplications = applications.filter(app => app.status !== 'pendente');
 
-  // Function to display user email safely
+  // Function to display user email safely using the helper
   const renderUserEmail = (application: PartnerApplication) => {
-    return application.user && application.user.email
-      ? application.user.email
-      : application.user_id;
+    return getUserDisplay(application.user, application.user_id);
   };
 
   return (

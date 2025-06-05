@@ -1,7 +1,7 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
 import { PartnerCoupon, CouponUse } from "@/types/partners";
+import { normalizeUserData } from "@/utils/supabaseHelpers";
 
 export const getPartnerApplications = async () => {
   try {
@@ -22,18 +22,9 @@ export const getPartnerApplications = async () => {
 
     // Normalize user data to handle potential errors in relationships
     return (data || []).map(application => {
-      // Handle potential error in user relation with proper null checking
-      const userData = application.user;
-      const normalizedUser = userData && 
-        typeof userData === 'object' && 
-        !('error' in userData) && 
-        userData !== null
-        ? userData 
-        : null;
-      
       return {
         ...application,
-        user: normalizedUser
+        user: normalizeUserData(application.user)
       };
     });
   } catch (error) {
@@ -88,11 +79,11 @@ export const getPartnerCoupons = async () => {
       let partnerData = null;
       
       // Verifica e normaliza os dados do partner
-      if (coupon.partner && typeof coupon.partner === 'object' && !('error' in coupon.partner)) {
+      if (coupon.partner) {
         if (Array.isArray(coupon.partner) && coupon.partner.length > 0) {
-          partnerData = coupon.partner[0];
+          partnerData = normalizeUserData(coupon.partner[0]);
         } else if (!Array.isArray(coupon.partner)) {
-          partnerData = coupon.partner;
+          partnerData = normalizeUserData(coupon.partner);
         }
       }
       
@@ -144,14 +135,14 @@ export const getPartnerCommissions = async () => {
         const couponData = { ...result.coupon };
         
         // Normalizar o partner dentro do coupon
-        if (couponData.partner && typeof couponData.partner === 'object' && !('error' in couponData.partner)) {
+        if (couponData.partner) {
           let partnerData = null;
           
           // Verifica e normaliza os dados do partner
           if (Array.isArray(couponData.partner) && couponData.partner.length > 0) {
-            partnerData = couponData.partner[0];
+            partnerData = normalizeUserData(couponData.partner[0]);
           } else if (!Array.isArray(couponData.partner)) {
-            partnerData = couponData.partner;
+            partnerData = normalizeUserData(couponData.partner);
           }
           
           // Atualiza o partner com os dados normalizados

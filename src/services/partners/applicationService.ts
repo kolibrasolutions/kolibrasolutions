@@ -1,7 +1,7 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
 import { PartnerApplication } from "@/types/partners";
+import { normalizeUserData } from "@/utils/supabaseHelpers";
 
 export const submitPartnerApplication = async (notes: string): Promise<boolean> => {
   try {
@@ -71,18 +71,9 @@ export const getUserApplications = async (): Promise<PartnerApplication[]> => {
 
     // Normalize user data to handle potential errors in relationships
     return (data || []).map(application => {
-      // Handle potential error in user relation with proper null checking
-      const userData = application.user;
-      const normalizedUser = userData && 
-        typeof userData === 'object' && 
-        !('error' in userData) && 
-        userData !== null
-        ? userData 
-        : null;
-      
       return {
         ...application,
-        user: normalizedUser
+        user: normalizeUserData(application.user)
       } as PartnerApplication;
     });
   } catch (error) {
@@ -113,18 +104,9 @@ export async function getApplicationById(id: string): Promise<PartnerApplication
       return null;
     }
     
-    // Handle potential error in user relation with proper null checking
-    const userData = data.user;
-    const normalizedUser = userData && 
-      typeof userData === 'object' && 
-      !('error' in userData) && 
-      userData !== null
-      ? userData 
-      : null;
-    
     return {
       ...data,
-      user: normalizedUser
+      user: normalizeUserData(data.user)
     } as PartnerApplication;
   } catch (error) {
     console.error("Erro ao buscar solicitação:", error);
