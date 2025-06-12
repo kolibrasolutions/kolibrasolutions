@@ -3,7 +3,7 @@
  * Utility functions for handling Supabase data with proper TypeScript safety
  */
 
-// Type guard to check if a value is a valid user object
+// Type guard to check if a valid user object
 export function isValidUserData(userData: any): userData is { email: string; full_name: string | null } {
   return userData && 
     typeof userData === 'object' && 
@@ -17,17 +17,23 @@ export function normalizeUserData(userData: any): { email: string; full_name: st
   if (isValidUserData(userData)) {
     return userData;
   }
+  
+  // Log para debug quando os dados não são válidos
+  if (userData && typeof userData === 'object') {
+    console.log("Dados de usuário inválidos:", userData);
+  }
+  
   return null;
 }
 
 // Helper function to safely get user display name or ID
 export function getUserDisplay(userData: any, fallbackId: string): string {
   const normalizedUser = normalizeUserData(userData);
-  if (normalizedUser?.email) {
-    return normalizedUser.email;
-  }
   if (normalizedUser?.full_name) {
     return normalizedUser.full_name;
+  }
+  if (normalizedUser?.email) {
+    return normalizedUser.email;
   }
   return fallbackId;
 }

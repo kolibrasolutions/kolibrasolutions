@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
 import { PartnerCoupon, CouponUse } from "@/types/partners";
@@ -59,11 +60,14 @@ export const getPartners = async () => {
 
 export const getPartnerCoupons = async () => {
   try {
+    console.log("Buscando cupons de parceiros...");
+    
+    // Usar LEFT JOIN explícito para garantir que o relacionamento funcione
     const { data, error } = await supabase
       .from("partner_coupons")
       .select(`
         *,
-        partner:users(
+        users!partner_coupons_partner_id_fkey(
           email,
           full_name
         )
@@ -71,28 +75,33 @@ export const getPartnerCoupons = async () => {
       .order("created_at", { ascending: false });
 
     if (error) {
+      console.error("Erro na consulta de cupons:", error);
       throw error;
     }
+
+    console.log("Dados brutos dos cupons:", data);
 
     // Normaliza os dados para garantir que o `partner` seja um objeto e não um array
     const normalizedCoupons = (data || []).map(coupon => {
       let partnerData = null;
       
-      // Verifica e normaliza os dados do partner
-      if (coupon.partner) {
-        if (Array.isArray(coupon.partner) && coupon.partner.length > 0) {
-          partnerData = normalizeUserData(coupon.partner[0]);
-        } else if (!Array.isArray(coupon.partner)) {
-          partnerData = normalizeUserData(coupon.partner);
+      // Verifica e normaliza os dados do partner (agora vem como `users`)
+      if (coupon.users) {
+        if (Array.isArray(coupon.users) && coupon.users.length > 0) {
+          partnerData = normalizeUserData(coupon.users[0]);
+        } else if (!Array.isArray(coupon.users)) {
+          partnerData = normalizeUserData(coupon.users);
         }
       }
       
       return {
         ...coupon,
-        partner: partnerData
+        partner: partnerData,
+        users: undefined // Remove o campo users para evitar confusão
       };
     });
     
+    console.log("Cupons normalizados:", normalizedCoupons);
     return normalizedCoupons as PartnerCoupon[];
   } catch (error) {
     console.error("Erro ao buscar cupons de parceiros:", error);
@@ -105,18 +114,20 @@ export const getPartnerCoupons = async () => {
 
 export const getPartnerCommissions = async () => {
   try {
+    console.log("Buscando comissões de parceiros...");
+    
     const { data, error } = await supabase
       .from("coupon_uses")
       .select(`
         *,
-        coupon:partner_coupons(
+        partner_coupons!coupon_uses_coupon_id_fkey(
           *,
-          partner:users(
+          users!partner_coupons_partner_id_fkey(
             email,
             full_name
           )
         ),
-        order:orders(
+        orders!coupon_uses_order_id_fkey(
           total_price,
           status
         )
@@ -124,39 +135,52 @@ export const getPartnerCommissions = async () => {
       .order("created_at", { ascending: false });
 
     if (error) {
+      console.error("Erro na consulta de comissões:", error);
       throw error;
     }
+
+    console.log("Dados brutos das comissões:", data);
 
     // Normaliza os dados para garantir que o `partner` dentro de `coupon` seja um objeto e não um array
     const normalizedCommissions = (data || []).map(commission => {
       const result = { ...commission };
       
-      if (result.coupon) {
-        const couponData = { ...result.coupon };
+      if (result.partner_coupons) {
+        const couponData = { ...result.partner_coupons };
         
         // Normalizar o partner dentro do coupon
-        if (couponData.partner) {
+        if (couponData.users) {
           let partnerData = null;
           
           // Verifica e normaliza os dados do partner
-          if (Array.isArray(couponData.partner) && couponData.partner.length > 0) {
-            partnerData = normalizeUserData(couponData.partner[0]);
-          } else if (!Array.isArray(couponData.partner)) {
-            partnerData = normalizeUserData(couponData.partner);
+          if (Array.isArray(couponData.users) && couponData.users.length > 0) {
+            partnerData = normalizeUserData(couponData.users[0]);
+          } else if (!Array.isArray(couponData.users)) {
+            partnerData = normalizeUserData(couponData.users);
           }
           
           // Atualiza o partner com os dados normalizados
           couponData.partner = partnerData;
+          couponData.users = undefined; // Remove o campo users
         } else {
           couponData.partner = null;
         }
         
         // Atualiza o coupon com os dados normalizados
         result.coupon = couponData;
+        result.partner_coupons = undefined; // Remove o campo original
+      }
+      
+      // Normalizar o campo orders para order
+      if (result.orders) {
+        result.order = result.orders;
+        result.orders = undefined;
       }
       
       return result;
     });
+    
+    console.log("Comissões normalizadas:", normalizedCommissions);
     
     // Cast the normalized data to the proper type after ensuring it has the right structure
     return normalizedCommissions as unknown as CouponUse[];
