@@ -94,10 +94,12 @@ export const getPartnerCoupons = async () => {
         }
       }
       
+      // Criar novo objeto sem a propriedade users e com partner
+      const { users, ...couponWithoutUsers } = coupon;
+      
       return {
-        ...coupon,
-        partner: partnerData,
-        users: undefined // Remove o campo users para evitar confusão
+        ...couponWithoutUsers,
+        partner: partnerData
       };
     });
     
@@ -143,41 +145,43 @@ export const getPartnerCommissions = async () => {
 
     // Normaliza os dados para garantir que o `partner` dentro de `coupon` seja um objeto e não um array
     const normalizedCommissions = (data || []).map(commission => {
-      const result = { ...commission };
+      // Destruturar as propriedades originais
+      const { partner_coupons, orders, ...baseCommission } = commission;
       
-      if (result.partner_coupons) {
-        const couponData = { ...result.partner_coupons };
+      let normalizedCoupon = null;
+      let normalizedOrder = null;
+      
+      // Normalizar o coupon se existir
+      if (partner_coupons) {
+        const { users, ...couponWithoutUsers } = partner_coupons;
         
-        // Normalizar o partner dentro do coupon
-        if (couponData.users) {
-          let partnerData = null;
-          
-          // Verifica e normaliza os dados do partner
-          if (Array.isArray(couponData.users) && couponData.users.length > 0) {
-            partnerData = normalizeUserData(couponData.users[0]);
-          } else if (!Array.isArray(couponData.users)) {
-            partnerData = normalizeUserData(couponData.users);
+        let partnerData = null;
+        
+        // Verifica e normaliza os dados do partner
+        if (users) {
+          if (Array.isArray(users) && users.length > 0) {
+            partnerData = normalizeUserData(users[0]);
+          } else if (!Array.isArray(users)) {
+            partnerData = normalizeUserData(users);
           }
-          
-          // Atualiza o partner com os dados normalizados
-          couponData.partner = partnerData;
-          couponData.users = undefined; // Remove o campo users
-        } else {
-          couponData.partner = null;
         }
         
-        // Atualiza o coupon com os dados normalizados
-        result.coupon = couponData;
-        result.partner_coupons = undefined; // Remove o campo original
+        normalizedCoupon = {
+          ...couponWithoutUsers,
+          partner: partnerData
+        };
       }
       
-      // Normalizar o campo orders para order
-      if (result.orders) {
-        result.order = result.orders;
-        result.orders = undefined;
+      // Normalizar o order se existir
+      if (orders) {
+        normalizedOrder = orders;
       }
       
-      return result;
+      return {
+        ...baseCommission,
+        coupon: normalizedCoupon,
+        order: normalizedOrder
+      };
     });
     
     console.log("Comissões normalizadas:", normalizedCommissions);
