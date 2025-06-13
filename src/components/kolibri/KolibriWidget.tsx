@@ -13,10 +13,14 @@ const KolibriWidget: React.FC = () => {
         <div className="fixed bottom-6 right-6 z-50">
           <Button
             onClick={() => setIsOpen(true)}
-            className="w-16 h-16 rounded-full bg-gradient-to-r from-kolibra-blue to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-2xl animate-bounce"
+            className="w-16 h-16 rounded-full bg-gradient-to-r from-kolibra-blue to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-2xl animate-bounce p-2"
             size="lg"
           >
-            <div className="text-2xl">🚁</div>
+            <img 
+              src="/lovable-uploads/4d763971-e656-4bc1-9de1-3a0f1ae9f985.png" 
+              alt="Kolibri IA" 
+              className="w-full h-full object-contain rounded-full"
+            />
           </Button>
           <div className="absolute -top-12 right-0 bg-white rounded-lg shadow-lg p-2 text-sm font-medium text-gray-700 whitespace-nowrap">
             Faça seu autodiagnóstico!
