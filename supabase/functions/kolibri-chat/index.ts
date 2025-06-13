@@ -138,9 +138,19 @@ function analyzeResponses(messages: ChatMessage[]): { results: DiagnosticResults
 }
 
 function shouldGenerateReport(messages: ChatMessage[]): boolean {
-  // Verificar se já passamos por várias etapas do diagnóstico
+  // Verificar se já passou por todas as etapas do diagnóstico
   const userMessages = messages.filter(m => m.role === 'user').length;
-  return userMessages >= 8; // Após nome, setor, objetivo + 6 fatias aproximadamente
+  const assistantMessages = messages.filter(m => m.role === 'assistant');
+  
+  // Só gerar relatório final se:
+  // 1. Tiver pelo menos 12 mensagens do usuário (nome, setor, objetivo + 6 fatias com múltiplas respostas)
+  // 2. E a última mensagem do assistente contiver indicação de finalização
+  const lastAssistantMessage = assistantMessages[assistantMessages.length - 1];
+  const hasFinalizationIndicator = lastAssistantMessage?.content.toLowerCase().includes('concluímos') || 
+                                  lastAssistantMessage?.content.toLowerCase().includes('relatório') ||
+                                  lastAssistantMessage?.content.toLowerCase().includes('diagnóstico completo');
+  
+  return userMessages >= 12 && hasFinalizationIndicator;
 }
 
 serve(async (req) => {

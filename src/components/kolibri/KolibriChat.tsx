@@ -203,28 +203,26 @@ const KolibriChat: React.FC<KolibriChatProps> = ({ isWidget = false, onClose }) 
           <div ref={messagesEndRef} />
         </div>
         
-        {!showFinalReport && (
-          <div className="border-t p-4">
-            <div className="flex space-x-2">
-              <Input
-                ref={inputRef}
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Digite sua mensagem..."
-                disabled={isLoading}
-                className="flex-1"
-              />
-              <Button
-                onClick={sendMessage}
-                disabled={isLoading || !inputMessage.trim()}
-                className="bg-kolibra-orange hover:bg-amber-500"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
+        <div className="border-t p-4">
+          <div className="flex space-x-2">
+            <Input
+              ref={inputRef}
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Digite sua mensagem..."
+              disabled={isLoading}
+              className="flex-1"
+            />
+            <Button
+              onClick={sendMessage}
+              disabled={isLoading || !inputMessage.trim()}
+              className="bg-kolibra-orange hover:bg-amber-500"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
           </div>
-        )}
+        </div>
       </CardContent>
     </Card>
   );
