@@ -51,13 +51,6 @@ const KolibriChat: React.FC<KolibriChatProps> = ({ isWidget = false, onClose }) 
     scrollToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    // Focus no input quando o componente é montado
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
-
   const sendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
 
@@ -107,12 +100,6 @@ const KolibriChat: React.FC<KolibriChatProps> = ({ isWidget = false, onClose }) 
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
-      // Focar no input após enviar mensagem
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-      }, 100);
     }
   };
 
