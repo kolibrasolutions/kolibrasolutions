@@ -19,7 +19,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   isLoading,
   inputRef
 }) => {
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       onSendMessage();
@@ -27,13 +27,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   return (
-    <div className="border-t p-4">
+    <div className="border-t p-4 bg-white">
       <div className="flex space-x-2">
         <Input
           ref={inputRef}
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           placeholder="Digite sua mensagem..."
           disabled={isLoading}
           className="flex-1"
