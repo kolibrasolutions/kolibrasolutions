@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -15,29 +16,35 @@ const Home = () => {
         {/* Hero Section with Stats and Gradient Animation */}
         <section className="relative py-0">
           <BackgroundGradientAnimation>
-            <div className="relative z-10 container mx-auto px-4 min-h-[600px] flex flex-col justify-center">
-              <div className="max-w-3xl mb-10 pt-16 md:pt-24">
-                <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-lg">
-                  Transforme seu Negócio com Soluções Digitais Acessíveis
-                </h1>
-                <p className="text-xl mb-6 text-white/90 drop-shadow">
-                  Oferecemos serviços profissionais de branding, web design e marketing digital para transformar sua marca em uma presença digital de destaque.
-                </p>
-                <p className="text-2xl font-bold mb-8 text-kolibra-orange drop-shadow">
-                  A SOLUÇÃO CERTA PARA CRESCER
-                </p>
-                <Link to="/servicos">
-                  <Button className="bg-kolibra-orange hover:bg-amber-500 text-white text-lg px-8 py-6 shadow-xl">
-                    Descubra Nossas Soluções <ChevronRight className="ml-1" />
-                  </Button>
-                </Link>
+            {/* Alteração principal: novo container grid para separar lado-a-lado no desktop */}
+            <div className="relative z-10 container mx-auto px-4 min-h-screen flex flex-col justify-center">
+              <div className="flex flex-col md:flex-row items-center md:items-start md:justify-between w-full min-h-screen">
+                {/* Conteúdo principal */}
+                <div className="max-w-3xl mb-10 pt-16 md:pt-24 flex-1 flex flex-col justify-center md:mb-0 md:pt-20">
+                  <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-lg">
+                    Transforme seu Negócio com Soluções Digitais Acessíveis
+                  </h1>
+                  <p className="text-xl mb-6 text-white/90 drop-shadow">
+                    Oferecemos serviços profissionais de branding, web design e marketing digital para transformar sua marca em uma presença digital de destaque.
+                  </p>
+                  <p className="text-2xl font-bold mb-8 text-kolibra-orange drop-shadow">
+                    A SOLUÇÃO CERTA PARA CRESCER
+                  </p>
+                  <Link to="/servicos">
+                    <Button className="bg-kolibra-orange hover:bg-amber-500 text-white text-lg px-8 py-6 shadow-xl">
+                      Descubra Nossas Soluções <ChevronRight className="ml-1" />
+                    </Button>
+                  </Link>
+                </div>
+                {/* StatsCounter em coluna ao lado (desktop) ou abaixo (mobile) */}
+                <div className="flex-1 w-full md:w-2/5 flex flex-col items-center md:items-end justify-end md:justify-center md:pl-8 mt-10 md:mt-0">
+                  <StatsCounter />
+                </div>
               </div>
-              {/* Stats Counter */}
-              <StatsCounter />
             </div>
           </BackgroundGradientAnimation>
         </section>
-
+        
         {/* Featured Services Section */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
@@ -108,8 +115,6 @@ const Home = () => {
           </div>
         </section>
       </Layout>
-      
-      {/* Kolibri Widget - Floating button positioned outside Layout */}
       <KolibriWidget />
     </>
   );
