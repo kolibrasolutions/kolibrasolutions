@@ -1,4 +1,3 @@
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
@@ -36,17 +35,19 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Force React deduplication by aliasing to single instance
+      // Assegurar unicidade das instâncias:
       "react": path.resolve(__dirname, "./node_modules/react"),
       "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
       "react/jsx-runtime": path.resolve(__dirname, "./node_modules/react/jsx-runtime"),
     },
+    // De-duplicar todas instâncias de react e react-dom!
     dedupe: [
-      'react',
-      'react-dom',
-      'react/jsx-runtime',
+      "react",
+      "react-dom",
+      "react/jsx-runtime"
     ],
-    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
+    // Garante análise de todos tipos de arquivos
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   },
   build: {
     rollupOptions: {
@@ -58,7 +59,7 @@ export default defineConfig(({ mode }) => ({
           ui: ['@radix-ui/react-tooltip', '@radix-ui/react-toast']
         }
       }
-    },
+    }
   },
   optimizeDeps: {
     include: [
