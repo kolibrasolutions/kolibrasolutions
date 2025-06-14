@@ -36,13 +36,15 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Force React deduplication by aliasing to single instance
+      "react": path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
+      "react/jsx-runtime": path.resolve(__dirname, "./node_modules/react/jsx-runtime"),
     },
     dedupe: [
       'react',
       'react-dom',
       'react/jsx-runtime',
-      '@radix-ui/react-tooltip',
-      '@tanstack/react-query'
     ],
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
   },
@@ -63,7 +65,6 @@ export default defineConfig(({ mode }) => ({
       'react',
       'react-dom',
       'react/jsx-runtime',
-      '@radix-ui/react-tooltip',
       '@tanstack/react-query'
     ],
     force: true,

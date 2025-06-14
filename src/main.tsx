@@ -13,7 +13,9 @@ if (!rootElement) {
 
 // Create root and render
 ReactDOM.createRoot(rootElement).render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
 );
