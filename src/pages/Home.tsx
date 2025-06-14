@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,34 +6,36 @@ import { ChevronRight } from 'lucide-react';
 import StatsCounter from '@/components/home/StatsCounter';
 import TestimonialsSlider from '@/components/home/TestimonialsSlider';
 import KolibriWidget from '@/components/kolibri/KolibriWidget';
+import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
 
 const Home = () => {
   return (
     <>
       <Layout>
-        {/* Hero Section with Stats */}
-        <section className="bg-gradient-to-r from-kolibra-blue to-blue-700 py-16 text-white">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mb-10">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                Transforme seu Negócio com Soluções Digitais Acessíveis
-              </h1>
-              <p className="text-xl mb-6 text-white/90">
-                Oferecemos serviços profissionais de branding, web design e marketing digital para transformar sua marca em uma presença digital de destaque.
-              </p>
-              <p className="text-2xl font-bold mb-8 text-kolibra-orange">
-                A SOLUÇÃO CERTA PARA CRESCER
-              </p>
-              <Link to="/servicos">
-                <Button className="bg-kolibra-orange hover:bg-amber-500 text-white text-lg px-8 py-6">
-                  Descubra Nossas Soluções <ChevronRight className="ml-1" />
-                </Button>
-              </Link>
+        {/* Hero Section with Stats and Gradient Animation */}
+        <section className="relative py-0">
+          <BackgroundGradientAnimation>
+            <div className="relative z-10 container mx-auto px-4 min-h-[600px] flex flex-col justify-center">
+              <div className="max-w-3xl mb-10 pt-16 md:pt-24">
+                <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-lg">
+                  Transforme seu Negócio com Soluções Digitais Acessíveis
+                </h1>
+                <p className="text-xl mb-6 text-white/90 drop-shadow">
+                  Oferecemos serviços profissionais de branding, web design e marketing digital para transformar sua marca em uma presença digital de destaque.
+                </p>
+                <p className="text-2xl font-bold mb-8 text-kolibra-orange drop-shadow">
+                  A SOLUÇÃO CERTA PARA CRESCER
+                </p>
+                <Link to="/servicos">
+                  <Button className="bg-kolibra-orange hover:bg-amber-500 text-white text-lg px-8 py-6 shadow-xl">
+                    Descubra Nossas Soluções <ChevronRight className="ml-1" />
+                  </Button>
+                </Link>
+              </div>
+              {/* Stats Counter */}
+              <StatsCounter />
             </div>
-            
-            {/* Stats Counter */}
-            <StatsCounter />
-          </div>
+          </BackgroundGradientAnimation>
         </section>
 
         {/* Featured Services Section */}
