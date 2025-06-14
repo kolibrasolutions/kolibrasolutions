@@ -42,16 +42,18 @@ export default defineConfig(({ mode }) => ({
       'react-dom',
       'react/jsx-runtime',
       '@radix-ui/react-tooltip',
+      '@tanstack/react-query'
     ],
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
   },
   build: {
     rollupOptions: {
+      external: [],
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          query: ['@tanstack/react-query'],
+          ui: ['@radix-ui/react-tooltip', '@radix-ui/react-toast']
         }
       }
     },
@@ -62,6 +64,7 @@ export default defineConfig(({ mode }) => ({
       'react-dom',
       'react/jsx-runtime',
       '@radix-ui/react-tooltip',
+      '@tanstack/react-query'
     ],
     force: true,
     exclude: [],
