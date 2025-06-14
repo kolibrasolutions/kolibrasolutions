@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,31 +7,32 @@ import StatsCounter from '@/components/home/StatsCounter';
 import TestimonialsSlider from '@/components/home/TestimonialsSlider';
 import KolibriWidget from '@/components/kolibri/KolibriWidget';
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
+import BrandManifesto from '@/components/services/BrandManifesto';
+import KolibraMethod from '@/components/services/KolibraMethod';
+import ServicePackageCard from '@/components/services/ServicePackageCard';
 
 const Home = () => {
   return (
     <>
       <Layout>
-        {/* Hero Section with Stats and Gradient Animation */}
+        {/* Hero Section com novo manifesto */}
         <section className="relative py-0">
           <BackgroundGradientAnimation>
-            {/* Alteração principal: novo container grid para separar lado-a-lado no desktop */}
             <div className="relative z-10 container mx-auto px-4 min-h-screen flex flex-col justify-center">
               <div className="flex flex-col md:flex-row items-center md:items-start md:justify-between w-full min-h-screen">
-                {/* Conteúdo principal */}
                 <div className="max-w-3xl mb-10 pt-16 md:pt-24 flex-1 flex flex-col justify-center md:mb-0 md:pt-20">
-                  <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-lg">
-                    Transforme seu Negócio com Soluções Digitais Acessíveis
+                  <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white drop-shadow-lg">
+                    Eleve o seu negócio no digital <br className="hidden md:inline"/> com a Kolibra Solutions
                   </h1>
                   <p className="text-xl mb-6 text-white/90 drop-shadow">
-                    Oferecemos serviços profissionais de branding, web design e marketing digital para transformar sua marca em uma presença digital de destaque.
+                    Simplificamos a jornada digital de pequenos negócios, autônomos e marcas locais com estratégia, design e tecnologia – tudo sob medida.
                   </p>
                   <p className="text-2xl font-bold mb-8 text-kolibra-orange drop-shadow">
-                    A SOLUÇÃO CERTA PARA CRESCER
+                    Toda empresa merece voar alto.
                   </p>
                   <Link to="/servicos">
                     <Button className="bg-kolibra-orange hover:bg-amber-500 text-white text-lg px-8 py-6 shadow-xl">
-                      Descubra Nossas Soluções <ChevronRight className="ml-1" />
+                      Vamos voar alto juntos <ChevronRight className="ml-1" />
                     </Button>
                   </Link>
                 </div>
@@ -44,39 +44,51 @@ const Home = () => {
             </div>
           </BackgroundGradientAnimation>
         </section>
-        
-        {/* Featured Services Section */}
+
+        <BrandManifesto />
+        <KolibraMethod />
+
+        {/* Nova seção de destaque para pacotes principais */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12">Nossas Soluções em Destaque</h2>
-            
+            <h2 className="text-3xl font-bold text-center mb-12 text-kolibra-blue">Soluções Sob Medida Para Sua Jornada</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-gray-50 rounded-lg p-8">
-                <img src="/pencil.png" alt="Branding Profissional" className="w-full h-48 object-cover object-center mb-6 rounded-lg" />
-                <h3 className="text-xl font-bold mb-2">Branding Profissional</h3>
-                <p className="text-gray-600 mb-4">Crie uma identidade visual única e memorável que comunica a essência da sua marca.</p>
-                <Link to="/servicos" className="text-kolibra-orange hover:text-amber-500">
-                  Saiba mais →
-                </Link>
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-8">
-                <img src="/computer.png" alt="Web Design Responsivo" className="w-full h-48 object-cover object-center mb-6 rounded-lg" />
-                <h3 className="text-xl font-bold mb-2">Web Design Responsivo</h3>
-                <p className="text-gray-600 mb-4">Sites modernos e funcionais que proporcionam a melhor experiência em qualquer dispositivo.</p>
-                <Link to="/servicos" className="text-kolibra-orange hover:text-amber-500">
-                  Saiba mais →
-                </Link>
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-8">
-                <img src="/megaphone.png" alt="Marketing Digital" className="w-full h-48 object-cover object-center mb-6 rounded-lg" />
-                <h3 className="text-xl font-bold mb-2">Marketing Digital</h3>
-                <p className="text-gray-600 mb-4">Estratégias personalizadas para alcançar seu público-alvo e converter visitantes em clientes.</p>
-                <Link to="/servicos" className="text-kolibra-orange hover:text-amber-500">
-                  Saiba mais →
-                </Link>
-              </div>
+              {/* Cards dos principais pacotes */}
+              <ServicePackageCard
+                title="Kolibra Rebrand"
+                icon="🎨"
+                description="Reposicione sua marca com identidade visual, branding, manual e templates prontos."
+                included={[
+                  "Logo & identidade visual",
+                  "Manual da marca & tom de voz",
+                  "Templates para redes sociais",
+                  "Manifesto e essência"
+                ]}
+                result="Uma marca memorável e profissional."
+              />
+              <ServicePackageCard
+                title="Kolibra Express Site"
+                icon="🌐"
+                description="Site institucional ou loja virtual pronta para você vender e ser encontrado."
+                included={[
+                  "Site ou loja NuvemShop",
+                  "Integração redes sociais e pagamentos",
+                  "Layout exclusivo",
+                  "Domínio & treinamento"
+                ]}
+                result="Presença digital autônoma e funcional."
+              />
+              <ServicePackageCard
+                title="Kolibra Social Sales"
+                icon="📱"
+                description="Transforme suas redes sociais em um verdadeiro canal de vendas automatizado."
+                included={[
+                  "Catálogo de produtos integrado",
+                  "Funil digital: atração → conversão",
+                  "Bio e rotas de compra otimizadas"
+                ]}
+                result="Mais vendas diretamente do Instagram & Facebook."
+              />
             </div>
           </div>
         </section>
