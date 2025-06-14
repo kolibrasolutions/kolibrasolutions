@@ -108,120 +108,136 @@ type SpringAvatarProps = {
   };
 } & HTMLMotionProps<'div'>;
 
-function SpringElement({
-  ref,
-  children,
-  className,
-  springClassName,
-  dragElastic = 0.2,
-  springConfig = { stiffness: 200, damping: 16 },
-  springPathConfig = {},
-  ...props
-}: SpringAvatarProps) {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
+// Corrigindo: Receber o ref corretamente usando React.forwardRef
+const SpringElement = React.forwardRef<HTMLDivElement, SpringAvatarProps>(
+  (
+    {
+      children,
+      className,
+      springClassName,
+      dragElastic = 0.2,
+      springConfig = { stiffness: 200, damping: 16 },
+      springPathConfig = {},
+      ...props
+    },
+    ref
+  ) => {
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
 
-  const springX = useSpring(x, {
-    stiffness: springConfig.stiffness,
-    damping: springConfig.damping,
-  });
-  const springY = useSpring(y, {
-    stiffness: springConfig.stiffness,
-    damping: springConfig.damping,
-  });
+    const springX = useSpring(x, {
+      stiffness: springConfig.stiffness,
+      damping: springConfig.damping,
+    });
+    const springY = useSpring(y, {
+      stiffness: springConfig.stiffness,
+      damping: springConfig.damping,
+    });
 
-  const sx = useMotionValueValue(springX);
-  const sy = useMotionValueValue(springY);
+    const sx = useMotionValueValue(springX);
+    const sy = useMotionValueValue(springY);
 
-  const childRef = React.useRef<HTMLDivElement>(null);
-  React.useImperativeHandle(ref, () => childRef.current as HTMLDivElement);
-  const [center, setCenter] = React.useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = React.useState(false);
+    const childRef = React.useRef<HTMLDivElement>(null);
+    // Não precisa usar useImperativeHandle pois o ref já é propagado
+    const [center, setCenter] = React.useState({ x: 0, y: 0 });
+    const [isDragging, setIsDragging] = React.useState(false);
 
-  React.useLayoutEffect(() => {
-    function update() {
-      if (childRef.current) {
-        const rect = childRef.current.getBoundingClientRect();
-        setCenter({
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2,
-        });
+    React.useLayoutEffect(() => {
+      function update() {
+        if (childRef.current) {
+          const rect = childRef.current.getBoundingClientRect();
+          setCenter({
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2,
+          });
+        }
       }
-    }
-    update();
-    window.addEventListener('resize', update);
-    window.addEventListener('scroll', update, true);
-    return () => {
-      window.removeEventListener('resize', update);
-      window.removeEventListener('scroll', update, true);
-    };
-  }, []);
+      update();
+      window.addEventListener('resize', update);
+      window.addEventListener('scroll', update, true);
+      return () => {
+        window.removeEventListener('resize', update);
+        window.removeEventListener('scroll', update, true);
+      };
+    }, []);
 
-  React.useEffect(() => {
-    if (isDragging) {
-      document.body.style.cursor = 'grabbing';
-    } else {
-      document.body.style.cursor = 'default';
-    }
-  }, [isDragging]);
+    React.useEffect(() => {
+      if (isDragging) {
+        document.body.style.cursor = 'grabbing';
+      } else {
+        document.body.style.cursor = 'default';
+      }
+    }, [isDragging]);
 
-  const path = generateSpringPath(
-    center.x,
-    center.y,
-    center.x + sx,
-    center.y + sy,
-    springPathConfig,
-  );
+    const path = generateSpringPath(
+      center.x,
+      center.y,
+      center.x + sx,
+      center.y + sy,
+      springPathConfig,
+    );
 
-  return (
-    <>
-      <svg
-        width="100vw"
-        height="100vh"
-        className="fixed inset-0 w-screen h-screen pointer-events-none z-40 inset-0"
-      >
-        <path
-          d={path}
-          strokeLinecap="round"
-          strokeLinejoin="round"
+    return (
+      <>
+        <svg
+          width="100vw"
+          height="100vh"
+          className="fixed inset-0 w-screen h-screen pointer-events-none z-40 inset-0"
+        >
+          <path
+            d={path}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={cn(
+              'stroke-2 stroke-neutral-900 dark:stroke-neutral-100 fill-none',
+              springClassName,
+            )}
+          />
+        </svg>
+        <motion.div
+          ref={(node) => {
+            // vincula tanto ao ref do forwardRef quanto ao childRef interno
+            if (typeof ref === "function") {
+              ref(node);
+            } else if (ref) {
+              (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+            }
+            // nosso childRef local para centralização do SVG
+            (childRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+          }}
           className={cn(
-            'stroke-2 stroke-neutral-900 dark:stroke-neutral-100 fill-none',
-            springClassName,
+            'z-50',
+            isDragging ? 'cursor-grabbing' : 'cursor-grab',
+            className,
           )}
-        />
-      </svg>
-      <motion.div
-        ref={childRef}
-        className={cn(
-          'z-50',
-          isDragging ? 'cursor-grabbing' : 'cursor-grab',
-          className,
-        )}
-        style={{
-          x: springX,
-          y: springY,
-        }}
-        drag
-        dragElastic={dragElastic}
-        dragMomentum={false}
-        onDragStart={() => {
-          setIsDragging(true);
-        }}
-        onDrag={(_, info) => {
-          x.set(info.offset.x);
-          y.set(info.offset.y);
-        }}
-        onDragEnd={() => {
-          x.set(0);
-          y.set(0);
-          setIsDragging(false);
-        }}
-        {...props}
-      >
-        {children}
-      </motion.div>
-    </>
-  );
-}
+          style={{
+            x: springX,
+            y: springY,
+          }}
+          drag
+          dragElastic={dragElastic}
+          dragMomentum={false}
+          onDragStart={() => {
+            setIsDragging(true);
+          }}
+          onDrag={(_, info) => {
+            x.set(info.offset.x);
+            y.set(info.offset.y);
+          }}
+          onDragEnd={() => {
+            x.set(0);
+            y.set(0);
+            setIsDragging(false);
+          }}
+          {...props}
+        >
+          {children}
+        </motion.div>
+      </>
+    );
+  }
+);
+
+SpringElement.displayName = "SpringElement";
 
 export { SpringElement };
