@@ -1,6 +1,5 @@
-import React from 'react';
-console.log('React@main:', React);
 
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
@@ -12,7 +11,7 @@ if (!rootElement) {
   throw new Error('Root element not found');
 }
 
-// Create root and render with StrictMode
+// Create root and render
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter>

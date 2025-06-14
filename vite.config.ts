@@ -36,17 +36,12 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Ensure react/react-dom are always resolved from project root node_modules
-      "react": path.resolve(__dirname, "./node_modules/react"),
-      "react$": path.resolve(__dirname, "./node_modules/react"),
-      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
-      "react-dom$": path.resolve(__dirname, "./node_modules/react-dom"),
     },
     dedupe: [
       'react',
       'react-dom',
+      'react/jsx-runtime',
       '@radix-ui/react-tooltip',
-      '@radix-ui/react-tooltip/dist/index.mjs',
     ],
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
   },
@@ -65,9 +60,10 @@ export default defineConfig(({ mode }) => ({
     include: [
       'react',
       'react-dom',
+      'react/jsx-runtime',
       '@radix-ui/react-tooltip',
     ],
-    force: true, // Force optimization to ensure consistent versions
+    force: true,
     exclude: [],
     esbuildOptions: {
       resolveExtensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
