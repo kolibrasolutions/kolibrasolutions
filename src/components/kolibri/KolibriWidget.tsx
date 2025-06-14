@@ -19,7 +19,7 @@ const KolibriWidget: React.FC = () => {
               size="lg"
             >
               <img 
-                src="/lovable-uploads/89bcb2cb-7a58-4e74-9997-77c977ac31f4.png" 
+                src="/lovable-uploads/b6e31161-5091-4d56-afdb-8c69ae390cda.png" 
                 alt="Kolibri IA" 
                 className="w-full h-full object-contain rounded-full"
               />
@@ -45,3 +45,4 @@ const KolibriWidget: React.FC = () => {
 };
 
 export default KolibriWidget;
+
