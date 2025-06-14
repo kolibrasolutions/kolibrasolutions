@@ -1,4 +1,3 @@
-
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route } from "react-router-dom";
@@ -20,6 +19,8 @@ import Profile from "./pages/Profile";
 import BecomePartner from "./pages/BecomePartner";
 import PartnerDashboard from "./pages/PartnerDashboard";
 import Kolibri from "./pages/Kolibri";
+import Sobre from "./pages/Sobre";
+import Metodo from "./pages/Metodo";
 
 // Create a new QueryClient with custom error handling
 const queryClient = new QueryClient({
@@ -54,6 +55,8 @@ const App: React.FC = () => {
             <Route path="/parceiros" element={<BecomePartner />} />
             <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
             <Route path="/kolibri" element={<Kolibri />} />
+            <Route path="/sobre" element={<Sobre />} />
+            <Route path="/metodo" element={<Metodo />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </CartProvider>

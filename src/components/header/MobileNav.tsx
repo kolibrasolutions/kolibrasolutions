@@ -50,6 +50,8 @@ const MobileNav: React.FC<MobileNavProps> = ({
           <div className="container mx-auto py-4 space-y-4">
             <Link to="/" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/' ? 'bg-gray-100 font-semibold text-kolibra-orange' : 'text-gray-800'}`}>HOME</Link>
             <Link to="/servicos" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/servicos' ? 'bg-gray-100 font-semibold text-kolibra-orange' : 'text-gray-800'}`}>SERVIÇOS</Link>
+            <Link to="/metodo" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/metodo' ? 'bg-gray-100 font-semibold text-kolibra-orange' : 'text-gray-800'}`}>MÉTODO</Link>
+            <Link to="/sobre" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/sobre' ? 'bg-gray-100 font-semibold text-kolibra-orange' : 'text-gray-800'}`}>SOBRE</Link>
             <Link to="/portfolio" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/portfolio' ? 'bg-gray-100 font-semibold text-kolibra-orange' : 'text-gray-800'}`}>PORTFOLIO</Link>
             <Link to="/blog" onClick={closeMenu} className={`block px-4 py-2 rounded hover:bg-gray-100 ${location.pathname === '/blog' ? 'bg-gray-100 font-semibold text-kolibra-orange' : 'text-gray-800'}`}>BLOG</Link>
             

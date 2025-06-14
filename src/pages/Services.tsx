@@ -1,9 +1,5 @@
-
 import React from 'react';
 import Layout from '@/components/Layout';
-import BrandManifesto from '@/components/services/BrandManifesto';
-import KolibraMethod from '@/components/services/KolibraMethod';
-import DigitalPresenceSlices from '@/components/services/DigitalPresenceSlices';
 import ServicePackageCard from '@/components/services/ServicePackageCard';
 
 const servicePackages = [
@@ -86,13 +82,12 @@ const Services = () => {
           <p className="text-xl text-white/90 mb-6">
             Soluções digitais estratégicas para impulsionar negócios de verdade. Conheça nossos pacotes criados para gerar resultados, clareza de marca e crescimento digital sustentável.
           </p>
+          <div className="flex flex-col items-center gap-4 mt-6">
+            <a href="/metodo" className="inline-block text-kolibra-orange underline font-semibold hover:text-kolibra-blue transition">Veja nosso método</a>
+            <a href="/sobre" className="inline-block text-kolibra-orange underline font-semibold hover:text-kolibra-blue transition">Sobre a Kolibra</a>
+          </div>
         </div>
       </section>
-
-      <BrandManifesto />
-      <KolibraMethod />
-      <DigitalPresenceSlices />
-
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Nossos Pacotes Estratégicos</h2>
@@ -110,8 +105,6 @@ const Services = () => {
           </div>
         </div>
       </section>
-
-      {/* CTA contato/conversar será implementado na próxima etapa */}
     </Layout>
   );
 };
