@@ -45,9 +45,6 @@ const Home = () => {
           </BackgroundGradientAnimation>
         </section>
 
-        <BrandManifesto />
-        <KolibraMethod />
-
         {/* Nova seção de destaque para pacotes principais */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
