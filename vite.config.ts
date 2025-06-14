@@ -36,12 +36,18 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Use exact module matching with $ to prevent partial matches
+      // Ensure react/react-dom are always resolved from project root node_modules
+      "react": path.resolve(__dirname, "./node_modules/react"),
       "react$": path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
       "react-dom$": path.resolve(__dirname, "./node_modules/react-dom"),
     },
-    // Explicitly dedupe React to prevent multiple instances
-    dedupe: ['react', 'react-dom'],
+    dedupe: [
+      'react',
+      'react-dom',
+      '@radix-ui/react-tooltip',
+      '@radix-ui/react-tooltip/dist/index.mjs',
+    ],
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
   },
   build: {
@@ -56,7 +62,15 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    include: ['react', 'react-dom'],
+    include: [
+      'react',
+      'react-dom',
+      '@radix-ui/react-tooltip',
+    ],
     force: true, // Force optimization to ensure consistent versions
+    exclude: [],
+    esbuildOptions: {
+      resolveExtensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
+    }
   },
 }));
