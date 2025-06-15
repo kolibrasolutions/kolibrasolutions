@@ -15,7 +15,6 @@ export default defineConfig(({ mode }) => ({
     headers: {
       'Cache-Control': 'public, max-age=31536000',
     },
-    // Add allowedHosts to resolve "Blocked request" errors in Lovable
     allowedHosts: [
       'localhost',
       '127.0.0.1',
@@ -36,18 +35,16 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Assegurar unicidade das instâncias:
+      // ONLY these explicit aliases for React:
       "react": path.resolve(__dirname, "./node_modules/react"),
       "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
-      // Removido: "react/jsx-runtime": path.resolve(__dirname, "./node_modules/react/jsx-runtime"),
     },
-    // De-duplicar todas instâncias de react e react-dom!
+    // Dedupe all possible React import paths:
     dedupe: [
       "react",
       "react-dom",
       "react/jsx-runtime"
     ],
-    // Garante análise de todos tipos de arquivos
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   },
   build: {
@@ -57,7 +54,10 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           query: ['@tanstack/react-query'],
-          ui: ['@radix-ui/react-tooltip', '@radix-ui/react-toast']
+          ui: [
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-toast'
+          ]
         }
       }
     }
