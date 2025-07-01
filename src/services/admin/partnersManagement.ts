@@ -1,29 +1,41 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
 import { PartnerCoupon, CouponUse } from "@/types/partners";
-import { normalizeUserData } from "@/utils/supabaseHelpers";
 
 export const getPartnerApplications = async () => {
   try {
-    const { data, error } = await supabase
+    // Buscar aplicações de parceria
+    const { data: applications, error } = await supabase
       .from("partner_applications")
-      .select(`
-        *,
-        user:users(*)
-      `)
+      .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
       throw error;
     }
 
-    // Normalize user data to handle potential errors in relationships
-    return (data || []).map(application => {
-      return {
-        ...application,
-        user: normalizeUserData(application.user)
-      };
-    });
+    if (!applications || applications.length === 0) {
+      return [];
+    }
+
+    // Buscar informações dos usuários separadamente
+    const userIds = applications.map(app => app.user_id);
+    const { data: users, error: usersError } = await supabase.auth.admin.listUsers();
+
+    if (usersError) {
+      console.warn("Não foi possível buscar dados dos usuários:", usersError);
+      return applications.map(app => ({
+        ...app,
+        user: { email: app.user_id, full_name: null }
+      }));
+    }
+
+    // Combinar os dados
+    return applications.map(app => ({
+      ...app,
+      user: users.users.find(user => user.id === app.user_id) || { email: app.user_id, full_name: null }
+    }));
+
   } catch (error) {
     console.error("Erro ao buscar solicitações de parceria:", error);
     toast.error("Erro", {
@@ -54,61 +66,39 @@ export const getPartners = async () => {
   }
 };
 
-export const getPartnerCoupons = async () => {
+export const getPartnerCoupons = async (): Promise<PartnerCoupon[]> => {
   try {
-    console.log("Buscando cupons de parceiros...");
-    
-    // Usar LEFT JOIN explícito para garantir que o relacionamento funcione
-    const { data, error } = await supabase
+    // Buscar cupons de parceiros
+    const { data: coupons, error } = await supabase
       .from("partner_coupons")
-      .select(`
-        *,
-<<<<<<< HEAD
-        partner:users(*)
-=======
-        users!partner_coupons_partner_id_fkey(
-          email,
-          full_name
-        )
->>>>>>> 4203c1fc7c2fbb716de962f68dac62d2ea98383b
-      `)
+      .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Erro na consulta de cupons:", error);
       throw error;
     }
 
-<<<<<<< HEAD
-    return data || [];
-=======
-    console.log("Dados brutos dos cupons:", data);
+    if (!coupons || coupons.length === 0) {
+      return [];
+    }
 
-    // Normaliza os dados para garantir que o `partner` seja um objeto e não um array
-    const normalizedCoupons = (data || []).map(coupon => {
-      let partnerData = null;
-      
-      // Verifica e normaliza os dados do partner (agora vem como `users`)
-      if (coupon.users) {
-        if (Array.isArray(coupon.users) && coupon.users.length > 0) {
-          partnerData = normalizeUserData(coupon.users[0]);
-        } else if (!Array.isArray(coupon.users)) {
-          partnerData = normalizeUserData(coupon.users);
-        }
-      }
-      
-      // Criar novo objeto sem a propriedade users e com partner
-      const { users, ...couponWithoutUsers } = coupon;
-      
-      return {
-        ...couponWithoutUsers,
-        partner: partnerData
-      };
-    });
-    
-    console.log("Cupons normalizados:", normalizedCoupons);
-    return normalizedCoupons as PartnerCoupon[];
->>>>>>> 4203c1fc7c2fbb716de962f68dac62d2ea98383b
+    // Buscar informações dos usuários separadamente
+    const { data: users, error: usersError } = await supabase.auth.admin.listUsers();
+
+    if (usersError) {
+      console.warn("Não foi possível buscar dados dos usuários:", usersError);
+      return coupons.map(coupon => ({
+        ...coupon,
+        partner: { email: coupon.partner_id, full_name: null }
+      }));
+    }
+
+    // Combinar os dados
+    return coupons.map(coupon => ({
+      ...coupon,
+      partner: users.users.find(user => user.id === coupon.partner_id) || { email: coupon.partner_id, full_name: null }
+    }));
+
   } catch (error) {
     console.error("Erro ao buscar cupons de parceiros:", error);
     toast.error("Erro", {
@@ -118,88 +108,59 @@ export const getPartnerCoupons = async () => {
   }
 };
 
-export const getPartnerCommissions = async () => {
+export const getPartnerCommissions = async (): Promise<CouponUse[]> => {
   try {
-    console.log("Buscando comissões de parceiros...");
-    
-    const { data, error } = await supabase
+    // Buscar usos de cupons
+    const { data: uses, error } = await supabase
       .from("coupon_uses")
-      .select(`
-        *,
-        partner_coupons!coupon_uses_coupon_id_fkey(
-          *,
-<<<<<<< HEAD
-          partner:users(*)
-=======
-          users!partner_coupons_partner_id_fkey(
-            email,
-            full_name
-          )
->>>>>>> 4203c1fc7c2fbb716de962f68dac62d2ea98383b
-        ),
-        orders!coupon_uses_order_id_fkey(
-          total_price,
-          status
-        )
-      `)
+      .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Erro na consulta de comissões:", error);
       throw error;
     }
 
-<<<<<<< HEAD
-    return data || [];
-=======
-    console.log("Dados brutos das comissões:", data);
+    if (!uses || uses.length === 0) {
+      return [];
+    }
 
-    // Normaliza os dados para garantir que o `partner` dentro de `coupon` seja um objeto e não um array
-    const normalizedCommissions = (data || []).map(commission => {
-      // Destruturar as propriedades originais
-      const { partner_coupons, orders, ...baseCommission } = commission;
-      
-      let normalizedCoupon = null;
-      let normalizedOrder = null;
-      
-      // Normalizar o coupon se existir
-      if (partner_coupons) {
-        const { users, ...couponWithoutUsers } = partner_coupons;
-        
-        let partnerData = null;
-        
-        // Verifica e normaliza os dados do partner
-        if (users) {
-          if (Array.isArray(users) && users.length > 0) {
-            partnerData = normalizeUserData(users[0]);
-          } else if (!Array.isArray(users)) {
-            partnerData = normalizeUserData(users);
-          }
-        }
-        
-        normalizedCoupon = {
-          ...couponWithoutUsers,
-          partner: partnerData
-        };
+    // Buscar cupons relacionados
+    const couponIds = [...new Set(uses.map(use => use.coupon_id))];
+    const { data: coupons, error: couponsError } = await supabase
+      .from("partner_coupons")
+      .select("*")
+      .in("id", couponIds);
+
+    // Buscar pedidos relacionados
+    const orderIds = [...new Set(uses.map(use => use.order_id))];
+    const { data: orders, error: ordersError } = await supabase
+      .from("orders")
+      .select("id, total_price, status")
+      .in("id", orderIds);
+
+    // Buscar informações dos usuários
+    const { data: userData, error: usersError } = await supabase.auth.admin.listUsers();
+
+    // Combinar todos os dados
+    return uses.map(use => {
+      const coupon = coupons?.find(c => c.id === use.coupon_id);
+      const order = orders?.find(o => o.id === use.order_id);
+      let partner = null;
+
+      if (coupon && userData && !usersError) {
+        partner = userData.users.find(user => user.id === coupon.partner_id) || null;
       }
-      
-      // Normalizar o order se existir
-      if (orders) {
-        normalizedOrder = orders;
-      }
-      
+
       return {
-        ...baseCommission,
-        coupon: normalizedCoupon,
-        order: normalizedOrder
+        ...use,
+        coupon: coupon ? {
+          ...coupon,
+          partner: partner ? { email: partner.email, full_name: partner.user_metadata?.full_name || null } : null
+        } : null,
+        order: order || null
       };
     });
-    
-    console.log("Comissões normalizadas:", normalizedCommissions);
-    
-    // Cast the normalized data to the proper type after ensuring it has the right structure
-    return normalizedCommissions as unknown as CouponUse[];
->>>>>>> 4203c1fc7c2fbb716de962f68dac62d2ea98383b
+
   } catch (error) {
     console.error("Erro ao buscar comissões de parceiros:", error);
     toast.error("Erro", {
