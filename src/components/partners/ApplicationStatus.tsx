@@ -1,10 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getUserApplications, PartnerApplication } from '@/services/partners/applicationService';
+import { getUserApplications } from '@/services/partners/applicationService';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { PartnerApplication } from '@/types/partners';
 
 type ApplicationStatusProps = {
   userId: string;

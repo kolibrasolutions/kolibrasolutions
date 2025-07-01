@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getUserApplications, reviewApplication, PartnerApplication } from '@/services/partners/applicationService';
+import { getPartnerApplications } from '@/services/admin/partnersManagement';
+import { reviewApplication } from '@/services/partners/applicationService';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
-import { createCoupon } from '@/services/partners/couponService';
 import { ApplicationReviewDialog } from './ApplicationReviewDialog';
 import { ptBR } from 'date-fns/locale';
 import { toast } from '@/components/ui/sonner';
+import { PartnerApplication } from '@/types/partners';
+import { getUserDisplay } from '@/utils/supabaseHelpers';
 
 export const PartnerApplicationsTable = () => {
   const queryClient = useQueryClient();
@@ -15,32 +17,29 @@ export const PartnerApplicationsTable = () => {
 
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ['partner-applications'],
-    queryFn: getUserApplications,
+    queryFn: getPartnerApplications,
   });
 
   const handleApprove = async (application: PartnerApplication) => {
-    // Primeiro aprova a solicitação
+    // Approves the application and relies on the database function to create the coupon
     const success = await reviewApplication(application.id, 'aprovado', '');
     
     if (success) {
-      // Create coupon for the partner with default values
-      await createCoupon(application.user_id, 10, 10);
-      
-      // Atualiza a lista de solicitações
+      // Update the applications list
       queryClient.invalidateQueries({ queryKey: ['partner-applications'] });
       
-      toast("Sucesso", {
-        description: "Solicitação aprovada e cupom criado com sucesso."
+      toast.success("Sucesso", {
+        description: "Solicitação aprovada com sucesso. Um cupom foi criado automaticamente para o parceiro."
       });
     }
   };
 
-  const handleReject = async (application: PartnerApplication, notes?: string) => {
+  const handleReject = async (application: PartnerApplication, notes: string) => {
     const success = await reviewApplication(application.id, 'rejeitado', notes || '');
     
     if (success) {
       queryClient.invalidateQueries({ queryKey: ['partner-applications'] });
-      toast("Sucesso", {
+      toast.success("Sucesso", {
         description: "Solicitação rejeitada com sucesso."
       });
     }
@@ -62,6 +61,11 @@ export const PartnerApplicationsTable = () => {
   // Separar aplicações pendentes e revisadas
   const pendingApplications = applications.filter(app => app.status === 'pendente');
   const reviewedApplications = applications.filter(app => app.status !== 'pendente');
+
+  // Function to display user email safely using the helper
+  const renderUserEmail = (application: PartnerApplication) => {
+    return getUserDisplay(application.user, application.user_id);
+  };
 
   return (
     <div className="space-y-8">
@@ -94,7 +98,9 @@ export const PartnerApplicationsTable = () => {
                         ? format(new Date(application.application_date), "dd/MM/yyyy", { locale: ptBR })
                         : "N/A"}
                     </td>
-                    <td className="py-3">{application.user_id}</td>
+                    <td className="py-3">
+                      {renderUserEmail(application)}
+                    </td>
                     <td className="py-3">{getStatusBadge(application.status)}</td>
                     <td className="py-3 text-right">
                       <div className="flex justify-end gap-2">
@@ -150,7 +156,9 @@ export const PartnerApplicationsTable = () => {
                         ? format(new Date(application.review_date), "dd/MM/yyyy", { locale: ptBR })
                         : "N/A"}
                     </td>
-                    <td className="py-3">{application.user_id}</td>
+                    <td className="py-3">
+                      {renderUserEmail(application)}
+                    </td>
                     <td className="py-3">{getStatusBadge(application.status)}</td>
                     <td className="py-3 text-right">
                       <div className="flex justify-end gap-2">

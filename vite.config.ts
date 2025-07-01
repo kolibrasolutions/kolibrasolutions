@@ -1,3 +1,4 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
@@ -14,6 +15,13 @@ export default defineConfig(({ mode }) => ({
     headers: {
       'Cache-Control': 'public, max-age=31536000',
     },
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      '.lovableproject.com',
+      '.lovable.app',
+      '4cdcc636-b4e5-4741-b7ff-1020ce3ff208.lovableproject.com'
+    ],
   },
   preview: {
     port: 8080,
@@ -27,27 +35,44 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Use exact module matching with $ to prevent partial matches
-      "react$": path.resolve(__dirname, "./node_modules/react"),
-      "react-dom$": path.resolve(__dirname, "./node_modules/react-dom"),
+      // ONLY these explicit aliases for React:
+      "react": path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
-    // Explicitly dedupe React to prevent multiple instances
-    dedupe: ['react', 'react-dom'],
-    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
+    // Dedupe all possible React import paths:
+    dedupe: [
+      "react",
+      "react-dom",
+      "react/jsx-runtime"
+    ],
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   },
   build: {
     rollupOptions: {
+      external: [],
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          query: ['@tanstack/react-query'],
+          ui: [
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-toast'
+          ]
         }
       }
-    },
+    }
   },
   optimizeDeps: {
-    include: ['react', 'react-dom'],
-    force: true, // Force optimization to ensure consistent versions
+    include: [
+      'react',
+      'react-dom',
+      'react/jsx-runtime',
+      '@tanstack/react-query'
+    ],
+    force: true,
+    exclude: [],
+    esbuildOptions: {
+      resolveExtensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
+    }
   },
 }));

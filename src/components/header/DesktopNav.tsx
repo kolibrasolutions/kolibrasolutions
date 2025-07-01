@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ShoppingCart, User } from 'lucide-react';
@@ -30,6 +29,8 @@ const DesktopNav: React.FC<DesktopNavProps> = ({
     <nav className="hidden md:flex items-center space-x-8">
       <Link to="/" className={`text-white hover:text-kolibra-orange ${location.pathname === '/' ? 'font-semibold text-kolibra-orange' : ''}`}>HOME</Link>
       <Link to="/servicos" className={`text-white hover:text-kolibra-orange ${location.pathname === '/servicos' ? 'font-semibold text-kolibra-orange' : ''}`}>SERVIÇOS</Link>
+      <Link to="/metodo" className={`text-white hover:text-kolibra-orange ${location.pathname === '/metodo' ? 'font-semibold text-kolibra-orange' : ''}`}>MÉTODO</Link>
+      <Link to="/sobre" className={`text-white hover:text-kolibra-orange ${location.pathname === '/sobre' ? 'font-semibold text-kolibra-orange' : ''}`}>SOBRE</Link>
       <Link to="/portfolio" className={`text-white hover:text-kolibra-orange ${location.pathname === '/portfolio' ? 'font-semibold text-kolibra-orange' : ''}`}>PORTFOLIO</Link>
       <Link to="/blog" className={`text-white hover:text-kolibra-orange ${location.pathname === '/blog' ? 'font-semibold text-kolibra-orange' : ''}`}>BLOG</Link>
       
