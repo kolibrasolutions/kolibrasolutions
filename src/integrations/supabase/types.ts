@@ -145,6 +145,11 @@ export type Database = {
           total_price: number
           updated_at: string | null
           user_id: string
+          budget_status: string | null
+          budget_approved_at: string | null
+          admin_notes: string | null
+          payment_plan: Json | null
+          current_installment: number | null
         }
         Insert: {
           coupon_id?: string | null
@@ -155,9 +160,14 @@ export type Database = {
           id?: number
           initial_payment_amount?: number | null
           status?: string
-          total_price: number
+          total_price?: number
           updated_at?: string | null
           user_id: string
+          budget_status?: string | null
+          budget_approved_at?: string | null
+          admin_notes?: string | null
+          payment_plan?: Json | null
+          current_installment?: number | null
         }
         Update: {
           coupon_id?: string | null
@@ -171,6 +181,11 @@ export type Database = {
           total_price?: number
           updated_at?: string | null
           user_id?: string
+          budget_status?: string | null
+          budget_approved_at?: string | null
+          admin_notes?: string | null
+          payment_plan?: Json | null
+          current_installment?: number | null
         }
         Relationships: [
           {
@@ -270,7 +285,10 @@ export type Database = {
           order_id: number
           payment_type: string
           status: string
-          stripe_payment_intent_id: string
+          pix_payment_id: string | null
+          qr_code: string | null
+          pix_key: string | null
+          installment_number: number | null
           updated_at: string | null
         }
         Insert: {
@@ -281,7 +299,10 @@ export type Database = {
           order_id: number
           payment_type: string
           status: string
-          stripe_payment_intent_id: string
+          pix_payment_id?: string | null
+          qr_code?: string | null
+          pix_key?: string | null
+          installment_number?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -292,7 +313,10 @@ export type Database = {
           order_id?: number
           payment_type?: string
           status?: string
-          stripe_payment_intent_id?: string
+          pix_payment_id?: string | null
+          qr_code?: string | null
+          pix_key?: string | null
+          installment_number?: number | null
           updated_at?: string | null
         }
         Relationships: [
@@ -378,8 +402,10 @@ export type Database = {
           id: number
           is_active: boolean | null
           name: string
-          price: number
-          stripe_product_id: string | null
+          price: number | null
+          is_package: boolean | null
+          package_items: Json | null
+          estimated_delivery_days: number | null
           updated_at: string | null
         }
         Insert: {
@@ -389,8 +415,10 @@ export type Database = {
           id?: number
           is_active?: boolean | null
           name: string
-          price: number
-          stripe_product_id?: string | null
+          price?: number | null
+          is_package?: boolean | null
+          package_items?: Json | null
+          estimated_delivery_days?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -400,8 +428,10 @@ export type Database = {
           id?: number
           is_active?: boolean | null
           name?: string
-          price?: number
-          stripe_product_id?: string | null
+          price?: number | null
+          is_package?: boolean | null
+          package_items?: Json | null
+          estimated_delivery_days?: number | null
           updated_at?: string | null
         }
         Relationships: []
