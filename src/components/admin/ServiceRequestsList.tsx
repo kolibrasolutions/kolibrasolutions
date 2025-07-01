@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -13,15 +12,34 @@ import { supabase } from '@/integrations/supabase/client';
 import { OrderType } from '@/types/admin';
 
 export const ServiceRequestsList = () => {
-  const queryClient = useQueryClient();
   const [selectedRequest, setSelectedRequest] = useState<OrderType | null>(null);
   const [budgetDialogOpen, setBudgetDialogOpen] = useState(false);
+  const [requests, setRequests] = useState<OrderType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: requests = [], isLoading, refetch } = useQuery({
-    queryKey: ['service-requests'],
-    queryFn: getServiceRequests,
-    refetchInterval: 30000, // Refetch every 30 seconds
-  });
+  const fetchRequests = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getServiceRequests();
+      setRequests(data);
+    } catch (error) {
+      console.error('Erro ao buscar solicitações:', error);
+      toast.error('Erro', {
+        description: 'Não foi possível carregar as solicitações. Tente novamente.'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Carregar solicitações ao montar o componente
+  useEffect(() => {
+    fetchRequests();
+
+    // Atualizar a cada 30 segundos
+    const interval = setInterval(fetchRequests, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleViewRequest = (request: OrderType) => {
     setSelectedRequest(request);
@@ -56,7 +74,7 @@ export const ServiceRequestsList = () => {
       });
 
       // Refresh the requests list
-      refetch();
+      fetchRequests();
       setBudgetDialogOpen(false);
       setSelectedRequest(null);
     } catch (error) {
@@ -74,7 +92,7 @@ export const ServiceRequestsList = () => {
         toast.success('Solicitação Rejeitada', {
           description: 'A solicitação foi rejeitada.'
         });
-        refetch();
+        fetchRequests();
       }
     } catch (error) {
       console.error('Erro ao rejeitar solicitação:', error);
@@ -150,7 +168,7 @@ export const ServiceRequestsList = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Solicitações de Orçamento</h2>
-        <Button onClick={() => refetch()} variant="outline" size="sm">
+        <Button onClick={fetchRequests} variant="outline" size="sm">
           Atualizar
         </Button>
       </div>
