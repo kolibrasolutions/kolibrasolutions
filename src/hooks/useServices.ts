@@ -5,7 +5,6 @@ import { toast } from '@/components/ui/sonner';
 
 export const useServices = () => {
   const [services, setServices] = useState<ServicePackage[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,7 +23,8 @@ export const useServices = () => {
           .from('services')
           .select('*')
           .eq('is_active', true)
-          .order('category');
+          .eq('is_package', true) // Apenas pacotes
+          .order('name');
           
         if (fetchError) throw fetchError;
         
@@ -48,10 +48,6 @@ export const useServices = () => {
           })) || [];
           
           setServices(formattedServices);
-          
-          // Extract unique categories
-          const uniqueCategories = Array.from(new Set((formattedServices || []).map(service => service.category)));
-          setCategories(uniqueCategories as string[]);
         }
       } catch (error) {
         console.error('Error fetching services:', error);
@@ -63,7 +59,6 @@ export const useServices = () => {
           });
           // Set empty arrays to prevent undefined errors
           setServices([]);
-          setCategories([]);
         }
       } finally {
         if (isMounted) {
@@ -80,16 +75,8 @@ export const useServices = () => {
     };
   }, []);
 
-  // Group services by category
-  const servicesByCategory = categories.map(category => ({
-    category,
-    items: services.filter(service => service.category === category)
-  }));
-
   return {
     services,
-    categories,
-    servicesByCategory,
     loading,
     error
   };
