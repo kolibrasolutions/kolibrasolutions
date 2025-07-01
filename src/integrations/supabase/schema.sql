@@ -22,4 +22,25 @@ $$;
 create trigger handle_updated_at
   before update on public.users
   for each row
+  execute procedure public.handle_updated_at();
+
+-- Criar a tabela de serviços
+create table if not exists public.services (
+  id serial primary key,
+  name text not null,
+  description text,
+  category text not null,
+  price decimal(10,2),
+  is_package boolean default false,
+  package_items jsonb,
+  estimated_delivery_days integer,
+  is_active boolean default true,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Criar o trigger para atualizar o timestamp em services
+create trigger handle_updated_at
+  before update on public.services
+  for each row
   execute procedure public.handle_updated_at(); 

@@ -1,110 +1,112 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import ServicePackageCard from '@/components/services/ServicePackageCard';
-
-const servicePackages = [
-  {
-    title: "Kolibra Visível – Presença Local",
-    icon: "📍",
-    description: "Aumente sua visibilidade no Google, redes sociais e canais locais.",
-    included: [
-      "Google Meu Negócio otimizado",
-      "Perfil no Instagram e WhatsApp",
-      "Link integrado de catálogo e contatos"
-    ],
-    result: "Mais visibilidade e clientes."
-  },
-  {
-    title: "Kolibra Rebrand – Identidade",
-    icon: "🎨",
-    description: "Criação ou reformulação completa da identidade da marca.",
-    included: [
-      "Logo e identidade visual",
-      "Manual da marca e tom de voz",
-      "Templates redes sociais",
-      "Manifesto e essência"
-    ],
-    result: "Marca memorável e profissional."
-  },
-  {
-    title: "Kolibra Express Site – Site/Loja Virtual",
-    icon: "🌐",
-    description: "Sites institucionais ou lojas prontas com plataforma amigável.",
-    included: [
-      "Site ou loja NuvemShop",
-      "Integração redes sociais e pagamentos",
-      "Layout exclusivo",
-      "Domínio & treinamento"
-    ],
-    result: "Presença digital autônoma e funcional."
-  },
-  {
-    title: "Kolibra Conteúdo – Estratégia",
-    icon: "📝",
-    description: "Conteúdo profissional e estratégico para redes sociais.",
-    included: [
-      "Posts feed e stories",
-      "Roteiro para reels/carrosséis",
-      "Planejamento mensal de conteúdo"
-    ],
-    result: "Crescimento orgânico e visibilidade constante."
-  },
-  {
-    title: "Kolibra Reels Studio / Foto",
-    icon: "🎬",
-    description: "Produção audiovisual profissional (vídeo e foto).",
-    included: [
-      "Gravação e edição de reels",
-      "Sessão de fotos profissional",
-      "Tratamento de imagens"
-    ],
-    result: "Vídeos e imagens que conectam e convertem."
-  },
-  {
-    title: "Kolibra Social Sales – Tráfego e Vendas",
-    icon: "📱",
-    description: "Estratégias para vendas diretas em redes sociais.",
-    included: [
-      "Catálogo de produtos integrado",
-      "Estratégias de funil digital",
-      "Otimização de rotas de compra/bio"
-    ],
-    result: "Mais vendas e funil eficiente Instagram/Facebook."
-  }
-];
+import { useAuth } from '@/hooks/useAuth';
+import { ServiceRequestDialog, ServiceRequestData } from '@/components/services/ServiceRequestDialog';
+import { submitServiceRequest } from '@/services/serviceRequestService';
+import { ServicePackage } from '@/types/orders';
+import { useServices } from '@/hooks/useServices';
+import ServiceCard from '@/components/services/ServiceCard';
+import FeaturedBanner from '@/components/services/FeaturedBanner';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Skeleton } from "@/components/ui/skeleton";
+import { AlertCircle } from 'lucide-react';
 
 const Services = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { servicesByCategory, loading, error } = useServices();
+  const [selectedService, setSelectedService] = useState<ServicePackage | null>(null);
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+
+  const handleServiceRequest = (service: ServicePackage) => {
+    if (!user) {
+      navigate('/login?returnUrl=/servicos');
+      return;
+    }
+    
+    setSelectedService(service);
+    setRequestDialogOpen(true);
+  };
+
+  const handleSubmitRequest = async (requestData: ServiceRequestData) => {
+    if (!user) return;
+    
+    const success = await submitServiceRequest(requestData, user.id);
+    if (success) {
+      setRequestDialogOpen(false);
+      setSelectedService(null);
+    }
+  };
+
   return (
     <Layout>
-      <section className="relative bg-gradient-to-br from-kolibra-blue/70 to-blue-100/60 py-14">
-        <div className="container mx-auto px-4 max-w-4xl text-center">
-          <h1 className="text-4xl font-bold text-white mb-5">Serviços Kolibra Solutions</h1>
-          <p className="text-xl text-white/90 mb-6">
-            Soluções digitais estratégicas para impulsionar negócios de verdade. Conheça nossos pacotes criados para gerar resultados, clareza de marca e crescimento digital sustentável.
-          </p>
-          <div className="flex flex-col items-center gap-4 mt-6">
-            <a href="/metodo" className="inline-block text-kolibra-orange underline font-semibold hover:text-kolibra-blue transition">Veja nosso método</a>
-            <a href="/sobre" className="inline-block text-kolibra-orange underline font-semibold hover:text-kolibra-blue transition">Sobre a Kolibra</a>
+      <div className="container mx-auto px-4 py-12">
+        <h1 className="text-4xl font-bold text-kolibra-blue mb-6">Nossos Serviços</h1>
+        
+        <FeaturedBanner />
+
+        {loading ? (
+          <div className="space-y-6">
+            <div className="py-4 px-3 bg-gray-100 rounded-lg mb-4">
+              <Skeleton className="h-8 w-48 mb-4" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+            <div className="py-4 px-3 bg-gray-100 rounded-lg mb-4">
+              <Skeleton className="h-8 w-48 mb-4" />
+              <Skeleton className="h-24 w-full" />
+            </div>
           </div>
-        </div>
-      </section>
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Nossos Pacotes Estratégicos</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {servicePackages.map((pkg) => (
-              <ServicePackageCard
-                key={pkg.title}
-                title={pkg.title}
-                icon={pkg.icon}
-                description={pkg.description}
-                included={pkg.included}
-                result={pkg.result}
-              />
+        ) : error ? (
+          <div className="text-center py-12 border border-red-200 rounded-lg bg-red-50">
+            <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-2" />
+            <div className="text-red-600 mb-2 text-lg font-semibold">Erro ao carregar serviços</div>
+            <p className="text-gray-600">{error}</p>
+            <p className="mt-4 text-sm text-gray-500">Por favor, tente novamente mais tarde ou entre em contato com o suporte.</p>
+          </div>
+        ) : !servicesByCategory || servicesByCategory.length === 0 ? (
+          <div className="text-center py-12 border border-gray-200 rounded-lg bg-gray-50">
+            <div className="text-gray-600 mb-2 text-lg">Nenhum serviço disponível</div>
+            <p className="text-gray-500">No momento não há serviços cadastrados.</p>
+          </div>
+        ) : (
+          <Accordion type="single" collapsible className="w-full" defaultValue="category-0">
+            {servicesByCategory.map((categoryGroup, index) => (
+              <AccordionItem key={index} value={`category-${index}`}>
+                <AccordionTrigger className="text-xl font-medium text-kolibra-blue">
+                  {categoryGroup.category}
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4">
+                    {categoryGroup.items.length > 0 ? (
+                      categoryGroup.items.map(service => (
+                        <ServiceCard 
+                          key={service.id} 
+                          service={service}
+                          onRequestQuote={handleServiceRequest}
+                          isLoggedIn={!!user}
+                        />
+                      ))
+                    ) : (
+                      <div className="text-center py-4 text-gray-500">
+                        Nenhum serviço disponível nesta categoria.
+                      </div>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </div>
-        </div>
-      </section>
+          </Accordion>
+        )}
+
+        {/* Service Request Dialog */}
+        <ServiceRequestDialog
+          service={selectedService}
+          open={requestDialogOpen}
+          onOpenChange={setRequestDialogOpen}
+          onSubmit={handleSubmitRequest}
+        />
+      </div>
     </Layout>
   );
 };

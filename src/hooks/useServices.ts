@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Service } from '@/types';
+import { ServicePackage } from '@/types/orders';
 import { toast } from '@/components/ui/sonner';
 
 export const useServices = () => {
-  const [services, setServices] = useState<Service[]>([]);
+  const [services, setServices] = useState<ServicePackage[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,11 +30,21 @@ export const useServices = () => {
         
         if (isMounted) {
           console.log('Services fetched successfully:', data);
-          // Make sure component is still mounted before updating state
-          // Convert API response to match our Service type (name -> title)
-          const formattedServices = data?.map(service => ({
-            ...service,
-            title: service.name, // Map name to title for compatibility
+          // Convert API response to match our ServicePackage type
+          const formattedServices: ServicePackage[] = data?.map(service => ({
+            id: service.id,
+            name: service.name,
+            description: service.description,
+            category: service.category,
+            price: service.price,
+            is_package: service.is_package || false,
+            package_items: service.package_items ? 
+              (Array.isArray(service.package_items) ? 
+                service.package_items.map(item => String(item)) : 
+                [String(service.package_items)]) : 
+              null,
+            estimated_delivery_days: service.estimated_delivery_days,
+            is_active: service.is_active || true
           })) || [];
           
           setServices(formattedServices);

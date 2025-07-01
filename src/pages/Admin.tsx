@@ -1,5 +1,5 @@
 import { PartnersManagement } from '@/components/admin/partners';
-import { Users, FileBox, Inbox, PenTool, HandshakeIcon } from 'lucide-react';
+import { Users, FileBox, Inbox, PenTool, HandshakeIcon, MessageSquare } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -12,11 +12,12 @@ import { OrderFilters } from '@/components/admin/OrderFilters';
 import { useAdminOrders } from '@/hooks/useAdminOrders';
 import { BlogPostsList } from '@/components/admin/blog/BlogPostsList';
 import { PortfolioProjectsList } from '@/components/admin/portfolio/PortfolioProjectsList';
+import { ServiceRequestsList } from '@/components/admin/ServiceRequestsList';
 
 const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
-  const [activeTab, setActiveTab] = useState("orders");
+  const [activeTab, setActiveTab] = useState("requests");
   const navigate = useNavigate();
   
   const {
@@ -120,6 +121,10 @@ const Admin = () => {
         
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-8">
+            <TabsTrigger value="requests" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Solicitações
+            </TabsTrigger>
             <TabsTrigger value="orders" className="flex items-center gap-2">
               <Inbox className="h-4 w-4" />
               Pedidos
@@ -137,6 +142,10 @@ const Admin = () => {
               Portfólio
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="requests">
+            <ServiceRequestsList />
+          </TabsContent>
 
           <TabsContent value="orders">
             <div className="space-y-6">
